@@ -88,7 +88,7 @@ namespace Admo
                     startup_stage5 = true;
 
                     String pc_name = Environment.MachineName;
-                    if ((pc_name != "SMARTWALL3") && (pc_name != "ADMO3-PC"))
+                    if ((pc_name != "SMARTWALL3"))// && (pc_name != "ADMO3-PC"))
                     {
                         LifeCycle.Internet_On();
                     }
