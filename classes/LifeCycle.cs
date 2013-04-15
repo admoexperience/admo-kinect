@@ -63,7 +63,7 @@ namespace Admo
                     Process.Start(startup_url + "/" + app_name);
                     //start websocket server
                     startup_stage3 = true;
-                    SocketServer.Start_SocketIOClient("localhost");                    
+                    SocketServer.Start_SocketIOClient(startup_url);                    
                     SocketServer.server_running = true;
 
                     Application_Handler.fov_top = 28 * 2;
@@ -80,11 +80,7 @@ namespace Admo
                 else if ((time_diff > 40000) && (startup_stage5 == false))
                 {
                     //use mousedriver to allow for webcam            
-                    MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
-                    System.Threading.Thread.Sleep(100);
-                    MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, true);
-                    System.Threading.Thread.Sleep(100);
-                    MouseDriver.SendMouseInput(1920, 50, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
+                    MouseDriver.AllowCameraAccess();
                     startup_stage5 = true;
 
                     String pc_name = Environment.MachineName;
@@ -101,14 +97,9 @@ namespace Admo
                 running_in_dev = true;
                 if ((time_diff > 10) && (startup_stage1 == false))
                 {
-                    if (MainWindow.pc_name == "SMARTWALL3")
-                    {
-                        SocketServer.Start_SocketIOClient("10.10.10.191");
-                    }
-                    else
-                    {
-                        SocketServer.Start_SocketIOClient("localhost");
-                    }
+
+                    SocketServer.Start_SocketIOClient(startup_url);
+
                     SocketServer.server_running = true;
                     Application_Handler.fov_top = 28 * 2;
                     Application_Handler.fov_left = 26 * 2;

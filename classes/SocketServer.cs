@@ -35,7 +35,6 @@ namespace Admo
         //Websocket client setup for communication between Node server and .NET
         public static void Start_SocketIOClient(String server)
 		{
-            server = "http://" + server + ":3000";
 
 			Console.WriteLine("Starting SocketIOClient Example........");
 
@@ -101,6 +100,12 @@ namespace Admo
                     double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
                     LifeCycle.browser_time  = current_time;
                     Send_App("host-" + MainWindow.pc_name);
+                }
+                else if (str2 == "reloaded") {
+                    //Start up stage 5 is "allowing camera access"
+                    //This needs to be done in a different thread so set the var
+                    //so next cycle will accept camera access
+                    LifeCycle.startup_stage5 = false;
                 }
                 else if ((user_start == true) && (str2 != "start"))
                 {
