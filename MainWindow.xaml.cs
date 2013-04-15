@@ -74,6 +74,10 @@ namespace Admo
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
+            //start and stop old kinect sensor kinect sensor
+            KinectSensor sensor1 = KinectSensor.KinectSensors[0];
+            sensor1.Stop();
+
             //get active directory to which files can be writen and read
             GetDirectoryPath();
             //start system monitoring
@@ -92,7 +96,14 @@ namespace Admo
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
         {
 
-            
+            //get kinect sensor
+            kinect = KinectSensor.KinectSensors[0];
+            //stop any previous kinect session
+            StopKinect(kinect);
+            if (kinect == null)
+            {
+                return;
+            }
 
             //Kinect filter parameters
             var parameters = new TransformSmoothParameters
@@ -121,9 +132,8 @@ namespace Admo
                     // E.g.: sensor might be abruptly unplugged.
                     error = true;
                 }
-            }            
-
-            if (args.NewSensor != null)
+            }       
+            else //if (args.NewSensor != null)
             {                
                 try
                 {
@@ -194,14 +204,14 @@ namespace Admo
                     // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
                     // E.g.: sensor might be abruptly unplugged.
                 }
-                
-            }
 
-            if (!error)
-            {
-                kinectRegion.KinectSensor = args.NewSensor;
-              
-            }
+                if (!error)
+                {
+                    kinectRegion.KinectSensor = args.NewSensor;
+
+                }
+                
+            }           
 
             
            
