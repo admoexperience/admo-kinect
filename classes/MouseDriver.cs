@@ -10,7 +10,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
-
+using System.Windows;
 namespace Admo
 {
 	internal struct MouseInput
@@ -67,6 +67,14 @@ namespace Admo
         public static void Hide()
         {
             ShowCursor(false);
+        }
+
+        public static void AllowCameraAccess() {
+            MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
+            System.Threading.Thread.Sleep(100);
+            MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, true);
+            System.Threading.Thread.Sleep(100);
+            MouseDriver.SendMouseInput(1920, 50, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
         }
 
 
