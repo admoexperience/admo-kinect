@@ -79,12 +79,13 @@ namespace Admo
                 }
                 else if ((time_diff > 40000) && (startup_stage5 == false))
                 {
+                    
                     //use mousedriver to allow for webcam            
                     MouseDriver.AllowCameraAccess();
                     startup_stage5 = true;
 
                     String pc_name = Environment.MachineName;
-                    if ((pc_name != "SMARTWALL3"))// && (pc_name != "ADMO3-PC"))
+                    if ((pc_name != "SMARTWALL3") && (pc_name != "ADMO3-PC"))
                     {
                         LifeCycle.Internet_On();
                     }
@@ -313,11 +314,7 @@ namespace Admo
             else if ((time_diff > 10000) && (restart_stage5 == false))
             {
                 //use mousedriver to allow for webcam            
-                MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
-                System.Threading.Thread.Sleep(100);
-                MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, true);
-                System.Threading.Thread.Sleep(100);
-                MouseDriver.SendMouseInput(1920, 50, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
+                MouseDriver.AllowCameraAccess();
                 restart_stage5 = true;
                 restart_browser = false;
             }                                         
