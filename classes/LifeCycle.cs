@@ -87,7 +87,7 @@ namespace Admo
                     String pc_name = Environment.MachineName;
                     if ((pc_name != "SMARTWALL3") && (pc_name != "ADMO3-PC"))
                     {
-                        LifeCycle.Internet_On();
+                        LifeCycle.TurnInternetOn();
                     }
                 }                                            
 
@@ -346,10 +346,14 @@ namespace Admo
 
         }
 
-        public static void Internet_On()
+        // Only launches the MTN start up link once.
+        public static void TurnInternetOn()
         {
+            if (!internet_on)
+            {
                 Process.Start(@"c:\Users\Public\Desktop\MTN.lnk");
-                internet_on = true; 
+                internet_on = true;
+            }
         }
 
         //restart PC
