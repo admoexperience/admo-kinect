@@ -83,12 +83,6 @@ namespace Admo
                     //use mousedriver to allow for webcam            
                     MouseDriver.AllowCameraAccess();
                     startup_stage5 = true;
-
-                    String pc_name = Environment.MachineName;
-                    if ((pc_name != "SMARTWALL3") && (pc_name != "ADMO3-PC"))
-                    {
-                        LifeCycle.TurnInternetOn();
-                    }
                 }                                            
 
                 
@@ -119,47 +113,6 @@ namespace Admo
             }           
                         
             
-        }
-
-        //manage 3G internet connection
-        public static bool internet_on = false;
-        public static void Manage_Internet()
-        {
-
-            String datetime = DateTime.Now.ToString("HH:mm:ss tt");
-            int hour = Convert.ToInt32(datetime.Substring(0, 2));
-            int min = Convert.ToInt32(datetime.Substring(3, 2));
-
-            //start 3G connection
-            if ((hour == 23) && (min == 10) && (internet_on == false))
-            {
-                Process.Start(@"c:\Users\Public\Desktop\MTN.lnk");
-                internet_on = true;
-                //Start MTN 3G Connection
-            }
-            //terminate 3G connection
-            else if ((hour == 23) && (min == 55) && (internet_on == true))
-            {
-                var wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter " +
-                                       "WHERE NetConnectionId != null " +
-                                       "AND Manufacturer != 'Microsoft' ");
-                using (var searcher = new ManagementObjectSearcher(wmiQuery))
-                {
-                    foreach (ManagementObject item in searcher.Get())
-                    {                        
-                        if (((String)item["NetConnectionId"]) == "Mobile Broadband Connection")
-                        {
-                            using (item)
-                            {
-                                item.InvokeMethod("Disable", null);
-                                item.InvokeMethod("Enable", null);
-                                internet_on = false;
-                            }
-                        }
-                    }
-                }
-            }
-
         }
 
         public static StreamWriter objWriter;
@@ -320,56 +273,19 @@ namespace Admo
             }                                         
         }
 
-        public static void Internet_Off()
-        {
-            if (internet_on == true)
-            {
-                var wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter " +
-                                       "WHERE NetConnectionId != null " +
-                                       "AND Manufacturer != 'Microsoft' ");
-                using (var searcher = new ManagementObjectSearcher(wmiQuery))
-                {
-                    foreach (ManagementObject item in searcher.Get())
-                    {
-                        if (((String)item["NetConnectionId"]) == "Mobile Broadband Connection")
-                        {
-                            using (item)
-                            {
-                                item.InvokeMethod("Disable", null);
-                                item.InvokeMethod("Enable", null);
-                                internet_on = false;
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        // Only launches the MTN start up link once.
-        public static void TurnInternetOn()
-        {
-            if (!internet_on)
-            {
-                Process.Start(@"c:\Users\Public\Desktop\MTN.lnk");
-                internet_on = true;
-            }
-        }
-
         //restart PC
         public static void Restart()
         {
             String datetime = DateTime.Now.ToString("HH:mm:ss tt");
-            int hour = Convert.ToInt32(datetime.Substring(0,2));
-            int min = Convert.ToInt32(datetime.Substring(3,2));
+            int hour = Convert.ToInt32(datetime.Substring(0, 2));
+            int min = Convert.ToInt32(datetime.Substring(3, 2));
 
             if ((hour == 20) && (min == 59))
             {
-                Internet_Off();
                 Process.Start("shutdown.exe", "/r /t 10");
                 Application.Current.Windows[0].Close();
                 Console.WriteLine(Application.Current.Windows.Count);
-            }            
+            }
         }
 
     }
