@@ -116,13 +116,14 @@ namespace Admo
             };
 
             bool error = false;
+            
             if (args.OldSensor != null)
             {
                 try
                 {
                     Console.WriteLine("old sensor active");
-                    args.OldSensor.DepthStream.Range = DepthRange.Default;
-                    args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
+                    //args.OldSensor.DepthStream.Range = DepthRange.Default;
+                    //args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
                     args.OldSensor.DepthStream.Disable();
                     args.OldSensor.SkeletonStream.Disable();
                 }
@@ -134,7 +135,7 @@ namespace Admo
                 }
             }       
             else //if (args.NewSensor != null)
-            {                
+            {           
                 try
                 {
 
@@ -145,28 +146,15 @@ namespace Admo
 
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-                        
-                    //check whether we are using Kinect for Windows or Xbox Kinect
-                    try
-                    {                        
-                        args.NewSensor.DepthStream.Range = DepthRange.Near;
-                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;                          
-                        kinect_type = "kinect for windows";                        
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        kinect_type = "xbox kinect";                        
-                    }
-
-
-                    this.depthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
-                    
+                    //only enable RGB camera if facetracking or dev-mode is enabled
                     if (running_facetracking || (operating_mode == "dev"))
                     {
                         args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                         this.colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
-                    }
-
+                    }                       
+                       
+                    //setup short containing depth data
+                    this.depthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
                     // This is the bitmap we'll display on-screen
                     this.colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                     
@@ -197,6 +185,20 @@ namespace Admo
                     {
                         //this.sensorChooser.AppConflictOccurred();
                     }
+
+                    //check whether we are using Kinect for Windows or Xbox Kinect
+                    try
+                    {
+                        args.NewSensor.DepthStream.Range = DepthRange.Near;
+                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
+                        kinect_type = "kinect for windows";
+                        Console.WriteLine(kinect_type);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        kinect_type = "xbox kinect";
+                        Console.WriteLine(kinect_type);
+                    } 
                 }
                 catch (InvalidOperationException)
                 {
@@ -209,11 +211,8 @@ namespace Admo
                 {
                     kinectRegion.KinectSensor = args.NewSensor;
 
-                }
-                
-            }           
-
-            
+                }                
+            }            
            
         }
 
