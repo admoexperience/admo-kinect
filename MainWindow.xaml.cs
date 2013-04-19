@@ -768,22 +768,6 @@ namespace Admo
             }
         }
 
-        //log user session data in cvs file
-        public static void RecordData(String message)
-        {
-            try
-            {
-                objWriter = File.AppendText(path);
-                objWriter.WriteLine(message);
-                objWriter.Close();
-            }
-            catch (Exception et)
-            {
-            }
-
-        }
-
-
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //this.sensorChooser.Stop();

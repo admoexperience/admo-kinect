@@ -107,21 +107,6 @@ namespace Admo
                     //so next cycle will accept camera access
                     LifeCycle.startup_stage5 = false;
                 }
-                else if ((user_start == true) && (str2 != "start"))
-                {
-                    Console.WriteLine("movie being watched : " + str2);
-                    selections[selection_count] = str2;
-                    selection_count++;
-                }
-                else
-                {
-                    Console.WriteLine(str2);
-                    user_start = true;
-                    selection_count = 0;
-                }
-                
-                
-
             }
             catch (Exception et)
             {

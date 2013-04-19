@@ -216,21 +216,6 @@ namespace Admo
                 stopwatch.Stop();
                 int time_elasped = Convert.ToInt32(stopwatch.Elapsed.TotalSeconds);
                 
-
-                String message = Convert.ToString(time_elasped) + "," + DateTime.Now.ToString() + "," + LifeCycle.app_name;
-                
-                int count_to = SocketServer.selection_count;
-
-                for (int t = 0; t < count_to; t++)
-                {
-                    message = message + "," + SocketServer.selections[t];
-                }
-                
-
-                Console.WriteLine(message);
-                if (time_elasped > 1)
-                    MainWindow.RecordData(message);
-
                 stopwatch.Reset();
 
                 SocketServer.user_start = false;
