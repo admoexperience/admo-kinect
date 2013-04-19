@@ -92,7 +92,7 @@ namespace Admo
                 first = first + 9;
                 int last = tempMessage.LastIndexOf("\"");
                 string str2 = tempMessage.Substring(first, last - first-2);
-                Console.WriteLine(str2);
+                //Console.WriteLine(str2);
                 
                 if (str2 == "alive")
                 {
