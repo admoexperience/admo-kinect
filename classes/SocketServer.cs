@@ -98,15 +98,14 @@ namespace Admo
                 if (str2 == "alive")
                 {
                     //receive "alive" ping message from browser
-                    double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-                    LifeCycle.browser_time  = current_time;
+                    LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
                     Send_App("host-" +Config.GetHostName());
                 }
                 else if (str2 == "reloaded") {
                     //Start up stage 5 is "allowing camera access"
                     //This needs to be done in a different thread so set the var
                     //so next cycle will accept camera access
-                    LifeCycle.startup_stage5 = false;
+                    LifeCycle.StartupStage5 = false;
                 }
             }
             catch (Exception et)
