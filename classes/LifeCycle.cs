@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Management;
 using System.DirectoryServices;
 using System.IO;
+using Admo.classes;
 using Microsoft.Kinect;
 using NLog;
 
@@ -17,7 +18,7 @@ namespace Admo
 {
     class LifeCycle
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         double screen_width = SystemParameters.PrimaryScreenWidth;
         double screen_height = SystemParameters.PrimaryScreenHeight;
         public static double startup_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
@@ -31,17 +32,23 @@ namespace Admo
         public static bool restart_stage3 = false;
         public static bool restart_stage4 = false;
         public static bool restart_stage5 = false;
-        public static String startup_url = "http://localhost:3000";
-        public static bool running_in_dev = false;
 
-        public static String newDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
-        public static void Startup(String mode)
+        public static String status_path;
+        public static String elevation_path;
+        public static String app_path;
+        public static double browser_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static bool monitor_write = true;
+        public static bool restart_browser = false;
+        public static String app_name = "demo";
+        
+
+        public static void Startup()
         {
             double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
             double time_diff = current_time - startup_time;
                         
-            if (mode != "dev")
+            if (! Config.IsDevMode())
             {
                 if ((time_diff > 10000)&&(startup_stage1 == false))
                 {
@@ -53,19 +60,17 @@ namespace Admo
                 else if ((time_diff > 20000)&&(startup_stage2 == false))
                 {
                     KeyboardDriver.Exit();
-                    objReader = new StreamReader(app_path);
-                    app_name = objReader.ReadLine();
-                    objReader.Close();
+                    app_name = Config.GetCurrentApp();
                     startup_stage2 = true;                    
                 }
                 else if ((time_diff > 25000) && (startup_stage3 == false))
                 {
                     //Start default browser (Chrome)
                     //startup_url = startup_url + "/" + app_name;
-                    Process.Start(startup_url + "/" + app_name);
+                    Process.Start(Config.GetStartUpUrl() + "/" + app_name);
                     //start websocket server
                     startup_stage3 = true;
-                    SocketServer.Start_SocketIOClient(startup_url);                    
+                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());                    
                     SocketServer.server_running = true;
 
                     Application_Handler.fov_top = 28 * 2;
@@ -91,11 +96,10 @@ namespace Admo
             }
             else
             {
-                running_in_dev = true;
                 if ((time_diff > 10) && (startup_stage1 == false))
                 {
 
-                    SocketServer.Start_SocketIOClient(startup_url);
+                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());
 
                     SocketServer.server_running = true;
                     Application_Handler.fov_top = 28 * 2;
@@ -104,9 +108,8 @@ namespace Admo
                     Application_Handler.fov_width = 205 * 2 * 4 / 3;
                     startup_stage1 = true;
 
-                    objReader = new StreamReader(app_path);
-                    app_name = objReader.ReadLine();
-                    objReader.Close();
+
+                    app_name = Config.GetCurrentApp();
                 }
                 else if ((time_diff > 20000) && (startup_stage2 == false))
                 {
@@ -117,29 +120,21 @@ namespace Admo
             
         }
 
-        public static StreamWriter objWriter;
-        public static StreamReader objReader;
-        public static String status_path;
-        public static String elevation_path;
-        public static String app_path;
+     
+
+
         public static void Activate_Monitor()
         {
-           
-            String mac_path = Environment.MachineName;
-
-            String tmpPath = newDropboxFolder + mac_path;
-            log.Debug("Using new dropbox location at [" + newDropboxFolder + "]");
+            String hostName = Config.GetHostName();
+            String tmpPath = Config.GetBaseConfigPath() + hostName;
+            Log.Debug("Using new dropbox location at [" + tmpPath + "]");
             status_path = tmpPath + @"\Status.txt";
             app_path = tmpPath + @"\App.txt";
             elevation_path = tmpPath + @"\Elevation.txt";
             
-            
         }
 
-        public static double browser_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-        public static bool monitor_write = true;
-        public static bool restart_browser = false;
-        public static String app_name = "demo";
+        
         public static void Monitor()
         {
             double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
@@ -154,7 +149,7 @@ namespace Admo
             {
                 try
                 {
-                    objWriter = new StreamWriter(status_path);
+                    StreamWriter objWriter = new StreamWriter(status_path);
                     objWriter.WriteLine(DateTime.Now.ToString());
                     objWriter.Close();
                     monitor_write = false;
@@ -173,7 +168,7 @@ namespace Admo
             if ((startup_stage5 == true) && (restart_browser == false))
             {
 
-                if ((time_diff > 30000) && (restart_browser == false) && (running_in_dev==false))
+                if ((time_diff > 30000) && (restart_browser == false) && (!Config.IsDevMode()))
                 {
                     restart_stage1 = false;
                     restart_stage2 = false;
@@ -187,13 +182,12 @@ namespace Admo
                 //Monitor which app is supposed to be run
                 try
                 {
-                    objReader = new StreamReader(app_path);
-                    String temp_app_name = objReader.ReadLine();
-                    objReader.Close();
-                    if (app_name != temp_app_name)
+
+                    String tempAppName = Config.GetCurrentApp();
+                    if (app_name != tempAppName)
                     {
-                        log.Info("Changing app from [" + app_name + "] to [" + temp_app_name + "]");
-                        app_name = temp_app_name;
+                        Log.Info("Changing app from [" + app_name + "] to [" + tempAppName + "]");
+                        app_name = tempAppName;
                         restart_stage1 = false;
                         restart_stage2 = false;
                         restart_stage3 = false;
@@ -239,7 +233,7 @@ namespace Admo
                 //Start default browser (Chrome)
                 restart_stage3 = true;
                 //startup_url = startup_url + "/" + app_name;
-                Process.Start(startup_url + "/" + app_name);
+                Process.Start(Config.GetStartUpUrl() + "/" + app_name);
                 //start websocket server                
             }
             else if ((time_diff > 8000) && (restart_stage4 == false))
@@ -268,7 +262,7 @@ namespace Admo
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 Application.Current.Windows[0].Close();
-                log.Info(Application.Current.Windows.Count);
+                Log.Info(Application.Current.Windows.Count);
             }
         }
 

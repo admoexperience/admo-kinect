@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Admo.classes;
 using Microsoft.Kinect;
 using System.Runtime.InteropServices;
 using System.Drawing;
@@ -30,7 +31,7 @@ namespace Admo
 {
     public class SocketServer
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         public static Client socket;
         public static bool server_running = false;
 
@@ -38,7 +39,7 @@ namespace Admo
         public static void Start_SocketIOClient(String server)
 		{
 
-			log.Info("Starting SocketIOClient server");
+			Log.Info("Starting SocketIOClient server");
 
             socket = new Client(server); // url to the nodejs / socket.io instance
 
@@ -52,7 +53,7 @@ namespace Admo
 			socket.Connect();
             var logger = socket.Connect("/life"); // connect to the logger ns                
             
-            socket.On("connect", (fn) => log.Debug("********" + fn.RawMessage));
+            socket.On("connect", (fn) => Log.Debug("********" + fn.RawMessage));
 
             /*            
            //http://stackoverflow.com/questions/12207600/socketio4net-client-subscribing-to-a-channel
@@ -99,7 +100,7 @@ namespace Admo
                     //receive "alive" ping message from browser
                     double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
                     LifeCycle.browser_time  = current_time;
-                    Send_App("host-" + MainWindow.pc_name);
+                    Send_App("host-" +Config.GetHostName());
                 }
                 else if (str2 == "reloaded") {
                     //Start up stage 5 is "allowing camera access"
