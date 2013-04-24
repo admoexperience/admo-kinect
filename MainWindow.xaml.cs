@@ -39,14 +39,11 @@ namespace Admo
         Skeleton old_first;
         public KinectSensor kinect;
         public static String kinect_type;
-        //kinect elevation angle
-        public static int elevation_angle = 0;
    
         //drawing variables
         public static int face_x = 700;
         public static int face_y = 1000;
-        //variable dictating whether facetracking is activated
-        public bool running_facetracking = false;
+       
 
 
         /// <summary>
@@ -80,8 +77,7 @@ namespace Admo
 
             //start system monitoring
             LifeCycle.Activate_Monitor();
-            //calibrate elevation angle of kinect
-            Calibrate_Kinect();
+  
 
             // initialize the sensor chooser and UI
             this.sensorChooser = new KinectSensorChooser();
@@ -145,7 +141,7 @@ namespace Admo
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     //only enable RGB camera if facetracking or dev-mode is enabled
-                    if (running_facetracking || Config.IsDevMode())
+                    if (Config.RunningFacetracking || Config.IsDevMode())
                     {
                         args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                         this.colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
@@ -177,10 +173,11 @@ namespace Admo
                     try
                     {
                         args.NewSensor.Start();
-                        args.NewSensor.ElevationAngle = elevation_angle;
+                        args.NewSensor.ElevationAngle = Config.GetElevationAngle();
                     }
-                    catch (System.IO.IOException)
+                    catch (System.IO.IOException ioe)
                     {
+                        Log.Error(ioe);
                         //this.sensorChooser.AppConflictOccurred();
                     }
 
@@ -247,7 +244,7 @@ namespace Admo
             try
             {
 
-                if (Config.IsDevMode()||running_facetracking)
+                if (Config.IsDevMode()|| Config.RunningFacetracking)
                 {
                     colorFrame = e.OpenColorImageFrame();
                     depthFrame = e.OpenDepthImageFrame();
@@ -258,7 +255,7 @@ namespace Admo
                         return;
                     }
 
-                    if (running_facetracking)
+                    if (Config.RunningFacetracking)
                     {
                         // Check for changes in any of the data this function is receiving
                         // and reset things appropriately.
@@ -298,7 +295,7 @@ namespace Admo
                     LifeCycle.Monitor();
                 }
 
-                if ((colorFrame != null)&&((running_facetracking)|| Config.IsDevMode()))
+                if ((colorFrame != null)&&((Config.RunningFacetracking)|| Config.IsDevMode()))
                 {
                     DisplayVideo(colorFrame);
                 }
@@ -345,7 +342,7 @@ namespace Admo
                         //Manage the Elevation Angle of the Kinect
                         //Application_Handler.ChangeAngle(kinect);                        
                         
-                        if ((coordinates[19] > 0.9)&&(running_facetracking))
+                        if ((coordinates[19] > 0.9)&&(Config.RunningFacetracking))
                         {
                             if (old_first == null)
                             {
@@ -724,19 +721,6 @@ namespace Admo
         //public static Stopwatch stopwatch = new Stopwatch();
         public static StreamWriter objWriter;
         public static StreamReader objReader;
-
-        void Calibrate_Kinect()
-        {
-            if (LifeCycle.elevation_path != null)
-            {
-                objReader = new StreamReader(LifeCycle.elevation_path);
-                String temp = objReader.ReadLine();
-                objReader.Close();
-                int angle = Convert.ToInt32(temp);
-                elevation_angle = angle;
-                Console.WriteLine("elevation path: " + elevation_angle);
-            }
-        }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {

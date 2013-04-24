@@ -10,10 +10,13 @@ namespace Admo.classes
 {
     class Config
     {
-        private Logger log = LogManager.GetCurrentClassLogger();
+        private static Logger Log = LogManager.GetCurrentClassLogger();
         private const bool RunningInDev = false;
         public static StreamWriter objWriter;
         public static StreamReader objReader;
+
+        //variable dictating whether facetracking is activated
+        public static readonly bool RunningFacetracking = false;
         
         private const String StartUpUrl = @"http://localhost:3000";
 
@@ -45,6 +48,17 @@ namespace Admo.classes
             var appName = objReader.ReadLine();
             objReader.Close();
             return appName;
+        }
+
+        public static int GetElevationAngle()
+        {
+            objReader = new StreamReader(LifeCycle.elevation_path);
+            String temp = objReader.ReadLine();
+            objReader.Close();
+            int elevationAngle = Convert.ToInt32(temp);
+            Log.Info("elevation path: " + elevationAngle);
+            return elevationAngle;
+
         }
     }
 }
