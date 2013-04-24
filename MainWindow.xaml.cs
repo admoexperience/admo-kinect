@@ -729,24 +729,11 @@ namespace Admo
         public static String pc_name = "";
         void GetDirectoryPath()
         {
-            var dbPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dropbox\\host.db");
-            var dbBase64Text = Convert.FromBase64String(System.IO.File.ReadAllText(dbPath));
-            var folderPath = System.Text.ASCIIEncoding.ASCII.GetString(dbBase64Text);
-            String mac_path = pc_name = Environment.MachineName;
-            path = Convert.ToString(folderPath) + @"\Interactive Advertising\Software\User Data\" + mac_path;
-            int path_start = path.IndexOf("C");
-            path = path.Substring(path_start);
+              String mac_path = pc_name = Environment.MachineName;
+           
 
-            bool IsExists = System.IO.Directory.Exists(path);
-            if (!IsExists)
-                System.IO.Directory.CreateDirectory(path);
-
-            bool NewSystem = System.IO.Directory.Exists(LifeCycle.newDropboxFolder + mac_path);
-            if (NewSystem)
-            {
-                path = LifeCycle.newDropboxFolder + mac_path;
-            }
-
+        
+            path = LifeCycle.newDropboxFolder + mac_path;
             path = path + @"\Userdata.csv";
 
             if ((mac_path != "SMARTWALLDEV-PC") && (mac_path != "SMARTWALL3"))

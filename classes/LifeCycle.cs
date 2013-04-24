@@ -11,11 +11,13 @@ using System.Management;
 using System.DirectoryServices;
 using System.IO;
 using Microsoft.Kinect;
+using NLog;
 
 namespace Admo
 {
     class LifeCycle
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
         double screen_width = SystemParameters.PrimaryScreenWidth;
         double screen_height = SystemParameters.PrimaryScreenHeight;
         public static double startup_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
@@ -122,32 +124,14 @@ namespace Admo
         public static String app_path;
         public static void Activate_Monitor()
         {
-            var dbPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dropbox\\host.db");
-            var dbBase64Text = Convert.FromBase64String(System.IO.File.ReadAllText(dbPath));
-            var folderPath = System.Text.ASCIIEncoding.ASCII.GetString(dbBase64Text);
+           
             String mac_path = Environment.MachineName;
-            String temp_path = Convert.ToString(folderPath) + @"\Interactive Advertising\Software\Monitoring\" + mac_path;
-            int path_start = temp_path.IndexOf("C");
-            temp_path = temp_path.Substring(path_start);
 
-            bool IsExists = System.IO.Directory.Exists(temp_path);
-            if (!IsExists)
-                System.IO.Directory.CreateDirectory(temp_path);
-
-            bool NewSystem = System.IO.Directory.Exists(newDropboxFolder + mac_path);
-            if (NewSystem)
-            {
-                Console.WriteLine("Using new dropbox location at [" + newDropboxFolder + "]");
-                temp_path = newDropboxFolder + mac_path;
-            }
-            else 
-            {
-                Console.WriteLine("Using old dropbox location at [" + temp_path + "]");
-            }
-
-            status_path = temp_path + @"\Status.txt";
-            app_path = temp_path + @"\App.txt";
-            elevation_path = temp_path + @"\Elevation.txt";
+            String tmpPath = newDropboxFolder + mac_path;
+            log.Debug("Using new dropbox location at [" + newDropboxFolder + "]");
+            status_path = tmpPath + @"\Status.txt";
+            app_path = tmpPath + @"\App.txt";
+            elevation_path = tmpPath + @"\Elevation.txt";
             
             
         }
@@ -208,7 +192,7 @@ namespace Admo
                     objReader.Close();
                     if (app_name != temp_app_name)
                     {
-                        Console.WriteLine("Changing app from ["+app_name+"] to ["+temp_app_name+"]");
+                        log.Info("Changing app from [" + app_name + "] to [" + temp_app_name + "]");
                         app_name = temp_app_name;
                         restart_stage1 = false;
                         restart_stage2 = false;
@@ -284,7 +268,7 @@ namespace Admo
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 Application.Current.Windows[0].Close();
-                Console.WriteLine(Application.Current.Windows.Count);
+                log.Info(Application.Current.Windows.Count);
             }
         }
 
