@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Microsoft.Kinect;
 using System.Windows;
+using NLog;
 
 namespace Admo
 {
     class Application_Handler
     {
-       
+
+        private static Logger log = LogManager.GetCurrentClassLogger();
         
         public static int mode_button = 10;
         public static String toggle = "gestures";
@@ -184,7 +186,7 @@ namespace Admo
                         if ((SocketServer.user_start == true)&&(stopwatch.IsRunning!=true))
                         {
                             stopwatch.Start();
-                            Console.WriteLine("stopwatch start");
+                            log.Debug("stopwatch start");
                         }
                         
                     }
@@ -290,14 +292,14 @@ namespace Admo
                 if (stick_coord[1] > 200)
                 {
                     elevation_angle = kinect.ElevationAngle;
-                    Console.WriteLine("going down : " +elevation_angle);
+                    log.Debug("going down : " +elevation_angle);
                     kinect.ElevationAngle = elevation_angle - 5;
                 }
                 //for tall person
                 else if (stick_coord[1] < 50)
                 {
                     elevation_angle = kinect.ElevationAngle;
-                    Console.WriteLine("going up : " + elevation_angle);
+                    log.Debug("going up : " + elevation_angle);
                     kinect.ElevationAngle = elevation_angle + 5;                    
                 }
             }

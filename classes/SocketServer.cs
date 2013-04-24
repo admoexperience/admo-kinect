@@ -24,11 +24,13 @@ using SocketIOClient.Messages;
 using SocketIOClient;
 using SocketIOClient.Eventing;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 namespace Admo
 {
     public class SocketServer
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
         public static Client socket;
         public static bool server_running = false;
 
@@ -36,7 +38,7 @@ namespace Admo
         public static void Start_SocketIOClient(String server)
 		{
 
-			Console.WriteLine("Starting SocketIOClient Example........");
+			log.Info("Starting SocketIOClient server");
 
             socket = new Client(server); // url to the nodejs / socket.io instance
 
@@ -50,10 +52,7 @@ namespace Admo
 			socket.Connect();
             var logger = socket.Connect("/life"); // connect to the logger ns                
             
-            socket.On("connect", (fn) =>
-            {
-                Console.WriteLine("********" + fn.RawMessage);
-            });
+            socket.On("connect", (fn) => log.Debug("********" + fn.RawMessage));
 
             /*            
            //http://stackoverflow.com/questions/12207600/socketio4net-client-subscribing-to-a-channel
@@ -86,6 +85,7 @@ namespace Admo
 		{
             //getting app name from node server
             String tempMessage = e.Message.RawMessage;
+              
             try
             {
                 int first = tempMessage.IndexOf("name");

@@ -11,11 +11,13 @@ using System.Management;
 using System.DirectoryServices;
 using System.IO;
 using Microsoft.Kinect;
+using NLog;
 
 namespace Admo
 {
     class LifeCycle
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
         double screen_width = SystemParameters.PrimaryScreenWidth;
         double screen_height = SystemParameters.PrimaryScreenHeight;
         public static double startup_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
@@ -29,7 +31,7 @@ namespace Admo
         public static bool restart_stage3 = false;
         public static bool restart_stage4 = false;
         public static bool restart_stage5 = false;
-        public static String startup_url = "http://localhost:3000";
+        public static String startup_url = "http://10.10.10.191:3000";
         public static bool running_in_dev = false;
 
         public static String newDropboxFolder = @"C:\Dropbox\Admo-Units\";
@@ -137,12 +139,12 @@ namespace Admo
             bool NewSystem = System.IO.Directory.Exists(newDropboxFolder + mac_path);
             if (NewSystem)
             {
-                Console.WriteLine("Using new dropbox location at [" + newDropboxFolder + "]");
+                log.Info("Using new dropbox location at [" + newDropboxFolder + "]");
                 temp_path = newDropboxFolder + mac_path;
             }
             else 
             {
-                Console.WriteLine("Using old dropbox location at [" + temp_path + "]");
+                log.Info("Using old dropbox location at [" + temp_path + "]");
             }
 
             status_path = temp_path + @"\Status.txt";
@@ -208,7 +210,7 @@ namespace Admo
                     objReader.Close();
                     if (app_name != temp_app_name)
                     {
-                        Console.WriteLine("Changing app from ["+app_name+"] to ["+temp_app_name+"]");
+                        log.Info("Changing app from [" + app_name + "] to [" + temp_app_name + "]");
                         app_name = temp_app_name;
                         restart_stage1 = false;
                         restart_stage2 = false;
@@ -284,7 +286,7 @@ namespace Admo
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 Application.Current.Windows[0].Close();
-                Console.WriteLine(Application.Current.Windows.Count);
+                log.Info(Application.Current.Windows.Count);
             }
         }
 
