@@ -31,7 +31,7 @@ namespace Admo
         public static bool restart_stage3 = false;
         public static bool restart_stage4 = false;
         public static bool restart_stage5 = false;
-        public static String startup_url = "http://10.10.10.191:3000";
+        public static String startup_url = "http://localhost:3000";
         public static bool running_in_dev = false;
 
         public static String newDropboxFolder = @"C:\Dropbox\Admo-Units\";
@@ -124,32 +124,14 @@ namespace Admo
         public static String app_path;
         public static void Activate_Monitor()
         {
-            var dbPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dropbox\\host.db");
-            var dbBase64Text = Convert.FromBase64String(System.IO.File.ReadAllText(dbPath));
-            var folderPath = System.Text.ASCIIEncoding.ASCII.GetString(dbBase64Text);
+           
             String mac_path = Environment.MachineName;
-            String temp_path = Convert.ToString(folderPath) + @"\Interactive Advertising\Software\Monitoring\" + mac_path;
-            int path_start = temp_path.IndexOf("C");
-            temp_path = temp_path.Substring(path_start);
 
-            bool IsExists = System.IO.Directory.Exists(temp_path);
-            if (!IsExists)
-                System.IO.Directory.CreateDirectory(temp_path);
-
-            bool NewSystem = System.IO.Directory.Exists(newDropboxFolder + mac_path);
-            if (NewSystem)
-            {
-                log.Info("Using new dropbox location at [" + newDropboxFolder + "]");
-                temp_path = newDropboxFolder + mac_path;
-            }
-            else 
-            {
-                log.Info("Using old dropbox location at [" + temp_path + "]");
-            }
-
-            status_path = temp_path + @"\Status.txt";
-            app_path = temp_path + @"\App.txt";
-            elevation_path = temp_path + @"\Elevation.txt";
+            String tmpPath = newDropboxFolder + mac_path;
+            log.Debug("Using new dropbox location at [" + newDropboxFolder + "]");
+            status_path = tmpPath + @"\Status.txt";
+            app_path = tmpPath + @"\App.txt";
+            elevation_path = tmpPath + @"\Elevation.txt";
             
             
         }
