@@ -75,10 +75,6 @@ namespace Admo
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
 
-            //start system monitoring
-            LifeCycle.Activate_Monitor();
-  
-
             // initialize the sensor chooser and UI
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
@@ -311,8 +307,6 @@ namespace Admo
                     //check whether there is a user/skeleton
                     if (first == null)
                     {
-                        //check if user left view while stopwatch was still running
-                        Application_Handler.StopStopwatch();
 
                         //check whether there is a user in fov who's skeleton has not yet been registered
                         Application_Handler.FindPlayer(depthFrame);

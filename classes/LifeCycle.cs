@@ -34,9 +34,7 @@ namespace Admo
         public static bool restart_stage5 = false;
 
 
-        public static String status_path;
-        public static String elevation_path;
-        public static String app_path;
+  
         public static double browser_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
         public static bool monitor_write = true;
         public static bool restart_browser = false;
@@ -123,17 +121,6 @@ namespace Admo
      
 
 
-        public static void Activate_Monitor()
-        {
-            String hostName = Config.GetHostName();
-            String tmpPath = Config.GetBaseConfigPath() + hostName;
-            Log.Debug("Using new dropbox location at [" + tmpPath + "]");
-            status_path = tmpPath + @"\Status.txt";
-            app_path = tmpPath + @"\App.txt";
-            elevation_path = tmpPath + @"\Elevation.txt";
-            
-        }
-
         
         public static void Monitor()
         {
@@ -149,7 +136,7 @@ namespace Admo
             {
                 try
                 {
-                    StreamWriter objWriter = new StreamWriter(status_path);
+                    StreamWriter objWriter = new StreamWriter(Config.GetStatusFile());
                     objWriter.WriteLine(DateTime.Now.ToString());
                     objWriter.Close();
                     monitor_write = false;

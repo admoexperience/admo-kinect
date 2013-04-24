@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Admo.classes;
 using Microsoft.Kinect;
 using System.Windows;
 using NLog;
@@ -13,9 +14,8 @@ namespace Admo
     class Application_Handler
     {
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static Logger Log = LogManager.GetCurrentClassLogger();
         
-        public static int mode_button = 10;
         public static String toggle = "gestures";
         public static String stickman = " ";
 
@@ -25,7 +25,6 @@ namespace Admo
         public static double fov_height = 640;
         public static double fov_width = 480;
 
-        public static Stopwatch stopwatch = new Stopwatch();
         
         //manage gestures
         public static void ManageGestures(float[] coordinates)
@@ -181,13 +180,6 @@ namespace Admo
                         }
                         
                         mode = 3;
-
-                        //start stopwatch when receiving the "start" command from node
-                        if ((SocketServer.user_start == true)&&(stopwatch.IsRunning!=true))
-                        {
-                            stopwatch.Start();
-                            log.Debug("stopwatch start");
-                        }
                         
                     }
                     else
@@ -202,33 +194,16 @@ namespace Admo
                 mode = 2;
                 first_detection = true;
                 locked_skeleton = false;
-
-                //stop stopwatch for user session
-                StopStopwatch();
             }
 
             return mode;
-        }
-
-        //stop stopwatch for user session
-        public static void StopStopwatch()
-        {
-            if (SocketServer.user_start == true)
-            {
-                stopwatch.Stop();
-                int time_elasped = Convert.ToInt32(stopwatch.Elapsed.TotalSeconds);
-                
-                stopwatch.Reset();
-
-                SocketServer.user_start = false;
-            }
         }
 
         //get the coordinates relative to a standing upright person
         public static double RelativeCoordinates(double length_y, double length_z)
         {
             //anglular variables
-            double angle_kinect = MainWindow.elevation_angle;
+            double angle_kinect = Config.GetElevationAngle();
             double angle_zero;
             double angle_y;
             double angle_k;
@@ -292,14 +267,14 @@ namespace Admo
                 if (stick_coord[1] > 200)
                 {
                     elevation_angle = kinect.ElevationAngle;
-                    log.Debug("going down : " +elevation_angle);
+                    Log.Debug("going down : " +elevation_angle);
                     kinect.ElevationAngle = elevation_angle - 5;
                 }
                 //for tall person
                 else if (stick_coord[1] < 50)
                 {
                     elevation_angle = kinect.ElevationAngle;
-                    log.Debug("going up : " + elevation_angle);
+                    Log.Debug("going up : " + elevation_angle);
                     kinect.ElevationAngle = elevation_angle + 5;                    
                 }
             }
