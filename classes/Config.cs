@@ -38,7 +38,7 @@ namespace Admo.classes
 
         public static String GetCurrentApp()
         {
-            StreamReader objReader = new StreamReader(BaseDropboxFolder + @"\App.txt");
+            StreamReader objReader = new StreamReader(BaseDropboxFolder + @"\\" + Environment.MachineName + @"\App.txt");
             var appName = objReader.ReadLine();
             objReader.Close();
             return appName;
@@ -46,7 +46,7 @@ namespace Admo.classes
 
         public static int GetElevationAngle()
         {
-            StreamReader objReader = new StreamReader(BaseDropboxFolder+ @"\Elevation.txt");
+            StreamReader objReader = new StreamReader(BaseDropboxFolder+ @"\\" + Environment.MachineName+ @"\Elevation.txt");
             String temp = objReader.ReadLine();
             objReader.Close();
             int elevationAngle = Convert.ToInt32(temp);
@@ -57,7 +57,7 @@ namespace Admo.classes
 
         public static String GetStatusFile()
         {
-            return BaseDropboxFolder + @"\Status.txt";
+            return BaseDropboxFolder +  @"\\" + Environment.MachineName+ @"\Status.txt";
         }
     }
 }
