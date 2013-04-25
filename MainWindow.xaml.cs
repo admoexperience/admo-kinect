@@ -15,11 +15,12 @@ using System.Windows.Shapes;
 
 using System.IO;
 using System.Threading;
-
+using Admo.classes;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
 using Microsoft.Kinect.Toolkit.FaceTracking;
+using NLog;
 
 namespace Admo
 {
@@ -28,6 +29,7 @@ namespace Admo
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Logger Log = LogManager.GetCurrentClassLogger();
         //kinect toolkit variables
         private KinectSensorChooser sensorChooser;
         //kinect variables
@@ -37,16 +39,11 @@ namespace Admo
         Skeleton old_first;
         public KinectSensor kinect;
         public static String kinect_type;
-        //kinect elevation angle
-        public static int elevation_angle = 0;
-        //is the app running in dev
-        public String operating_mode = "dev";
-
+   
         //drawing variables
         public static int face_x = 700;
         public static int face_y = 1000;
-        //variable dictating whether facetracking is activated
-        public bool running_facetracking = false;
+       
 
 
         /// <summary>
@@ -77,13 +74,6 @@ namespace Admo
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
-
-            //get active directory to which files can be writen and read
-            GetDirectoryPath();
-            //start system monitoring
-            LifeCycle.Activate_Monitor();
-            //calibrate elevation angle of kinect
-            Calibrate_Kinect();
 
             // initialize the sensor chooser and UI
             this.sensorChooser = new KinectSensorChooser();
@@ -121,7 +111,7 @@ namespace Admo
             {
                 try
                 {
-                    Console.WriteLine("old sensor active");
+                    Log.Warn("old sensor active");
                     //args.OldSensor.DepthStream.Range = DepthRange.Default;
                     //args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
                     args.OldSensor.DepthStream.Disable();
@@ -147,7 +137,7 @@ namespace Admo
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     //only enable RGB camera if facetracking or dev-mode is enabled
-                    if (running_facetracking || (operating_mode == "dev"))
+                    if (Config.RunningFacetracking || Config.IsDevMode())
                     {
                         args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                         this.colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
@@ -158,7 +148,7 @@ namespace Admo
                     // This is the bitmap we'll display on-screen
                     this.colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                     
-                    if (operating_mode == "dev")
+                    if (Config.IsDevMode())
                     {                       
                         // Set the image we display to point to the bitmap where we'll put the image data
                         this.Image.Source = this.colorBitmap;
@@ -179,10 +169,11 @@ namespace Admo
                     try
                     {
                         args.NewSensor.Start();
-                        args.NewSensor.ElevationAngle = elevation_angle;
+                        args.NewSensor.ElevationAngle = Config.GetElevationAngle();
                     }
-                    catch (System.IO.IOException)
+                    catch (System.IO.IOException ioe)
                     {
+                        Log.Error(ioe);
                         //this.sensorChooser.AppConflictOccurred();
                     }
 
@@ -192,12 +183,13 @@ namespace Admo
                         args.NewSensor.DepthStream.Range = DepthRange.Near;
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
                         kinect_type = "kinect for windows";
-                        Console.WriteLine(kinect_type);
+                        Log.Info("Using " + kinect_type);
                     }
                     catch (InvalidOperationException)
                     {
                         kinect_type = "xbox kinect";
                         Console.WriteLine(kinect_type);
+                        Log.Info("Using " + kinect_type);
                     } 
                 }
                 catch (InvalidOperationException)
@@ -248,7 +240,7 @@ namespace Admo
             try
             {
 
-                if ((operating_mode=="dev")||running_facetracking)
+                if (Config.IsDevMode()|| Config.RunningFacetracking)
                 {
                     colorFrame = e.OpenColorImageFrame();
                     depthFrame = e.OpenDepthImageFrame();
@@ -259,7 +251,7 @@ namespace Admo
                         return;
                     }
 
-                    if (running_facetracking)
+                    if (Config.RunningFacetracking)
                     {
                         // Check for changes in any of the data this function is receiving
                         // and reset things appropriately.
@@ -290,16 +282,16 @@ namespace Admo
                 }
 
                 //startup chorme in fullscreen and use mouse driver to allow webcam
-                LifeCycle.Startup(operating_mode);
+                LifeCycle.Startup();
                 //listen for restarting call
                 LifeCycle.Restart();
                 //monitoring if chrome browser is running node app
-                if (operating_mode != "dev")
+                if (!Config.IsDevMode())
                 {
                     LifeCycle.Monitor();
                 }
 
-                if ((colorFrame != null)&&((running_facetracking)||(operating_mode=="dev")))
+                if ((colorFrame != null)&&((Config.RunningFacetracking)|| Config.IsDevMode()))
                 {
                     DisplayVideo(colorFrame);
                 }
@@ -315,8 +307,6 @@ namespace Admo
                     //check whether there is a user/skeleton
                     if (first == null)
                     {
-                        //check if user left view while stopwatch was still running
-                        Application_Handler.StopStopwatch();
 
                         //check whether there is a user in fov who's skeleton has not yet been registered
                         Application_Handler.FindPlayer(depthFrame);
@@ -346,12 +336,12 @@ namespace Admo
                         //Manage the Elevation Angle of the Kinect
                         //Application_Handler.ChangeAngle(kinect);                        
                         
-                        if ((coordinates[19] > 0.9)&&(running_facetracking))
+                        if ((coordinates[19] > 0.9)&&(Config.RunningFacetracking))
                         {
                             if (old_first == null)
                             {
                                 old_first = first;
-                                Console.WriteLine("first skeleton lock");
+                                Log.Debug("first skeleton lock");
                             }
                             else if ((old_first != first))
                             {
@@ -415,7 +405,7 @@ namespace Admo
                                         looking_at_screen = false;
 
                                     //display ellipse indicating where useris looking
-                                    if (operating_mode == "dev")
+                                    if (Config.IsDevMode())
                                     {
                                         Canvas.SetTop(faceEllipse, ((240 - face_x / 10) - faceEllipse.Height / 2));
                                         Canvas.SetLeft(faceEllipse, ((320 + face_y/2) - faceEllipse.Width / 2));
@@ -465,7 +455,7 @@ namespace Admo
                 // Copy the pixel data from the image to a temporary array
                 colorFrame.CopyPixelDataTo(this.colorImage);
 
-                if (operating_mode == "dev")
+                if (Config.IsDevMode())
                 {
                     // Write the pixel data into our bitmap
                     this.colorBitmap.WritePixels(
@@ -584,7 +574,7 @@ namespace Admo
                 Application_Handler.stick_coord[3] = leftColorPoint.Y;
 
                 //only show video HUD when running in dev mode
-                if (operating_mode == "dev")
+                if (Config.IsDevMode())
                 {
                     Animations(first, headColorPoint, leftColorPoint, rightColorPoint, depth_hand, depth_hand2, coord, depth_coord, hand_selection);
                 }
@@ -725,41 +715,13 @@ namespace Admo
         //public static Stopwatch stopwatch = new Stopwatch();
         public static StreamWriter objWriter;
         public static StreamReader objReader;
-        public static String path;
-        public static String pc_name = "";
-        void GetDirectoryPath()
-        {
-              String mac_path = pc_name = Environment.MachineName;
-           
-
-        
-            path = LifeCycle.newDropboxFolder + mac_path;
-            path = path + @"\Userdata.csv";
-
-            if ((mac_path != "SMARTWALLDEV-PC") && (mac_path != "SMARTWALL3"))
-            {
-                operating_mode = "no dev";
-            }
-        }
-
-        void Calibrate_Kinect()
-        {
-            if (LifeCycle.elevation_path != null)
-            {
-                objReader = new StreamReader(LifeCycle.elevation_path);
-                String temp = objReader.ReadLine();
-                objReader.Close();
-                int angle = Convert.ToInt32(temp);
-                elevation_angle = angle;
-                Console.WriteLine("elevation path: " + elevation_angle);
-            }
-        }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //this.sensorChooser.Stop();
             StopKinect(sensorChooser.Kinect);
             SocketServer.Close_SocketServer("close server");
+            Log.Info("Shutting down server");
             closing = true; 
         }
 

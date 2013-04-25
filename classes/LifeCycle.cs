@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Management;
 using System.DirectoryServices;
 using System.IO;
+using Admo.classes;
 using Microsoft.Kinect;
 using NLog;
 
@@ -17,55 +18,55 @@ namespace Admo
 {
     class LifeCycle
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
-        double screen_width = SystemParameters.PrimaryScreenWidth;
-        double screen_height = SystemParameters.PrimaryScreenHeight;
-        public static double startup_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-        public static bool startup_stage1 = false;
-        public static bool startup_stage2 = false;
-        public static bool startup_stage3 = false;
-        public static bool startup_stage4 = false;
-        public static bool startup_stage5 = false;
-        public static bool restart_stage1 = false;
-        public static bool restart_stage2 = false;
-        public static bool restart_stage3 = false;
-        public static bool restart_stage4 = false;
-        public static bool restart_stage5 = false;
-        public static String startup_url = "http://localhost:3000";
-        public static bool running_in_dev = false;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        public static double StartupTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static bool StartupStage1 = false;
+        public static bool StartupStage2 = false;
+        public static bool StartupStage3 = false;
+        public static bool StartupStage4 = false;
+        public static bool StartupStage5 = false;
+        public static bool RestartStage1 = false;
+        public static bool RestartStage2 = false;
+        public static bool RestartStage3 = false;
+        public static bool RestartStage4 = false;
+        public static bool RestartStage5 = false;
 
-        public static String newDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
-        public static void Startup(String mode)
+        public static double RestartTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static double BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static bool MonitorWrite = true;
+        public static bool RestartBrowser = false;
+        public static String AppName = "demo";
+        
+
+        public static void Startup()
         {
-            double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-            double time_diff = current_time - startup_time;
+            double currentTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double timeDiff = currentTime - StartupTime;
                         
-            if (mode != "dev")
+            if (! Config.IsDevMode())
             {
-                if ((time_diff > 10000)&&(startup_stage1 == false))
+                if ((timeDiff > 10000)&&(StartupStage1 == false))
                 {
                     //Start default browser (Chrome)
                     
                     Process.Start("http://www.google.com");
-                    startup_stage1 = true;
+                    StartupStage1 = true;
                 }
-                else if ((time_diff > 20000)&&(startup_stage2 == false))
+                else if ((timeDiff > 20000)&&(StartupStage2 == false))
                 {
                     KeyboardDriver.Exit();
-                    objReader = new StreamReader(app_path);
-                    app_name = objReader.ReadLine();
-                    objReader.Close();
-                    startup_stage2 = true;                    
+                    AppName = Config.GetCurrentApp();
+                    StartupStage2 = true;                    
                 }
-                else if ((time_diff > 25000) && (startup_stage3 == false))
+                else if ((timeDiff > 25000) && (StartupStage3 == false))
                 {
                     //Start default browser (Chrome)
                     //startup_url = startup_url + "/" + app_name;
-                    Process.Start(startup_url + "/" + app_name);
+                    Process.Start(Config.GetStartUpUrl() + "/" + AppName);
                     //start websocket server
-                    startup_stage3 = true;
-                    SocketServer.Start_SocketIOClient(startup_url);                    
+                    StartupStage3 = true;
+                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());                    
                     SocketServer.server_running = true;
 
                     Application_Handler.fov_top = 28 * 2;
@@ -73,134 +74,113 @@ namespace Admo
                     Application_Handler.fov_height = 205 * 2;
                     Application_Handler.fov_width = 205 * 2 * 4 / 3;
                 }
-                else if ((time_diff > 35000) && (startup_stage4 == false))
+                else if ((timeDiff > 35000) && (StartupStage4 == false))
                 {
                     //fullscreen chrome                
                     KeyboardDriver.FullScreen();
-                    startup_stage4 = true;
+                    StartupStage4 = true;
                 }
-                else if ((time_diff > 40000) && (startup_stage5 == false))
+                else if ((timeDiff > 40000) && (StartupStage5 == false))
                 {
                     
                     //use mousedriver to allow for webcam            
                     MouseDriver.AllowCameraAccess();
-                    startup_stage5 = true;
+                    StartupStage5 = true;
                 }                                            
 
                 
             }
             else
             {
-                running_in_dev = true;
-                if ((time_diff > 10) && (startup_stage1 == false))
+                if ((timeDiff > 10) && (StartupStage1 == false))
                 {
 
-                    SocketServer.Start_SocketIOClient(startup_url);
+                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());
 
                     SocketServer.server_running = true;
                     Application_Handler.fov_top = 28 * 2;
                     Application_Handler.fov_left = 26 * 2;
                     Application_Handler.fov_height = 205 * 2;
                     Application_Handler.fov_width = 205 * 2 * 4 / 3;
-                    startup_stage1 = true;
+                    StartupStage1 = true;
 
-                    objReader = new StreamReader(app_path);
-                    app_name = objReader.ReadLine();
-                    objReader.Close();
+
+                    AppName = Config.GetCurrentApp();
                 }
-                else if ((time_diff > 20000) && (startup_stage2 == false))
+                else if ((timeDiff > 20000) && (StartupStage2 == false))
                 {
-                    startup_stage2 = true;
+                    StartupStage2 = true;
                 }
             }           
                         
             
         }
 
-        public static StreamWriter objWriter;
-        public static StreamReader objReader;
-        public static String status_path;
-        public static String elevation_path;
-        public static String app_path;
-        public static void Activate_Monitor()
-        {
-           
-            String mac_path = Environment.MachineName;
+     
 
-            String tmpPath = newDropboxFolder + mac_path;
-            log.Debug("Using new dropbox location at [" + newDropboxFolder + "]");
-            status_path = tmpPath + @"\Status.txt";
-            app_path = tmpPath + @"\App.txt";
-            elevation_path = tmpPath + @"\Elevation.txt";
-            
-            
-        }
 
-        public static double browser_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-        public static bool monitor_write = true;
-        public static bool restart_browser = false;
-        public static String app_name = "demo";
+        
         public static void Monitor()
         {
-            double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-            double time_diff = current_time - browser_time;
+            double currentTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double timeDiff = currentTime - BrowserTime;
 
             String datetime = DateTime.Now.ToString("HH:mm:ss tt");
             int min = Convert.ToInt32(datetime.Substring(3, 2));
             min = min % 3;
 
             //Monitor whether system is online
-            if ((min == 1) && (monitor_write == true))
+            if ((min == 1) && MonitorWrite)
             {
                 try
                 {
-                    objWriter = new StreamWriter(status_path);
+                    var objWriter = new StreamWriter(Config.GetStatusFile());
                     objWriter.WriteLine(DateTime.Now.ToString());
                     objWriter.Close();
-                    monitor_write = false;
+                    MonitorWrite = false;
                 }
                 catch (Exception et)
                 {
+                    Log.Warn("Could not write status to the status file "+ Config.GetStatusFile());
                 }
             }
-            else if ((min == 2) && (monitor_write == false))
+            else if ((min == 2) && (MonitorWrite == false))
             {
-                monitor_write = true;
+                MonitorWrite = true;
             }
 
 
             //only run when system is running
-            if ((startup_stage5 == true) && (restart_browser == false))
+            if (StartupStage5  && (RestartBrowser == false))
             {
 
-                if ((time_diff > 30000) && (restart_browser == false) && (running_in_dev==false))
+                if ((timeDiff > 30000) && (RestartBrowser == false) && (!Config.IsDevMode()))
                 {
-                    restart_stage1 = false;
-                    restart_stage2 = false;
-                    restart_stage3 = false;
-                    restart_stage4 = false;
-                    restart_stage5 = false;
-                    restart_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-                    restart_browser = true;
+                    RestartStage1 = false;
+                    RestartStage2 = false;
+                    RestartStage3 = false;
+                    RestartStage4 = false;
+                    RestartStage5 = false;
+                    RestartTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                    RestartBrowser = true;
                 }
 
                 //Monitor which app is supposed to be run
                 try
                 {
-                    objReader = new StreamReader(app_path);
-                    String temp_app_name = objReader.ReadLine();
-                    objReader.Close();
-                    if (app_name != temp_app_name)
+
+                    String tempAppName = Config.GetCurrentApp();
+                    if (AppName != tempAppName)
                     {
-                        log.Info("Changing app from [" + app_name + "] to [" + temp_app_name + "]");
-                        app_name = temp_app_name;
-                        restart_stage1 = false;
-                        restart_stage2 = false;
-                        restart_stage3 = false;
-                        restart_stage4 = false;
-                        restart_stage5 = false;
-                        restart_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-                        restart_browser = true;
+                        Log.Info("Changing app from [" + AppName + "] to [" + tempAppName + "]");
+                        AppName = tempAppName;
+                        RestartStage1 = false;
+                        RestartStage2 = false;
+                        RestartStage3 = false;
+                        RestartStage4 = false;
+                        RestartStage5 = false;
+                        RestartTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                        RestartBrowser = true;
                     }
 
                 }
@@ -209,7 +189,7 @@ namespace Admo
                 }
             }
 
-            if (restart_browser == true)
+            if (RestartBrowser)
             {
                 Restart_Browser();
             }
@@ -217,43 +197,43 @@ namespace Admo
         }
 
 
-        public static double restart_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        
         public static void Restart_Browser()
         {
-            double current_time = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-            double time_diff = current_time - restart_time;
+            double currentTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double timeDiff = currentTime - RestartTime;
 
-            if ((time_diff > 2000) && (restart_stage1 == false))
+            if ((timeDiff > 2000) && (RestartStage1 == false))
             {
                 //Start default browser (Chrome)
-                restart_stage1 = true;
+                RestartStage1 = true;
                 Process.Start("http://www.google.com");                
             }
-            else if ((time_diff > 4000) && (restart_stage2 == false))
+            else if ((timeDiff > 4000) && (RestartStage2 == false))
             {
-                restart_stage2 = true;
+                RestartStage2 = true;
                 KeyboardDriver.Exit();
             }
-            else if ((time_diff > 6000) && (restart_stage3 == false))
+            else if ((timeDiff > 6000) && (RestartStage3 == false))
             {
                 //Start default browser (Chrome)
-                restart_stage3 = true;
+                RestartStage3 = true;
                 //startup_url = startup_url + "/" + app_name;
-                Process.Start(startup_url + "/" + app_name);
+                Process.Start(Config.GetStartUpUrl() + "/" + AppName);
                 //start websocket server                
             }
-            else if ((time_diff > 8000) && (restart_stage4 == false))
+            else if ((timeDiff > 8000) && (RestartStage4 == false))
             {
                 //fullscreen chrome                
                 KeyboardDriver.FullScreen();
-                restart_stage4 = true;
+                RestartStage4 = true;
             }
-            else if ((time_diff > 10000) && (restart_stage5 == false))
+            else if ((timeDiff > 10000) && (RestartStage5 == false))
             {
                 //use mousedriver to allow for webcam            
                 MouseDriver.AllowCameraAccess();
-                restart_stage5 = true;
-                restart_browser = false;
+                RestartStage5 = true;
+                RestartBrowser = false;
             }                                         
         }
 
@@ -268,7 +248,7 @@ namespace Admo
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 Application.Current.Windows[0].Close();
-                log.Info(Application.Current.Windows.Count);
+                Log.Info(Application.Current.Windows.Count);
             }
         }
 

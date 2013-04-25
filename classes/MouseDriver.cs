@@ -42,7 +42,6 @@ namespace Admo
         public const int MouseEventWheel = 0x800;
 
 		private static bool lastLeftDown;
-        private static bool reset_internal;
         public static bool reset;
 
 		[DllImport("user32.dll", SetLastError = true)]

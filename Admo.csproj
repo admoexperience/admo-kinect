@@ -120,6 +120,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\Application_Handler.cs" />
+    <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />
     <Compile Include="classes\Cursor_Handler.cs" />
     <Compile Include="classes\Gestures.cs" />
@@ -165,7 +166,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\website_logo_withbackground.png" />
