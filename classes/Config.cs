@@ -7,7 +7,7 @@ namespace Admo.classes
     class Config
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private const bool RunningInDev = false;
+        private const bool RunningInDev = true;
  
 
         //variable dictating whether facetracking is activated

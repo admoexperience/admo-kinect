@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,144 +22,199 @@ using System.IO;
 using System.Threading;
 //using System.Windows.Forms.Integration;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SocketIOClient.Messages;
 using SocketIOClient;
 using SocketIOClient.Eventing;
 using Newtonsoft.Json.Linq;
 using NLog;
+using Alchemy;
+using Alchemy.Classes;
+using WebSocketServer = Alchemy.WebSocketServer;
 
 namespace Admo
 {
     public class SocketServer
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        public static Client socket;
-        public static bool server_running = false;
+
+        public static WebSocketServer aServer;
+
+        private static Boolean _serverRunning = false;
+
+        private static UserContext lastUserContext = null;
 
         //Websocket client setup for communication between Node server and .NET
-        public static void Start_SocketIOClient(String server)
+        public static void StartServer()
 		{
+            if (_serverRunning) return;
 
-			Log.Info("Starting SocketIOClient server");
+            Log.Info("Starting SocketIOClient server");
 
-            socket = new Client(server); // url to the nodejs / socket.io instance
+            aServer = new Alchemy.WebSocketServer(1080, IPAddress.Any)
+                {
+                    OnReceive = OnReceive,
+                    OnSend = OnSend,
+                    OnConnected = OnConnect,
+                    OnConnect = OnConnect,
+                    OnDisconnect = OnDisconnect,
+                    TimeOut = new TimeSpan(0, 5, 0)
+                };
 
-			socket.Opened += SocketOpened;
-			socket.Message += SocketMessage;
-			socket.SocketConnectionClosed += SocketConnectionClosed;
-			socket.Error += SocketError;    
-                  
+            aServer.Start();
+            _serverRunning = true;
+		}
 
-			// make the socket.io connection
-			socket.Connect();
-            var logger = socket.Connect("/life"); // connect to the logger ns                
-            
-            socket.On("connect", (fn) => Log.Debug("********" + fn.RawMessage));
+        private  static int x = 0;
 
-            /*            
-           //http://stackoverflow.com/questions/12207600/socketio4net-client-subscribing-to-a-channel
-            //don't do the motherfucking .On("eventname, function) shit if you want to receive a message event         
-           logger.On("connect", (log) =>
-           {
-           });
-           */
-
-        }
-
-        public static void Close_SocketServer(String temp)
+        public static void SendRawData(String data)
         {
-            socket.Close();
-            if(temp!="close server")
-                Start_SocketIOClient(temp);            
-        }
-        
+           
+            if (lastUserContext != null)
+            {
+                Dictionary<string, object> properties = new Dictionary<string, object>();
+                if (++x % 50 == 0)
+                {
+                    Log.Debug(data);
+                    Log.Debug(lastUserContext);
+                    Log.Debug(JsonConvert.SerializeObject(properties));
+                    properties["gesture"] = data;
 
-        public static void SocketError(object sender, SocketIOClient.ErrorEventArgs e) { }
-
-        public static void SocketConnectionClosed(object sender, EventArgs e) { }
-
-        public static bool user_start = false;
-        public static String[] selections = new String[100];
-        public static int selection_count = 0;
-
-        //read message at socket
-        public static void SocketMessage(object sender, MessageEventArgs e)
-		{
-            //getting app name from node server
-            String tempMessage = e.Message.RawMessage;
+                    lastUserContext.Send(JsonConvert.SerializeObject(properties));
+                }
+                
               
+            }
+    }
+
+        public static void Stop()
+        {
+            aServer.Stop();
+            _serverRunning = false;
+        }
+
+        /// <summary>
+        /// Event fired when a client connects to the Alchemy Websockets server instance.
+        /// Adds the client to the online users list.
+        /// </summary>
+        /// <param name="context">The user's connection context</param>
+        public static void OnConnect(UserContext context)
+        {
+            Log.Debug("Client Connection From : " + context.ClientAddress);
+            lastUserContext = context;
+
+        }
+
+        /// <summary>
+        /// Event fired when a data is received from the Alchemy Websockets server instance.
+        /// Parses data as JSON and calls the appropriate message or sends an error message.
+        /// </summary>
+        /// <param name="context">The user's connection context</param>
+        public static void OnReceive(UserContext context)
+        {
+            Log.Debug("Received Data From :" + context.ClientAddress);
+
             try
             {
-                int first = tempMessage.IndexOf("name");
-                first = first + 9;
-                int last = tempMessage.LastIndexOf("\"");
-                string str2 = tempMessage.Substring(first, last - first-2);
-                //Console.WriteLine(str2);
-                
-                if (str2 == "alive")
-                {
-                    //receive "alive" ping message from browser
-                    LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-                    Send_App("host-" +Config.GetHostName());
-                }
-                else if (str2 == "reloaded") {
-                    //Start up stage 5 is "allowing camera access"
-                    //This needs to be done in a different thread so set the var
-                    //so next cycle will accept camera access
-                    LifeCycle.StartupStage5 = false;
-                }
-            }
-            catch (Exception et)
-            {
-            }
-		}
+                var json = context.DataFrame.ToString();
 
-        public static void SocketOpened(object sender, EventArgs e)
-		{
-		}
+                // <3 dynamics
+                dynamic obj = JsonConvert.DeserializeObject(json);
+
+               Console.WriteLine("Received Data From :" + json);
+            }
+            catch (Exception e) // Bad JSON! For shame.
+            {
+                var r = new Response {Type = ResponseType.Error, Data = new {e.Message}};
+
+                context.Send(JsonConvert.SerializeObject(r));
+            }
+        }
+
+        /// <summary>
+        /// Event fired when the Alchemy Websockets server instance sends data to a client.
+        /// Logs the data to the console and performs no further action.
+        /// </summary>
+        /// <param name="context">The user's connection context</param>
+        public static void OnSend(UserContext context)
+        {
+            Log.Debug("Data Send To : " + context.ClientAddress);
+        }
+
+        /// <summary>
+        /// Event fired when a client disconnects from the Alchemy Websockets server instance.
+        /// Removes the user from the online users list and broadcasts the disconnection message
+        /// to all connected users.
+        /// </summary>
+        /// <param name="context">The user's connection context</param>
+        public static void OnDisconnect(UserContext context)
+        {
+            Log.Debug("Client Disconnected : " + context.ClientAddress);
+            lastUserContext = null;
+        }
+
        
 
+       
+        
 
-        public static String set_gesture = "";
-
-        //set gesture to be send
-        public static void Set_Gesture(String name)
+        /// <summary>
+        /// Broadcasts an error message to the client who caused the error
+        /// </summary>
+        /// <param name="errorMessage">Details of the error</param>
+        /// <param name="context">The user's connection context</param>
+        private static void SendError(string errorMessage, UserContext context)
         {
-            set_gesture = name;
+            var r = new Response {Type = ResponseType.Error, Data = new {Message = errorMessage}};
+
+            context.Send(JsonConvert.SerializeObject(r));
         }
 
-        //Send gesture to node server
-        public static void Send_Gesture(String stick)
+      
+
+      
+
+      
+        /// <summary>
+        /// Defines the type of response to send back to the client for parsing logic
+        /// </summary>
+        public enum ResponseType
         {
-            String name = stick + set_gesture;
-            if (server_running == true)
-                socket.Emit("gesture", new Gesture(name));
-                        
-            set_gesture = "";
+            Connection = 0,
+            Disconnect = 1,
+            Message = 2,
+            NameChange = 3,
+            UserCount = 4,
+            Error = 255
         }
 
-        //Send gesture to node server
-        public static void Send_App(String name)
+        /// <summary>
+        /// Defines the response object to send back to the client
+        /// </summary>
+        public class Response
         {
-            Thread.Sleep(1000);
-            if (server_running == true)
-                socket.Emit("gesture", new Gesture(name));
-
-            //Console.WriteLine(name);
+            public ResponseType Type { get; set; }
+            public dynamic Data { get; set; }
         }
 
-
-
-        public class Gesture
+        /// <summary>
+        /// Holds the name and context instance for an online user
+        /// </summary>
+        public class User
         {
-            public string gesture;
-
-            public Gesture(string name)
-            {
-                gesture = name;
-            }
+            public string Name = String.Empty;
+            public UserContext Context { get; set; }
         }
+       
 
-
+        /// <summary>
+        /// Defines a type of command that the client sends to the server
+        /// </summary>
+        public enum CommandType
+        {
+            Register = 0,
+            Message,
+            NameChange
+        }
     }
 }

@@ -29,8 +29,7 @@ namespace Admo
         //manage gestures
         public static void ManageGestures(float[] coordinates)
         {                        
-            Gestures.Multi_Swipe(coordinates);  
-          
+           
         }
 
 
@@ -93,7 +92,7 @@ namespace Admo
                 }
 
                 stickman = Convert.ToString(mode) + "-" + video_coord;
-                SocketServer.Send_Gesture(stickman);
+                SocketServer.SendRawData(stickman);
                 first_detection = true;
             
         }
@@ -146,7 +145,7 @@ namespace Admo
 
             stickman = Convert.ToString(mode) + "-" + head + left_hand + right_hand + "-" + MainWindow.hand_state + "-" + Convert.ToString(MainWindow.face_x) + "^" + Convert.ToString(MainWindow.face_y);
 
-            SocketServer.Send_Gesture(stickman);
+            SocketServer.SendRawData(stickman);
         }
 
         public static int Stages(float[] coordinates,Skeleton first)

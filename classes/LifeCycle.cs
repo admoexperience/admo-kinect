@@ -43,7 +43,9 @@ namespace Admo
         {
             double currentTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
             double timeDiff = currentTime - StartupTime;
-                        
+            
+            SocketServer.StartServer();
+            
             if (! Config.IsDevMode())
             {
                 if ((timeDiff > 10000)&&(StartupStage1 == false))
@@ -66,8 +68,7 @@ namespace Admo
                     Process.Start(Config.GetStartUpUrl() + "/" + AppName);
                     //start websocket server
                     StartupStage3 = true;
-                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());                    
-                    SocketServer.server_running = true;
+                    SocketServer.StartServer();           
 
                     Application_Handler.fov_top = 28 * 2;
                     Application_Handler.fov_left = 26 * 2;
@@ -94,10 +95,6 @@ namespace Admo
             {
                 if ((timeDiff > 10) && (StartupStage1 == false))
                 {
-
-                    SocketServer.Start_SocketIOClient(Config.GetStartUpUrl());
-
-                    SocketServer.server_running = true;
                     Application_Handler.fov_top = 28 * 2;
                     Application_Handler.fov_left = 26 * 2;
                     Application_Handler.fov_height = 205 * 2;
