@@ -39,6 +39,7 @@ namespace Admo
         Skeleton old_first;
         public KinectSensor kinect;
         public static String kinect_type;
+        public static int elevationAngle = 0;
    
         //drawing variables
         public static int face_x = 700;
@@ -169,7 +170,7 @@ namespace Admo
                     try
                     {
                         args.NewSensor.Start();
-                        args.NewSensor.ElevationAngle = Config.GetElevationAngle();
+                        args.NewSensor.ElevationAngle = elevationAngle = Config.GetElevationAngle();
                     }
                     catch (System.IO.IOException ioe)
                     {
