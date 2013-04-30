@@ -38,20 +38,19 @@ namespace Admo
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static WebSocketServer aServer;
+        private static WebSocketServer _aServer;
 
         private static Boolean _serverRunning = false;
 
-        private static UserContext lastUserContext = null;
+        private static UserContext _lastUserContext = null;
 
-        //Websocket client setup for communication between Node server and .NET
         public static void StartServer()
 		{
             if (_serverRunning) return;
 
             Log.Info("Starting SocketIOClient server");
 
-            aServer = new Alchemy.WebSocketServer(1080, IPAddress.Any)
+            _aServer = new Alchemy.WebSocketServer(1080, IPAddress.Any)
                 {
                     OnReceive = OnReceive,
                     OnSend = OnSend,
@@ -61,35 +60,23 @@ namespace Admo
                     TimeOut = new TimeSpan(0, 5, 0)
                 };
 
-            aServer.Start();
+            _aServer.Start();
             _serverRunning = true;
 		}
 
-        private  static int x = 0;
-
         public static void SendRawData(String data)
         {
-           
-            if (lastUserContext != null)
-            {
-                Dictionary<string, object> properties = new Dictionary<string, object>();
-                if (++x % 50 == 0)
-                {
-                    Log.Debug(data);
-                    Log.Debug(lastUserContext);
-                    Log.Debug(JsonConvert.SerializeObject(properties));
-                    properties["gesture"] = data;
+            if (_lastUserContext == null) return;
 
-                    lastUserContext.Send(JsonConvert.SerializeObject(properties));
-                }
-                
-              
-            }
-    }
+            var properties = new Dictionary<string, object>();
+            properties["gesture"] = data;
+
+            _lastUserContext.Send(JsonConvert.SerializeObject(properties));
+        }
 
         public static void Stop()
         {
-            aServer.Stop();
+            _aServer.Stop();
             _serverRunning = false;
         }
 
@@ -101,7 +88,7 @@ namespace Admo
         public static void OnConnect(UserContext context)
         {
             Log.Debug("Client Connection From : " + context.ClientAddress);
-            lastUserContext = context;
+            _lastUserContext = context;
 
         }
 
@@ -120,14 +107,15 @@ namespace Admo
 
                 // <3 dynamics
                 dynamic obj = JsonConvert.DeserializeObject(json);
+                if (obj.type == "alive")
+                {
+                    LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                }
 
-               Console.WriteLine("Received Data From :" + json);
             }
             catch (Exception e) // Bad JSON! For shame.
             {
-                var r = new Response {Type = ResponseType.Error, Data = new {e.Message}};
-
-                context.Send(JsonConvert.SerializeObject(r));
+                Log.Error("Error parsing json from client "+context.ClientAddress,e);
             }
         }
 
@@ -138,11 +126,11 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnSend(UserContext context)
         {
-            Log.Debug("Data Send To : " + context.ClientAddress);
+            //Log.Debug("Data Send To : " + context.ClientAddress);
         }
 
         /// <summary>
-        /// Event fired when a client disconnects from the Alchemy Websockets server instance.
+        /// Event fired when a client connects from the Alchemy Websockets server instance.
         /// Removes the user from the online users list and broadcasts the disconnection message
         /// to all connected users.
         /// </summary>
@@ -150,11 +138,12 @@ namespace Admo
         public static void OnDisconnect(UserContext context)
         {
             Log.Debug("Client Disconnected : " + context.ClientAddress);
-            lastUserContext = null;
+            _lastUserContext = null;
+            //Set the last accessed time to now, so we can detect if the user disconnected
+            LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
         }
 
-       
-
+      
        
         
 
@@ -166,7 +155,6 @@ namespace Admo
         private static void SendError(string errorMessage, UserContext context)
         {
             var r = new Response {Type = ResponseType.Error, Data = new {Message = errorMessage}};
-
             context.Send(JsonConvert.SerializeObject(r));
         }
 
@@ -205,16 +193,6 @@ namespace Admo
             public string Name = String.Empty;
             public UserContext Context { get; set; }
         }
-       
-
-        /// <summary>
-        /// Defines a type of command that the client sends to the server
-        /// </summary>
-        public enum CommandType
-        {
-            Register = 0,
-            Message,
-            NameChange
-        }
+      
     }
 }
