@@ -50,6 +50,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Alchemy">
+      <HintPath>packages\Alchemy.2.2.1\lib\net40\Alchemy.dll</HintPath>
+    </Reference>
     <Reference Include="Fleck, Version=0.9.6.12, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Fleck.dll</HintPath>
@@ -123,7 +126,6 @@
     <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />
     <Compile Include="classes\Cursor_Handler.cs" />
-    <Compile Include="classes\Gestures.cs" />
     <Compile Include="classes\Image_Processing.cs" />
     <Compile Include="classes\KeyboardDriver.cs" />
     <Compile Include="classes\LifeCycle.cs" />

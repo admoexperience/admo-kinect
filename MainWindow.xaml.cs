@@ -721,7 +721,7 @@ namespace Admo
         {
             //this.sensorChooser.Stop();
             StopKinect(sensorChooser.Kinect);
-            SocketServer.Close_SocketServer("close server");
+            SocketServer.Stop();
             Log.Info("Shutting down server");
             closing = true; 
         }
