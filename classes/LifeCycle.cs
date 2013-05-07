@@ -51,8 +51,8 @@ namespace Admo
                 if ((timeDiff > 10000)&&(StartupStage1 == false))
                 {
                     //Start default browser (Chrome)
-                    
-                    Process.Start("http://www.google.com");
+
+                    Process.Start("Chrome.exe", "http://www.google.com");
                     StartupStage1 = true;
                 }
                 else if ((timeDiff > 20000)&&(StartupStage2 == false))
@@ -65,7 +65,7 @@ namespace Admo
                 {
                     //Start default browser (Chrome)
                     //startup_url = startup_url + "/" + app_name;
-                    Process.Start(Config.GetStartUpUrl() + "/" + AppName);
+                    Process.Start("Chrome.exe", Config.GetStartUpUrl() + "/" + AppName);
                     //start websocket server
                     StartupStage3 = true;
                     SocketServer.StartServer();           
