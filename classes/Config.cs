@@ -12,8 +12,8 @@ namespace Admo.classes
 
         //variable dictating whether facetracking is activated
         public static readonly bool RunningFacetracking = false;
-        
-        private const String StartUpUrl = @"http://localhost:3000";
+
+        private const String StartUpUrl = @"http://10.10.10.191:3000";
         private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         public static String GetHostName()

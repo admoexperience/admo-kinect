@@ -20,7 +20,7 @@ namespace Admo
         private static Boolean _serverRunning;
 
         //Concurrent lists arent in c#
-        protected static ConcurrentDictionary<UserContext, string> ConnectedClients = new ConcurrentDictionary<UserContext, string>();
+        protected static ConcurrentDictionary<string, UserContext> ConnectedClients = new ConcurrentDictionary<string, UserContext>();
 
         public static void StartServer()
 		{
@@ -48,9 +48,17 @@ namespace Admo
             properties["gesture"] = data;
 
               // iterates, and updates the value by one
-            foreach (var client in ConnectedClients.Keys)
+            foreach (var client in ConnectedClients.Values)
             {
-                client.Send(JsonConvert.SerializeObject(properties));
+                try
+                {
+                    client.Send(JsonConvert.SerializeObject(properties));
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Could not send message to client "+ client.ClientAddress,e);
+                }
+                
             }
         }
 
@@ -68,7 +76,7 @@ namespace Admo
         public static void OnConnect(UserContext context)
         {
             Log.Debug("Client Connection From : " + context.ClientAddress);
-            ConnectedClients.TryAdd(context, String.Empty);
+            ConnectedClients.TryAdd(context.ClientAddress.ToString(), context);
         }
 
         /// <summary>
@@ -117,12 +125,10 @@ namespace Admo
         public static void OnDisconnect(UserContext context)
         {
             Log.Debug("Client Disconnected : " + context.ClientAddress);
-            var client = ConnectedClients.Keys.Single(o => o == context);
+            var key = context.ClientAddress.ToString();
+            UserContext client = ConnectedClients.Values.Single(o => o.ClientAddress == context.ClientAddress);
 
-            string trash; // Concurrent dictionaries make things weird
-            ConnectedClients.TryRemove(client, out trash);
-            //Set the last accessed time to now, so we can detect if the user disconnected
-            LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            ConnectedClients.TryRemove(key, out client);
         }
     }
 }
