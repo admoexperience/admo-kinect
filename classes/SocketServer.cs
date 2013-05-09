@@ -86,7 +86,7 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnReceive(UserContext context)
         {
-            Log.Debug("Received Data From :" + context.ClientAddress);
+           // Log.Debug("Received Data From :" + context.ClientAddress);
             try
             {
                 var json = context.DataFrame.ToString();
@@ -95,7 +95,7 @@ namespace Admo
                 dynamic obj = JsonConvert.DeserializeObject(json);
                 if (obj.type == "alive")
                 {
-                    LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                    LifeCycle.SetBrowserTime(Convert.ToDouble(DateTime.Now.Ticks) / 10000);
                     SendRawData("host-"+ Config.GetHostName());
                 }
 

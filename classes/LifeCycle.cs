@@ -12,7 +12,7 @@ namespace Admo
     {
         private const string BrowserExe = "Chrome.exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        public static double StartupTime = GetCurrentTimeInSeconds();
+        private static readonly double StartupTime = GetCurrentTimeInSeconds();
 
         internal enum StartupStage
         {
@@ -21,7 +21,7 @@ namespace Admo
             LaunchingApp,
             AppRunning
         }
-        public static StartupStage CurrentStartupStage = StartupStage.Startup;
+        private static StartupStage _currentStartupStage = StartupStage.Startup;
 
         internal enum RestartingStage
         {
@@ -30,25 +30,20 @@ namespace Admo
             StartupUrlClosed,
             AppStarted
         }
-        public static RestartingStage CurrentRestartingStage = RestartingStage.None;
+        private static RestartingStage _currentRestartingStage = RestartingStage.None;
 
+        private static double _restartTime = GetCurrentTimeInSeconds();
+        private static Boolean _restartingBrowser = false;
+        private static double _browserTime = GetCurrentTimeInSeconds();
 
+        private static bool _monitorWrite = true;
 
-        public static bool RestartStage1 = false;
-        public static bool RestartStage2 = false;
+        private static String _appName = Config.GetCurrentApp();
 
-        public static double RestartTime = GetCurrentTimeInSeconds();
-        private static Boolean RestartingBrowser = false;
-        public static double BrowserTime = GetCurrentTimeInSeconds();
+        private static Process _startupProcess;
+        private static Process _applicationBrowserProcess;
 
-        public static bool MonitorWrite = true;
-       
-        public static String AppName  = Config.GetCurrentApp();
-
-        private static Process StartupProcess;
-        private static Process ApplicationBrowserProcess;
-
-        private static double LastMonitorTime = GetCurrentTimeInSeconds();
+        private static double _lastMonitorTime = GetCurrentTimeInSeconds();
 
         public static void LifeLoop()
         {
@@ -75,14 +70,14 @@ namespace Admo
             //in dev mode do nothing.
             if (Config.IsDevMode()) return;
 
-            switch (CurrentStartupStage)
+            switch (_currentStartupStage)
             {
                 case StartupStage.Startup:
                     if (timeDiff > 1000)
                     {
                         Log.Debug("Starting up browser with startup url");
-                        StartupProcess = LaunchBrowser(Config.GetWebServer());
-                        CurrentStartupStage = StartupStage.ClosingStartup;
+                        _startupProcess = LaunchBrowser(Config.GetWebServer());
+                        _currentStartupStage = StartupStage.ClosingStartup;
                     }
                     break;
                 case StartupStage.ClosingStartup:
@@ -92,23 +87,23 @@ namespace Admo
                         //Killing the process directly causes the chrome message
                         try
                         {
-                            StartupProcess.CloseMainWindow();
+                            _startupProcess.CloseMainWindow();
                         }
                         catch (Exception e)
                         {
                             Log.Warn("Start up process has failed to close possible reasons are it has already exited",e);
                         }
-                        CurrentStartupStage = StartupStage.LaunchingApp;
+                        _currentStartupStage = StartupStage.LaunchingApp;
                     }
                     break;
                 case StartupStage.LaunchingApp:
                     if (timeDiff > 25000)
                     {
-                        Log.Debug("Launching browser with the "+ AppName);
-                        ApplicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + AppName);
-                        CurrentStartupStage = StartupStage.AppRunning;
+                        Log.Debug("Launching browser with the "+ _appName);
+                        _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
+                        _currentStartupStage = StartupStage.AppRunning;
                         //set the last accessed time to now.
-                        BrowserTime = GetCurrentTimeInSeconds();
+                        _browserTime = GetCurrentTimeInSeconds();
                         MouseDriver.HideTaskBarAndMouse();
                     }
                     break;
@@ -128,10 +123,9 @@ namespace Admo
         private static Boolean IsBrowserRunning()
         {
             var currentTime = GetCurrentTimeInSeconds();
-            var timeDiff = currentTime - BrowserTime;
-            Log.Debug("Browser time and current time diff " + timeDiff + " stage " + CurrentStartupStage);
-            //Browser has reported in last 30 seconds
-            return timeDiff  < 30000;
+            var timeDiff = currentTime - _browserTime;
+            //Browser has reported in last 20 seconds
+            return timeDiff  < 20000;
         }
 
         private static void LogStatus()
@@ -141,23 +135,23 @@ namespace Admo
             min = min % 3;
 
             //Monitor whether system is online
-            if ((min == 1) && MonitorWrite)
+            if ((min == 1) && _monitorWrite)
             {
                 try
                 {
                     var objWriter = new StreamWriter(Config.GetStatusFile());
                     objWriter.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture));
                     objWriter.Close();
-                    MonitorWrite = false;
+                    _monitorWrite = false;
                 }
                 catch (Exception e)
                 {
                     Log.Warn("Could not write status to the status file " + Config.GetStatusFile(),e);
                 }
             }
-            else if ((min == 2) && (MonitorWrite == false))
+            else if ((min == 2) && (_monitorWrite == false))
             {
-                MonitorWrite = true;
+                _monitorWrite = true;
             }
         }
 
@@ -169,30 +163,28 @@ namespace Admo
 
             //Only monitor every second.
             var temp = GetCurrentTimeInSeconds();
-            if (temp - LastMonitorTime > 1000)
+            if (temp - _lastMonitorTime > 1000)
             {
-                LastMonitorTime = temp;
+                _lastMonitorTime = temp;
             }
             else
             {
                 return;
             }
 
-            Log.Debug("Monitoring browser " + BrowserTime);
-
             LogStatus();
 
             //Only monitor browser stuff when it is actually started
-            if (CurrentStartupStage != StartupStage.AppRunning) return;
+            if (_currentStartupStage != StartupStage.AppRunning) return;
 
             var shouldRestartBrowser = false;
             
             //Check if app has changed if it has restart browser
             var tempAppName = Config.GetCurrentApp();
-            if (AppName != tempAppName)
+            if (_appName != tempAppName)
             {
-                Log.Info("Changing app from [" + AppName + "] to [" + tempAppName + "]");
-                AppName = tempAppName;
+                Log.Info("Changing app from [" + _appName + "] to [" + tempAppName + "]");
+                _appName = tempAppName;
                 shouldRestartBrowser = true;
             }
 
@@ -203,16 +195,15 @@ namespace Admo
                 Log.Debug("Setting shouldRestartBrowser to true");
             }
             
-            if (shouldRestartBrowser && !RestartingBrowser)
+            if (shouldRestartBrowser && !_restartingBrowser)
             {
-                RestartTime = GetCurrentTimeInSeconds();
-                RestartStage1 = false;
-                RestartStage2 = false;
-                RestartingBrowser = true;
-                Log.Debug("Attempting to restart the browser " + RestartTime);
+                _restartTime = GetCurrentTimeInSeconds();
+                _restartingBrowser = true;
+                _currentRestartingStage = RestartingStage.None;
+                Log.Debug("Attempting to restart the browser " + _restartTime);
                
             }
-            if (RestartingBrowser)
+            if (_restartingBrowser)
             {
                 RestartBrowser();
             }
@@ -223,15 +214,15 @@ namespace Admo
         private static void RestartBrowser()
         {
             var currentTime = GetCurrentTimeInSeconds();
-            var timeDiff = currentTime - RestartTime;
-            Log.Info("Restart time difference " + timeDiff);
-            switch(CurrentRestartingStage)
+            var timeDiff = currentTime - _restartTime;
+            switch(_currentRestartingStage)
             {
                 case RestartingStage.None:
                     if (timeDiff > 2000)
                     {
-                        StartupProcess = LaunchBrowser(Config.GetWebServer());
-                         CurrentRestartingStage = RestartingStage.StartupUrl;
+                        Log.Info("RestartingStage.None");
+                        _startupProcess = LaunchBrowser(Config.GetWebServer());
+                        _currentRestartingStage = RestartingStage.StartupUrl;
                     }
                     break;
                 case RestartingStage.StartupUrl:
@@ -240,28 +231,34 @@ namespace Admo
                         //Killing the process directly causes the chrome message
                         try
                         {
-                            StartupProcess.CloseMainWindow();
+                            Log.Info("RestartingStage.StartupUrl");
+                            _startupProcess.CloseMainWindow();
                         }
                         catch (Exception e)
                         {
                             Log.Warn("Start up process has failed to close possible reasons are it has already exited", e);
                         }
-                        CurrentRestartingStage = RestartingStage.StartupUrlClosed;
+                        _currentRestartingStage = RestartingStage.StartupUrlClosed;
                     }
                     break;
                 case RestartingStage.StartupUrlClosed:
                     if (timeDiff > 6000)
                     {
-                        Log.Info("Launching [" + AppName + "]");
-                        ApplicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + AppName);
+                        Log.Info("ReLaunching [" + _appName + "]");
+                        _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
                         //Set the last browser reported time to be now so it doesn't do this loop again before it checks in.
-                        BrowserTime = currentTime;
-                        RestartingBrowser = false;
-                        CurrentRestartingStage = RestartingStage.AppStarted;
+                        _browserTime = currentTime;
+                        _restartingBrowser = false;
+                        _currentRestartingStage = RestartingStage.AppStarted;
                         MouseDriver.HideTaskBarAndMouse();
                     }
                     break;
             }                      
+        }
+
+        public static void SetBrowserTime(double time)
+        {
+            _browserTime = time;
         }
 
         //restart PC
