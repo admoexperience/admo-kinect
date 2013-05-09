@@ -109,6 +109,7 @@ namespace Admo
                         CurrentStartupStage = StartupStage.AppRunning;
                         //set the last accessed time to now.
                         BrowserTime = GetCurrentTimeInSeconds();
+                        MouseDriver.HideTaskBarAndMouse();
                     }
                     break;
             }
@@ -257,6 +258,7 @@ namespace Admo
                         BrowserTime = currentTime;
                         RestartingBrowser = false;
                         CurrentRestartingStage = RestartingStage.AppStarted;
+                        MouseDriver.HideTaskBarAndMouse();
                     }
                     break;
             }                      

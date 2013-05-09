@@ -68,7 +68,15 @@ namespace Admo
             ShowCursor(false);
         }
 
-        public static void AllowCameraAccess() {
+        //Function hides the mouse and by clicking on the selected screen hides the windows task bar as well
+	    public static void HideTaskBarAndMouse()
+	    {
+            SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
+            Thread.Sleep(100);
+            Hide();
+	    }
+
+	    public static void AllowCameraAccess() {
             MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, false);
             System.Threading.Thread.Sleep(100);
             MouseDriver.SendMouseInput(400, 25, (int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight, false, true);
