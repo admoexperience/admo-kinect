@@ -282,15 +282,7 @@ namespace Admo
                     }
                 }
 
-                //startup chorme in fullscreen and use mouse driver to allow webcam
-                LifeCycle.Startup();
-                //listen for restarting call
-                LifeCycle.Restart();
-                //monitoring if chrome browser is running node app
-                if (!Config.IsDevMode())
-                {
-                    LifeCycle.Monitor();
-                }
+                LifeCycle.LifeLoop();
 
                 if ((colorFrame != null)&&((Config.RunningFacetracking)|| Config.IsDevMode()))
                 {

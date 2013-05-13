@@ -1,34 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Admo.classes;
-using Microsoft.Kinect;
-using System.Runtime.InteropServices;
-using System.Drawing;
-using System.Windows.Forms;
-using Fleck;
-using System.IO;
-using System.Threading;
-//using System.Windows.Forms.Integration;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using SocketIOClient.Messages;
-using SocketIOClient;
-using SocketIOClient.Eventing;
-using Newtonsoft.Json.Linq;
 using NLog;
-using Alchemy;
 using Alchemy.Classes;
 using WebSocketServer = Alchemy.WebSocketServer;
 
@@ -40,9 +17,10 @@ namespace Admo
 
         private static WebSocketServer _aServer;
 
-        private static Boolean _serverRunning = false;
+        private static Boolean _serverRunning;
 
-        private static UserContext _lastUserContext = null;
+        //Concurrent lists arent in c#
+        protected static ConcurrentDictionary<string, UserContext> ConnectedClients = new ConcurrentDictionary<string, UserContext>();
 
         public static void StartServer()
 		{
@@ -50,7 +28,7 @@ namespace Admo
 
             Log.Info("Starting SocketIOClient server");
 
-            _aServer = new Alchemy.WebSocketServer(1080, IPAddress.Any)
+            _aServer = new WebSocketServer(1080, IPAddress.Any)
                 {
                     OnReceive = OnReceive,
                     OnSend = OnSend,
@@ -66,12 +44,22 @@ namespace Admo
 
         public static void SendRawData(String data)
         {
-            if (_lastUserContext == null) return;
-
             var properties = new Dictionary<string, object>();
             properties["gesture"] = data;
 
-            _lastUserContext.Send(JsonConvert.SerializeObject(properties));
+              // iterates, and updates the value by one
+            foreach (var client in ConnectedClients.Values)
+            {
+                try
+                {
+                    client.Send(JsonConvert.SerializeObject(properties));
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Could not send message to client "+ client.ClientAddress,e);
+                }
+                
+            }
         }
 
         public static void Stop()
@@ -88,8 +76,7 @@ namespace Admo
         public static void OnConnect(UserContext context)
         {
             Log.Debug("Client Connection From : " + context.ClientAddress);
-            _lastUserContext = context;
-
+            ConnectedClients.TryAdd(context.ClientAddress.ToString(), context);
         }
 
         /// <summary>
@@ -99,7 +86,7 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnReceive(UserContext context)
         {
-            Log.Debug("Received Data From :" + context.ClientAddress);
+           // Log.Debug("Received Data From :" + context.ClientAddress);
             try
             {
                 var json = context.DataFrame.ToString();
@@ -108,7 +95,7 @@ namespace Admo
                 dynamic obj = JsonConvert.DeserializeObject(json);
                 if (obj.type == "alive")
                 {
-                    LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                    LifeCycle.SetBrowserTime(Convert.ToDouble(DateTime.Now.Ticks) / 10000);
                     SendRawData("host-"+ Config.GetHostName());
                 }
 
@@ -138,61 +125,10 @@ namespace Admo
         public static void OnDisconnect(UserContext context)
         {
             Log.Debug("Client Disconnected : " + context.ClientAddress);
-            _lastUserContext = null;
-            //Set the last accessed time to now, so we can detect if the user disconnected
-            LifeCycle.BrowserTime = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            var key = context.ClientAddress.ToString();
+            UserContext client = ConnectedClients.Values.Single(o => o.ClientAddress == context.ClientAddress);
+
+            ConnectedClients.TryRemove(key, out client);
         }
-
-      
-       
-        
-
-        /// <summary>
-        /// Broadcasts an error message to the client who caused the error
-        /// </summary>
-        /// <param name="errorMessage">Details of the error</param>
-        /// <param name="context">The user's connection context</param>
-        private static void SendError(string errorMessage, UserContext context)
-        {
-            var r = new Response {Type = ResponseType.Error, Data = new {Message = errorMessage}};
-            context.Send(JsonConvert.SerializeObject(r));
-        }
-
-      
-
-      
-
-      
-        /// <summary>
-        /// Defines the type of response to send back to the client for parsing logic
-        /// </summary>
-        public enum ResponseType
-        {
-            Connection = 0,
-            Disconnect = 1,
-            Message = 2,
-            NameChange = 3,
-            UserCount = 4,
-            Error = 255
-        }
-
-        /// <summary>
-        /// Defines the response object to send back to the client
-        /// </summary>
-        public class Response
-        {
-            public ResponseType Type { get; set; }
-            public dynamic Data { get; set; }
-        }
-
-        /// <summary>
-        /// Holds the name and context instance for an online user
-        /// </summary>
-        public class User
-        {
-            public string Name = String.Empty;
-            public UserContext Context { get; set; }
-        }
-      
     }
 }
