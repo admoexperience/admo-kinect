@@ -133,6 +133,7 @@
     <Compile Include="classes\Cursor_Handler.cs" />
     <Compile Include="classes\Image_Processing.cs" />
     <Compile Include="classes\KeyboardDriver.cs" />
+    <Compile Include="classes\lib\Pubnub.cs" />
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\MouseDriver.cs" />
     <Compile Include="classes\SocketServer.cs" />

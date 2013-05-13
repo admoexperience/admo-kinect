@@ -80,8 +80,8 @@ namespace Admo
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
-            this.sensorChooser.Start();          
-            
+            this.sensorChooser.Start();
+            Config.InitPubNub();
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)

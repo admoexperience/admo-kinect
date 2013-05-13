@@ -3,11 +3,14 @@ using System.IO;
 using System.Net.Http;
 using NLog;
 using Newtonsoft.Json;
+using PubNubMessaging.Core;
 
 namespace Admo.classes
 {
     class Config
     {
+
+        private static Pubnub pubnub;
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -20,6 +23,24 @@ namespace Admo.classes
         public static String GetHostName()
         {
             return Environment.MachineName;
+        }
+
+        public static void InitPubNub()
+        {
+            pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
+            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnect);
+        }
+
+        private static void OnPubNubConnect(string result)
+        {
+            UpdateConfigCache();
+            Log.Debug("Pubnub connected "+ result);
+        }
+
+        private static void OnPubNubMessage(string result)
+        {
+            UpdateConfigCache();
+            Log.Debug("Pubnub message " + result);
         }
 
         //Production mode by default. 
@@ -71,7 +92,7 @@ namespace Admo.classes
 
         public static String GetStatusFile()
         {
-            return BaseDropboxFolder +  @"\\" + Environment.MachineName+ @"\Status.txt";
+            return BaseDropboxFolder +  @"\" + Environment.MachineName+ @"\Status.txt";
         }
 
         private static String GetConfigCacheLocation(String configOption)
@@ -88,21 +109,36 @@ namespace Admo.classes
             }
             return apiKey;
         }
+        
+        private static String GetPubNubSubKey()
+        {
+            var key = ReadFile(BaseDropboxFolder +"\\config\\"+"PubNubSubKey.txt");
+            if (key.Equals(String.Empty))
+            {
+                 throw new Exception("PubNubSubKey not found please add it");
+            }
+            return key;
+        }
 
         private static String ReadConfig(String config)
         {
             var configFile = GetConfigCacheLocation(config);
+            return ReadFile(configFile);
+        }
+
+        private static String ReadFile(string filePath)
+        {
             String temp;
             try
             {
                 var objReader =
-                    new StreamReader(configFile);
-                 temp = objReader.ReadLine();
+                    new StreamReader(filePath);
+                temp = objReader.ReadLine();
                 objReader.Close();
             }
             catch (FileNotFoundException fnfe)
             {
-                Log.Debug("Config file not found ["+configFile+"]");
+                Log.Debug("Config file not found [" + filePath + "]");
                 return String.Empty;
             }
             return temp == null ? string.Empty : temp.Trim();
