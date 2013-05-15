@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -83,7 +84,13 @@ namespace Admo
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
-           
+
+            if (!Config.IsDevMode())
+            {
+                //Minimize the window so that the chrome window is always infront.
+                this.WindowState = (WindowState) FormWindowState.Minimized;
+            }
+
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
