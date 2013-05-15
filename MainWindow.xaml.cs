@@ -72,6 +72,8 @@ namespace Admo
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
+            Config.InitPubNub();
+            
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
@@ -81,7 +83,7 @@ namespace Admo
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
-            Config.InitPubNub();
+           
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)

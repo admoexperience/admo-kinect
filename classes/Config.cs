@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using NLog;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PubNubMessaging.Core;
 
 namespace Admo.classes
@@ -49,11 +50,7 @@ namespace Admo.classes
         {
             if (_enviroment == null)
             {
-                _enviroment = ReadConfig("Enviroment");
-                if (_enviroment.Equals(String.Empty))
-                {
-                    _enviroment = "production";
-                }
+                _enviroment = ReadConfigOption("environment","production");
             }
             return _enviroment.Equals("development");
         }
@@ -61,12 +58,7 @@ namespace Admo.classes
         public static String GetWebServer()
         {
             if (_webServer != null) return _webServer;
-            _webServer = ReadConfig("WebServer");
-            //If the config option isn't there return the default value
-            if (_webServer.Equals(String.Empty))
-            {
-                _webServer = "https://localhost:3001";
-            }
+            _webServer = ReadConfigOption("web_ui_server","https://localhost:3001");
             return _webServer;
         }
 
@@ -77,27 +69,27 @@ namespace Admo.classes
 
         public static String GetCurrentApp()
         {
-            var appName = ReadConfig("App");
+            var appName = ReadConfigOption("app","demo");
             return appName;
         }
 
         public static int GetElevationAngle()
         {
-            var temp = ReadConfig("Elevation");
+            var temp = ReadConfigOption("kinect_elevation","1");
             var elevationAngle = Convert.ToInt32(temp);
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
 
         }
 
-        public static String GetStatusFile()
-        {
-            return BaseDropboxFolder +  @"\" + Environment.MachineName+ @"\Status.txt";
-        }
-
         private static String GetConfigCacheLocation(String configOption)
         {
             return BaseDropboxFolder + @"\" + Environment.MachineName + @"\" + configOption + ".txt"; ;
+        }
+
+        private static String GetConfigCacheLocationNew()
+        {
+            return BaseDropboxFolder + @"\" + Environment.MachineName + @"\configcache.json"; ;
         }
 
         private static String GetApiKey()
@@ -144,10 +136,48 @@ namespace Admo.classes
             return temp == null ? string.Empty : temp.Trim();
         }
 
+        public static String ReadConfigOption(String option, string defaultOption)
+        {
+            var val = ReadConfigOption(option);
+            //If the config option isn't there return the default value
+            if (val.Equals(String.Empty))
+            {
+                val = defaultOption;
+            }
+            return val;
+        }
+
+        public static String ReadConfigOption(String option)
+        {
+            var cacheFile = GetConfigCacheLocationNew();
+            String temp = null;
+            try
+            {
+                var objReader =
+                    new StreamReader(cacheFile);
+                temp = objReader.ReadLine();
+                objReader.Close();
+            }
+            catch (FileNotFoundException fnfe)
+            {
+                Log.Debug("Cache file not found [" + cacheFile + "]");
+                return string.Empty;
+            }
+            var obj = (JObject)JsonConvert.DeserializeObject(temp);
+           
+            object optionValue = obj["config"][option];
+
+            var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
+            Log.Debug(option+"="+val);
+            return val;
+    
+        }
+
         public static async void UpdateConfigCache()
         {
+            Log.Debug("Updating config");
             var httpClient = new HttpClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://admo-cms.herokuapp.com/unit/checkin.json");
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/config.json");
             // Add our custom headers
             requestMessage.Headers.Add("Api-Key", GetApiKey());
 
@@ -158,38 +188,8 @@ namespace Admo.classes
             var responseAsString = await response.Content.ReadAsStringAsync();
 
             dynamic obj = JsonConvert.DeserializeObject(responseAsString);
-            var appName = obj.unit.current_app;
-            Log.Debug(appName);
-            var cacheFile = GetConfigCacheLocation("App");
-            try
-            {
-                var streamWriter = new StreamWriter(cacheFile);
-                streamWriter.Write(appName);
-                streamWriter.Close();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
-            }
-        }
 
-
-        public static async void CheckIn()
-        {
-            Log.Debug("Checking into the CMS");
-            // You need to add a reference to System.Net.Http to declare client.
-            var httpClient = new HttpClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://admo-cms.herokuapp.com/unit/checkin.json");
-            // Add our custom headers
-            requestMessage.Headers.Add("Api-Key", GetApiKey());
-
-            // Send the request to the server
-            var response = await httpClient.SendAsync(requestMessage);
-
-            // Just as an example I'm turning the response into a string here
-            var responseAsString = await response.Content.ReadAsStringAsync();
-            Log.Debug(responseAsString);
-            /*var cacheFile = GetConfigCacheLocation(config);
+            var cacheFile = GetConfigCacheLocationNew();
             try
             {
                 var streamWriter = new StreamWriter(cacheFile);
@@ -198,8 +198,25 @@ namespace Admo.classes
             }
             catch (Exception e)
             {
-                Log.Error("Failed to write cache file for [" + config + "] to disk", e);
-            }*/
+                Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
+            }
+        } 
+
+
+        public static async void CheckIn()
+        {
+            Log.Debug("Checking into the CMS");
+            // You need to add a reference to System.Net.Http to declare client.
+            var httpClient = new HttpClient();
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/checkin.json");
+            // Add our custom headers
+            requestMessage.Headers.Add("Api-Key", GetApiKey());
+
+            // Send the request to the server
+            var response = await httpClient.SendAsync(requestMessage);
+
+
+            var responseAsString = await response.Content.ReadAsStringAsync();
         }
     }
 }
