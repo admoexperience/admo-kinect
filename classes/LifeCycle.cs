@@ -44,6 +44,8 @@ namespace Admo
         private static Process _applicationBrowserProcess;
 
         private static double _lastMonitorTime = GetCurrentTimeInSeconds();
+        private static double _lastCheckinTime = _lastMonitorTime;
+  
 
         public static void LifeLoop()
         {
@@ -73,7 +75,7 @@ namespace Admo
             switch (_currentStartupStage)
             {
                 case StartupStage.Startup:
-                    if (timeDiff > 1000)
+                    if (timeDiff > 10)
                     {
                         Log.Debug("Starting up browser with startup url");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
@@ -81,7 +83,7 @@ namespace Admo
                     }
                     break;
                 case StartupStage.ClosingStartup:
-                    if(timeDiff > 23000)
+                    if(timeDiff > 23)
                     {
                         Log.Debug("Closing browser with startup url");
                         //Killing the process directly causes the chrome message
@@ -91,13 +93,13 @@ namespace Admo
                         }
                         catch (Exception e)
                         {
-                            Log.Warn("Start up process has failed to close possible reasons are it has already exited",e);
+                            Log.Warn("Start up process has failed to close possible reason it has already exited",e);
                         }
                         _currentStartupStage = StartupStage.LaunchingApp;
                     }
                     break;
                 case StartupStage.LaunchingApp:
-                    if (timeDiff > 25000)
+                    if (timeDiff > 25)
                     {
                         Log.Debug("Launching browser with the "+ _appName);
                         _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
@@ -112,7 +114,7 @@ namespace Admo
 
         private static double GetCurrentTimeInSeconds()
         {
-            return Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            return Convert.ToDouble(DateTime.Now.Ticks) / 10000 / 1000;
         }
 
         private static Process LaunchBrowser(String url)
@@ -125,45 +127,29 @@ namespace Admo
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _browserTime;
             //Browser has reported in last 20 seconds
-            return timeDiff  < 20000;
+            return timeDiff  < 20;
         }
 
-        private static void LogStatus()
+        private static void Checkin()
         {
-            var datetime = DateTime.Now.ToString("HH:mm:ss tt");
-            var min = Convert.ToInt32(datetime.Substring(3, 2));
-            min = min % 3;
-
-            //Monitor whether system is online
-            if ((min == 1) && _monitorWrite)
-            {
-                try
-                {
-                    var objWriter = new StreamWriter(Config.GetStatusFile());
-                    objWriter.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture));
-                    objWriter.Close();
-                    _monitorWrite = false;
-                }
-                catch (Exception e)
-                {
-                    Log.Warn("Could not write status to the status file " + Config.GetStatusFile(),e);
-                }
-            }
-            else if ((min == 2) && (_monitorWrite == false))
-            {
-                _monitorWrite = true;
-            }
+            //Only monitor every second.
+            var temp = GetCurrentTimeInSeconds();
+            if (!(temp - _lastCheckinTime > Config.CheckingInterval)) return;
+            
+            _lastCheckinTime = temp;
+            Config.CheckIn();
+           
         }
 
 
         private static void Monitor()
         {
-            //Don't do any of this in dev mode.
-            if (Config.IsDevMode()) return;
+            
 
             //Only monitor every second.
             var temp = GetCurrentTimeInSeconds();
-            if (temp - _lastMonitorTime > 1000)
+
+            if (temp - _lastMonitorTime > 1)
             {
                 _lastMonitorTime = temp;
             }
@@ -172,7 +158,10 @@ namespace Admo
                 return;
             }
 
-            LogStatus();
+            Checkin();
+           
+            //Don't do any of this in dev mode.
+            if (Config.IsDevMode()) return;
 
             //Only monitor browser stuff when it is actually started
             if (_currentStartupStage != StartupStage.AppRunning) return;
@@ -218,7 +207,7 @@ namespace Admo
             switch(_currentRestartingStage)
             {
                 case RestartingStage.None:
-                    if (timeDiff > 2000)
+                    if (timeDiff > 2)
                     {
                         Log.Info("RestartingStage.None");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
@@ -226,7 +215,7 @@ namespace Admo
                     }
                     break;
                 case RestartingStage.StartupUrl:
-                    if (timeDiff > 3000)
+                    if (timeDiff > 3)
                     {
                         //Killing the process directly causes the chrome message
                         try
@@ -242,7 +231,7 @@ namespace Admo
                     }
                     break;
                 case RestartingStage.StartupUrlClosed:
-                    if (timeDiff > 6000)
+                    if (timeDiff > 6)
                     {
                         Log.Info("ReLaunching [" + _appName + "]");
                         _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
@@ -256,9 +245,9 @@ namespace Admo
             }                      
         }
 
-        public static void SetBrowserTime(double time)
+        public static void SetBrowserTimeNow()
         {
-            _browserTime = time;
+            _browserTime = GetCurrentTimeInSeconds();
         }
 
         //restart PC
@@ -268,7 +257,8 @@ namespace Admo
             var hour = Convert.ToInt32(datetime.Substring(0, 2));
             var min = Convert.ToInt32(datetime.Substring(3, 2));
 
-            if ((hour == 20) && (min == 59))
+            //Reboot the machine at 23:59
+            if ((hour == 23) && (min == 59))
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 var window = Application.Current.Windows[0];
