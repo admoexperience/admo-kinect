@@ -138,18 +138,6 @@ namespace Admo
             
             _lastCheckinTime = temp;
             Config.CheckIn();
-
-            try
-            {
-                var objWriter = new StreamWriter(Config.GetStatusFile());
-                objWriter.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture));
-                objWriter.Close();
-                _monitorWrite = false;
-            }
-            catch (Exception e)
-            {
-                Log.Warn("Could not write status to the status file " + Config.GetStatusFile(),e);
-            }
            
         }
 

@@ -50,7 +50,7 @@ namespace PubNubMessaging.Core
         int _pubnubWebRequestRetryIntervalInSeconds = 10;
         bool _enableResumeOnReconnect = true;
         bool overrideTcpKeepAlive = true;
-        const LoggingMethod.Level pubnubLogLevel = LoggingMethod.Level.Verbose;
+        const LoggingMethod.Level pubnubLogLevel = LoggingMethod.Level.Error;
 
 #if (!SILVERLIGHT && !WINDOWS_PHONE)
         bool pubnubEnableProxyConfig = true;
