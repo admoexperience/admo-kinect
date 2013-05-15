@@ -45,7 +45,7 @@ namespace Admo
 
         private static double _lastMonitorTime = GetCurrentTimeInSeconds();
         private static double _lastCheckinTime = _lastMonitorTime;
-        private const double CheckingInterval = 5*60; //Once every 5mins
+  
 
         public static void LifeLoop()
         {
@@ -93,7 +93,7 @@ namespace Admo
                         }
                         catch (Exception e)
                         {
-                            Log.Warn("Start up process has failed to close possible reasons are it has already exited",e);
+                            Log.Warn("Start up process has failed to close possible reason it has already exited",e);
                         }
                         _currentStartupStage = StartupStage.LaunchingApp;
                     }
@@ -134,7 +134,7 @@ namespace Admo
         {
             //Only monitor every second.
             var temp = GetCurrentTimeInSeconds();
-            if (!(temp - _lastCheckinTime > CheckingInterval)) return;
+            if (!(temp - _lastCheckinTime > Config.CheckingInterval)) return;
             
             _lastCheckinTime = temp;
             Config.CheckIn();
@@ -257,7 +257,8 @@ namespace Admo
             var hour = Convert.ToInt32(datetime.Substring(0, 2));
             var min = Convert.ToInt32(datetime.Substring(3, 2));
 
-            if ((hour == 20) && (min == 59))
+            //Reboot the machine at 23:59
+            if ((hour == 23) && (min == 59))
             {
                 Process.Start("shutdown.exe", "/r /t 10");
                 var window = Application.Current.Windows[0];

@@ -12,6 +12,7 @@ namespace Admo.classes
     {
 
         private static Pubnub pubnub;
+        public const double CheckingInterval = 5 * 60; //Once every 5mins
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -82,22 +83,22 @@ namespace Admo.classes
 
         }
 
-        private static String GetConfigCacheLocation(String configOption)
+        private static String GetLocalConfig(String configOption)
         {
             return BaseDropboxFolder + @"\" + Environment.MachineName + @"\" + configOption + ".txt"; ;
         }
 
-        private static String GetConfigCacheLocationNew()
+        private static String GetCmsConfigCacheFile()
         {
             return BaseDropboxFolder + @"\" + Environment.MachineName + @"\configcache.json"; ;
         }
 
         private static String GetApiKey()
         {
-            var apiKey = ReadConfig("ApiKey");
+            var apiKey = ReadLocalConfig("ApiKey");
             if (apiKey.Equals(String.Empty))
             {
-                throw new Exception("ApiKey not found please add it to [" + GetConfigCacheLocation("ApiKey")+"]");
+                throw new Exception("ApiKey not found please add it to [" + GetLocalConfig("ApiKey")+"]");
             }
             return apiKey;
         }
@@ -112,9 +113,9 @@ namespace Admo.classes
             return key;
         }
 
-        private static String ReadConfig(String config)
+        private static String ReadLocalConfig(String config)
         {
-            var configFile = GetConfigCacheLocation(config);
+            var configFile = GetLocalConfig(config);
             return ReadFile(configFile);
         }
 
@@ -149,7 +150,7 @@ namespace Admo.classes
 
         public static String ReadConfigOption(String option)
         {
-            var cacheFile = GetConfigCacheLocationNew();
+            var cacheFile = GetCmsConfigCacheFile();
             String temp = null;
             try
             {
@@ -168,7 +169,6 @@ namespace Admo.classes
             object optionValue = obj["config"][option];
 
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
-            Log.Debug(option+"="+val);
             return val;
     
         }
@@ -189,7 +189,7 @@ namespace Admo.classes
 
             dynamic obj = JsonConvert.DeserializeObject(responseAsString);
 
-            var cacheFile = GetConfigCacheLocationNew();
+            var cacheFile = GetCmsConfigCacheFile();
             try
             {
                 var streamWriter = new StreamWriter(cacheFile);
