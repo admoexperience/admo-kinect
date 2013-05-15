@@ -245,9 +245,9 @@ namespace Admo
             }                      
         }
 
-        public static void SetBrowserTime(double time)
+        public static void SetBrowserTimeNow()
         {
-            _browserTime = time;
+            _browserTime = GetCurrentTimeInSeconds();
         }
 
         //restart PC
