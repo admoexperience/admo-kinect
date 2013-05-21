@@ -175,48 +175,65 @@ namespace Admo.classes
 
         public static async void UpdateConfigCache()
         {
-            Log.Debug("Updating config");
-            var httpClient = new HttpClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/config.json");
-            // Add our custom headers
-            requestMessage.Headers.Add("Api-Key", GetApiKey());
-
-            // Send the request to the server
-            var response = await httpClient.SendAsync(requestMessage);
-
-            // Just as an example I'm turning the response into a string here
-            var responseAsString = await response.Content.ReadAsStringAsync();
-
-            dynamic obj = JsonConvert.DeserializeObject(responseAsString);
-
-            var cacheFile = GetCmsConfigCacheFile();
             try
             {
-                var streamWriter = new StreamWriter(cacheFile);
-                streamWriter.Write(responseAsString);
-                streamWriter.Close();
+                Log.Debug("Updating config");
+                var httpClient = new HttpClient();
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/config.json");
+                // Add our custom headers
+                requestMessage.Headers.Add("Api-Key", GetApiKey());
+
+                // Send the request to the server
+                var response = await httpClient.SendAsync(requestMessage);
+
+                // Just as an example I'm turning the response into a string here
+                var responseAsString = await response.Content.ReadAsStringAsync();
+
+                dynamic obj = JsonConvert.DeserializeObject(responseAsString);
+
+                var cacheFile = GetCmsConfigCacheFile();
+                try
+                {
+                    var streamWriter = new StreamWriter(cacheFile);
+                    streamWriter.Write(responseAsString);
+                    streamWriter.Close();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
+                }
             }
             catch (Exception e)
             {
-                Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
+                //Happens when the unit is offline
+                Log.Warn("Unable to update the cacheconfig file",e);
             }
         } 
 
 
         public static async void CheckIn()
         {
-            Log.Debug("Checking into the CMS");
-            // You need to add a reference to System.Net.Http to declare client.
-            var httpClient = new HttpClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/checkin.json");
-            // Add our custom headers
-            requestMessage.Headers.Add("Api-Key", GetApiKey());
+            try
+            {
+                Log.Debug("Checking into the CMS");
+                // You need to add a reference to System.Net.Http to declare client.
+                var httpClient = new HttpClient();
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get,
+                                                            "http://cms.admo.co/api/v1/unit/checkin.json");
+                // Add our custom headers
+                requestMessage.Headers.Add("Api-Key", GetApiKey());
 
-            // Send the request to the server
-            var response = await httpClient.SendAsync(requestMessage);
+                // Send the request to the server
+                var response = await httpClient.SendAsync(requestMessage);
 
 
-            var responseAsString = await response.Content.ReadAsStringAsync();
+                var responseAsString = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception e)
+            {
+                //Happens when the unit is offline
+                Log.Warn("Unable to check in",e);
+            }
         }
     }
 }
