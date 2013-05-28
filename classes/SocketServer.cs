@@ -7,6 +7,7 @@ using Admo.classes;
 using Newtonsoft.Json;
 using NLog;
 using Alchemy.Classes;
+using Newtonsoft.Json.Serialization;
 using WebSocketServer = Alchemy.WebSocketServer;
 
 namespace Admo
@@ -42,23 +43,45 @@ namespace Admo
             _serverRunning = true;
 		}
 
-        public static void SendRawData(String data)
+
+        //Depricated
+       /* public static void SendRawData(String data)
         {
             var properties = new Dictionary<string, object>();
             properties["gesture"] = data;
+            SendToAll(JsonConvert.SerializeObject(properties));
+        }*/
 
-              // iterates, and updates the value by one
+        public static void SendKinectData(KinectState state)
+        {
+            var cont = new DataContainer {Type = "kinectState", Data = state};
+
+            var x = JsonConvert.SerializeObject(cont,
+                                              Formatting.None,
+                                              new JsonSerializerSettings
+                                              {
+                                                  NullValueHandling = NullValueHandling.Ignore,
+                                                  Formatting = Formatting.None,
+                                                  ContractResolver = new CamelCasePropertyNamesContractResolver()
+                                              });
+            SendToAll(x);
+        }
+
+
+        private static void SendToAll(String data)
+        {
+            // iterates, and updates the value by one
             foreach (var client in ConnectedClients.Values)
             {
                 try
                 {
-                    client.Send(JsonConvert.SerializeObject(properties));
+                    client.Send(data);
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Could not send message to client "+ client.ClientAddress,e);
+                    Log.Error("Could not send message to client " + client.ClientAddress, e);
                 }
-                
+
             }
         }
 
@@ -96,7 +119,7 @@ namespace Admo
                 if (obj.type == "alive")
                 {
                     LifeCycle.SetBrowserTimeNow();
-                    SendRawData("host-"+ Config.GetHostName());
+                   // SendRawData("host-"+ Config.GetHostName());
                 }
 
             }

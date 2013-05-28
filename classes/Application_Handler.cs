@@ -11,11 +11,10 @@ using NLog;
 
 namespace Admo
 {
-    class Application_Handler
+    internal class Application_Handler
     {
-
         private static Logger Log = LogManager.GetCurrentClassLogger();
-        
+
         public static String toggle = "gestures";
         public static String stickman = " ";
 
@@ -25,81 +24,83 @@ namespace Admo
         public static double fov_height = 640;
         public static double fov_width = 480;
 
-        
+
         //manage gestures
         public static void ManageGestures(float[] coordinates)
-        {                        
-           
+        {
         }
 
 
         //Find a possible person in the depth image
         public static void FindPlayer(DepthImageFrame depthFrame)
-        {            
-                if (depthFrame == null)
+        {
+            if (depthFrame == null)
+            {
+                return;
+            }
+
+            //get the raw data from kinect with the depth for every pixel
+
+            short[] rawDepthData = new short[depthFrame.PixelDataLength];
+            int[,] array = new int[depthFrame.Height,depthFrame.Width]; //(480,640)
+
+            depthFrame.CopyPixelDataTo(rawDepthData);
+
+            Byte[] pixels = new byte[depthFrame.Height*depthFrame.Width*4];
+
+            int x_coord = 0;
+            int y_coord = 0;
+            int z_coord = 0;
+
+            //loop through all distances
+            //pick a RGB color based on distance
+            for (int depthIndex = 0, colorIndex = 0;
+                 depthIndex < rawDepthData.Length && colorIndex < pixels.Length;
+                 depthIndex++, colorIndex += 4)
+            {
+                //get the player (requires skeleton tracking enabled for values)
+                int player = rawDepthData[depthIndex] & DepthImageFrame.PlayerIndexBitmask;
+
+                //gets the depth value
+                int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
+
+                if ((depth > 400) && (depth < 2500))
                 {
-                    return;
+                    y_coord = depthIndex/(depthFrame.Width);
+                    x_coord = depthIndex - y_coord*(depthFrame.Width);
+                    z_coord = depth;
+                    break;
                 }
+            }
 
-                //get the raw data from kinect with the depth for every pixel
+            int mode = 1;
+            var kinectState = new KinectState();
+            kinectState.Phase = 1;
+            String video_coord = "0^0^0^0^0^0^0^0^0";
 
-                short[] rawDepthData = new short[depthFrame.PixelDataLength];
-                int[,] array = new int[depthFrame.Height, depthFrame.Width]; //(480,640)
+            if ((x_coord > 50) && (x_coord < 590) && (y_coord < 250))
+            {
+                float[] array_xy = Coordinate_History.Filter_Depth(x_coord, y_coord);
+                //TODO: figure out what 35000 and 80000 mean
+                x_coord = (int) (array_xy[0] + 35000/z_coord);
+                y_coord = (int) (array_xy[1] + 80000/z_coord);
 
-                depthFrame.CopyPixelDataTo(rawDepthData);
+                String head = Convert.ToString(x_coord) + "^" + Convert.ToString(y_coord);
+                String depth_head = Convert.ToString(z_coord);
+                video_coord = head + "^" + depth_head + "^0^0^0^0^0^0";
+                kinectState.SetHead(x_coord, y_coord, z_coord);
+                kinectState.Phase = 2;
+                mode = 2;
+            }
 
-                Byte[] pixels = new byte[depthFrame.Height * depthFrame.Width * 4];
-
-                int x_coord = 0;
-                int y_coord = 0;
-                int z_coord = 0;
-
-                //loop through all distances
-                //pick a RGB color based on distance
-                for (int depthIndex = 0, colorIndex = 0;
-                    depthIndex < rawDepthData.Length && colorIndex < pixels.Length;
-                    depthIndex++, colorIndex += 4)
-                {
-                    //get the player (requires skeleton tracking enabled for values)
-                    int player = rawDepthData[depthIndex] & DepthImageFrame.PlayerIndexBitmask;
-
-                    //gets the depth value
-                    int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
-
-                    if ((depth > 400) && (depth < 2500))
-                    {
-                        y_coord = depthIndex / (depthFrame.Width);
-                        x_coord = depthIndex - y_coord * (depthFrame.Width);
-                        z_coord = depth;
-                        break;
-                    }
-
-                }
-
-                int mode = 1;
-                String video_coord = "0^0^0^0^0^0^0^0^0";
-
-                if ((x_coord > 50) && (x_coord < 590) && (y_coord < 250))
-                {
-                    float[] array_xy = Coordinate_History.Filter_Depth(x_coord, y_coord);
-                    x_coord = (int)(array_xy[0] + 35000 / z_coord);
-                    y_coord = (int)(array_xy[1] + 80000 / z_coord);
-
-                    String head = Convert.ToString(x_coord) + "^" + Convert.ToString(y_coord);
-                    String depth_head = Convert.ToString(z_coord);
-                    video_coord = head + "^" + depth_head + "^0^0^0^0^0^0";
-                    mode = 2;                    
-                }
-
-                stickman = Convert.ToString(mode) + "-" + video_coord;
-                SocketServer.SendRawData(stickman);
-                first_detection = true;
-            
+            stickman = Convert.ToString(mode) + "-" + video_coord;
+            SocketServer.SendKinectData(kinectState);
+            first_detection = true;
         }
 
 
         public static int[] stick_coord = new int[6];
-        public static double time_start_hud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static double time_start_hud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool detected = false;
         public static bool first_detection = true;
         public static bool locked_skeleton = false;
@@ -108,15 +109,15 @@ namespace Admo
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
         {
             int[] coord = new int[24];
-            int right_hand_z = (int)(coordinates[15] * 1000);
-            int left_hand_z = (int)(coordinates[14] * 1000);
-            int head_z = (int)(coordinates[19] * 1000);
+            int right_hand_z = (int) (coordinates[15]*1000);
+            int left_hand_z = (int) (coordinates[14]*1000);
+            int head_z = (int) (coordinates[19]*1000);
 
             //adjust skeletal coordinates for kinect and webcam fov difference
-            for (int t = 0; t < 6; t=t+2)
+            for (int t = 0; t < 6; t = t + 2)
             {
-                stick_coord[t] = (int)((stick_coord[t]-fov_left)*(640/fov_width));
-                stick_coord[t+1] = (int)((stick_coord[t+1] - fov_top) * (480 / fov_height));
+                stick_coord[t] = (int) ((stick_coord[t] - fov_left)*(640/fov_width));
+                stick_coord[t + 1] = (int) ((stick_coord[t + 1] - fov_top)*(480/fov_height));
 
                 if (stick_coord[t] < 0)
                 {
@@ -127,41 +128,54 @@ namespace Admo
                     stick_coord[t] = 640;
                 }
 
-                if (stick_coord[t+1] < 0)
+                if (stick_coord[t + 1] < 0)
                 {
-                    stick_coord[t+1] = 0;
+                    stick_coord[t + 1] = 0;
                 }
-                else if (stick_coord[t+1] > 480)
+                else if (stick_coord[t + 1] > 480)
                 {
-                    stick_coord[t+1] = 480;
+                    stick_coord[t + 1] = 480;
                 }
             }
 
-            String head = Convert.ToString(stick_coord[0]) + "^" + Convert.ToString(stick_coord[1]) + "^" + Convert.ToString(head_z);
-            String left_hand = "^" + Convert.ToString(stick_coord[2]) + "^" + Convert.ToString(stick_coord[3]) + "^" + Convert.ToString(left_hand_z);
-            String right_hand = "^" + Convert.ToString(stick_coord[4]) + "^" + Convert.ToString(stick_coord[5]) + "^" + Convert.ToString(right_hand_z);
+           /* String head = Convert.ToString(stick_coord[0]) + "^" + Convert.ToString(stick_coord[1]) + "^" +
+                          Convert.ToString(head_z);
+            String left_hand = "^" + Convert.ToString(stick_coord[2]) + "^" + Convert.ToString(stick_coord[3]) + "^" +
+                               Convert.ToString(left_hand_z);
+            String right_hand = "^" + Convert.ToString(stick_coord[4]) + "^" + Convert.ToString(stick_coord[5]) + "^" +
+                                Convert.ToString(right_hand_z);*/
 
-            int mode = Stages(coordinates,first);
+            int mode = Stages(coordinates, first);
 
-            stickman = Convert.ToString(mode) + "-" + head + left_hand + right_hand + "-" + MainWindow.hand_state + "-" + Convert.ToString(MainWindow.face_x) + "^" + Convert.ToString(MainWindow.face_y);
+            var kinectState = new KinectState {Phase = mode};
 
-            SocketServer.SendRawData(stickman);
+            kinectState.SetHead(stick_coord[0], stick_coord[1], head_z);
+            kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z);
+            kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z);
+            //MainWindow.face_x
+            // MainWindow.face_y
+
+
+           // stickman = Convert.ToString(mode) + "-" + head + left_hand + right_hand + "-" + MainWindow.hand_state + "-" +
+           //          Convert.ToString() + "^" + Convert.ToString();
+
+            SocketServer.SendKinectData(kinectState);
         }
 
-        public static int Stages(float[] coordinates,Skeleton first)
+        public static int Stages(float[] coordinates, Skeleton first)
         {
             int mode = 1;
 
-            double time_now = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double time_now = Convert.ToDouble(DateTime.Now.Ticks)/10000;
 
             //if user is detected and is in middle of screen
-            if ((((coordinates[6] < 0.7) && (coordinates[6] > -0.7))))// | (detected == true))
+            if ((((coordinates[6] < 0.7) && (coordinates[6] > -0.7)))) // | (detected == true))
             {
                 //when user is initialy registred
                 if (first_detection == true)
                 {
                     first_detection = false;
-                    time_start_hud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                    time_start_hud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
                 }
                 else
                 {
@@ -177,19 +191,17 @@ namespace Admo
                             MainWindow.locked_skeleton = first;
                             locked_skeleton = true;
                         }
-                        
+
                         mode = 3;
-                        
                     }
                     else
-                    {                        
+                    {
                         mode = 2;
                     }
                 }
-
-            }            
+            }
             else //if user is detected and not in the middle of the screen
-            {                
+            {
                 mode = 2;
                 first_detection = true;
                 locked_skeleton = false;
@@ -211,26 +223,25 @@ namespace Admo
 
             if (length_y < 0)
             {
-                length_y = length_y * (-1);
+                length_y = length_y*(-1);
 
                 angle_zero = ((90 + angle_kinect)*Math.PI)/180;
 
-                angle_k = Math.Asin(length_y * Math.Sin(angle_zero) / length_z);
+                angle_k = Math.Asin(length_y*Math.Sin(angle_zero)/length_z);
 
                 angle_y = Math.PI - angle_zero - angle_k;
 
-                length_relative_z = (length_z * Math.Sin(angle_y) / Math.Sin(angle_zero));
-
+                length_relative_z = (length_z*Math.Sin(angle_y)/Math.Sin(angle_zero));
             }
             else if (length_y >= 0)
             {
-                angle_zero = ((90 - angle_kinect) * Math.PI) / 180;
+                angle_zero = ((90 - angle_kinect)*Math.PI)/180;
 
-                angle_k = Math.Asin(length_y * Math.Sin(angle_zero) / length_z);
+                angle_k = Math.Asin(length_y*Math.Sin(angle_zero)/length_z);
 
                 angle_y = Math.PI - angle_zero - angle_k;
 
-                length_relative_z = (length_z * Math.Sin(angle_y) / Math.Sin(angle_zero));
+                length_relative_z = (length_z*Math.Sin(angle_y)/Math.Sin(angle_zero));
             }
 
             return length_relative_z;
@@ -240,7 +251,7 @@ namespace Admo
         {
             int selection = 1;
 
-            if ((relative_z_righthand < (relative_z_head - 0.2))&&(relative_z_righthand<relative_z_lefthand))
+            if ((relative_z_righthand < (relative_z_head - 0.2)) && (relative_z_righthand < relative_z_lefthand))
             {
                 selection = 2;
             }
@@ -250,10 +261,9 @@ namespace Admo
 
         public static double moving_sum_x = 0;
         public static double moving_sum_y = 0;
+
         public static void Filter()
-        {            
-
-
+        {
         }
 
         public static void ChangeAngle(KinectSensor kinect)
@@ -266,28 +276,28 @@ namespace Admo
                 if (stick_coord[1] > 200)
                 {
                     elevation_angle = kinect.ElevationAngle;
-                    Log.Debug("going down : " +elevation_angle);
+                    Log.Debug("going down : " + elevation_angle);
                     kinect.ElevationAngle = elevation_angle - 5;
                 }
-                //for tall person
+                    //for tall person
                 else if (stick_coord[1] < 50)
                 {
                     elevation_angle = kinect.ElevationAngle;
                     Log.Debug("going up : " + elevation_angle);
-                    kinect.ElevationAngle = elevation_angle + 5;                    
+                    kinect.ElevationAngle = elevation_angle + 5;
                 }
             }
-
         }
-        
+
         //Decides whether to use skeletal tracking for hands or use depth analysis
-        public static int ChooseHand(float[] coordinates,int depth)
+        public static int ChooseHand(float[] coordinates, int depth)
         {
             int real_hand = 0;
 
             double min_depth = Convert.ToDouble(depth)/1000;
 
-            if (((coordinates[19] - 0.1) > min_depth) && ((coordinates[19] > coordinates[14]) | (coordinates[19] > coordinates[15])))
+            if (((coordinates[19] - 0.1) > min_depth) &&
+                ((coordinates[19] > coordinates[14]) | (coordinates[19] > coordinates[15])))
             {
                 //left hand closer than right hand
                 if (coordinates[14] < coordinates[15])
@@ -313,7 +323,5 @@ namespace Admo
 
             return real_hand;
         }
-
-
     }
 }
