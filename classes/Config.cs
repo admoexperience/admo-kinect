@@ -36,6 +36,7 @@ namespace Admo.classes
         private static void OnPubNubConnect(string result)
         {
             UpdateConfigCache();
+            CheckIn();
             Log.Debug("Pubnub connected "+ result);
         }
 

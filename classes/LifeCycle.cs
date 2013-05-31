@@ -39,7 +39,7 @@ namespace Admo
         private static bool _monitorWrite = true;
 
         private static String _appName = Config.GetCurrentApp();
-
+        
         private static Process _startupProcess;
         private static Process _applicationBrowserProcess;
 
@@ -198,8 +198,31 @@ namespace Admo
             }
         }
 
+        private static void TryKillBrowser(Process browerPid, Boolean force)
+        {
+            if (browerPid == null) return;
+            try
+            {
+                browerPid.CloseMainWindow();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Could not close  borwser");
+            }
 
-        
+            if (!force) return;
+            try
+            {
+                browerPid.Kill();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Could not force close borwser");
+            }
+        }
+
+
+
         private static void RestartBrowser()
         {
             var currentTime = GetCurrentTimeInSeconds();
@@ -209,6 +232,9 @@ namespace Admo
                 case RestartingStage.None:
                     if (timeDiff > 2)
                     {
+                        //Try kill both before doing any thing
+                        TryKillBrowser(_startupProcess,true);
+                        TryKillBrowser(_applicationBrowserProcess, true);
                         Log.Info("RestartingStage.None");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
                         _currentRestartingStage = RestartingStage.StartupUrl;
@@ -218,15 +244,8 @@ namespace Admo
                     if (timeDiff > 3)
                     {
                         //Killing the process directly causes the chrome message
-                        try
-                        {
-                            Log.Info("RestartingStage.StartupUrl");
-                            _startupProcess.CloseMainWindow();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Warn("Start up process has failed to close possible reasons are it has already exited", e);
-                        }
+                        Log.Info("RestartingStage.StartupUrl");
+                        TryKillBrowser(_startupProcess, false);
                         _currentRestartingStage = RestartingStage.StartupUrlClosed;
                     }
                     break;
