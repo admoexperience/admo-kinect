@@ -10,7 +10,8 @@ namespace Admo
 {
     class LifeCycle
     {
-        private const string BrowserExe = "Chrome.exe";
+        private const string Browser = "Chrome";
+        private const string BrowserExe = Browser + ".exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly double StartupTime = GetCurrentTimeInSeconds();
 
@@ -77,6 +78,8 @@ namespace Admo
                 case StartupStage.Startup:
                     if (timeDiff > 10)
                     {
+                        //Force kill any chrome windows that may or may not be running.
+                        KillAllBrowserWindows();
                         Log.Debug("Starting up browser with startup url");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
                         _currentStartupStage = StartupStage.ClosingStartup;
@@ -195,6 +198,18 @@ namespace Admo
             if (_restartingBrowser)
             {
                 RestartBrowser();
+            }
+        }
+
+        private static void KillAllBrowserWindows()
+        {
+            var proc = Process.GetProcessesByName(Browser);
+            Log.Debug("Found "+ proc.Length+ " browser proccessing trying to kill them all");
+            foreach (var b in proc)
+            {
+                Log.Debug("Killing " + b);
+                TryKillBrowser(b, true);
+                b.WaitForExit();
             }
         }
 

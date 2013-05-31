@@ -202,7 +202,7 @@ namespace Admo
         public static double RelativeCoordinates(double length_y, double length_z)
         {
             //anglular variables
-            double angle_kinect = MainWindow.elevationAngle;
+            double angle_kinect = MainWindow.KinectElevationAngle;
             double angle_zero;
             double angle_y;
             double angle_k;
