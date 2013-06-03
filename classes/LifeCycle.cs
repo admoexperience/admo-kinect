@@ -222,17 +222,20 @@ namespace Admo
             }
             catch (Exception e)
             {
-                Log.Warn("Could not close  borwser");
+                Log.Warn("Could not close browser");
             }
 
+            //Force killing doesn't gracefully close the browser it hard kills it.
+
             if (!force) return;
+
             try
             {
                 browerPid.Kill();
             }
             catch (Exception e)
             {
-                Log.Warn("Could not force close borwser");
+                Log.Warn("Could not force close browser");
             }
         }
 
