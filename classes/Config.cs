@@ -36,6 +36,7 @@ namespace Admo.classes
         private static void OnPubNubConnect(string result)
         {
             UpdateConfigCache();
+            CheckIn();
             Log.Debug("Pubnub connected "+ result);
         }
 
@@ -202,6 +203,9 @@ namespace Admo.classes
                 {
                     Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
                 }
+
+                //Hack for checking config changes. this SHOULD be done via an interface so lots of classes can read callbacks.
+                MainWindow.OnConfigChange();
             }
             catch (Exception e)
             {

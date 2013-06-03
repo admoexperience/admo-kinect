@@ -38,9 +38,9 @@ namespace Admo
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
         Skeleton old_first;
-        public KinectSensor kinect;
+        public static KinectSensor CurrentKinect;
         public static String kinect_type;
-        public static int elevationAngle = 0;
+        public static int KinectElevationAngle = 0;
    
         //drawing variables
         public static int face_x = 700;
@@ -71,6 +71,12 @@ namespace Admo
             Loaded += OnLoaded;
         }
 
+        public static void OnConfigChange()
+        {
+            KinectElevationAngle = Config.GetElevationAngle();
+            CurrentKinect.ElevationAngle = KinectElevationAngle;
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
             Config.InitPubNub();
@@ -97,10 +103,10 @@ namespace Admo
         {
 
             //get kinect sensor
-            kinect = KinectSensor.KinectSensors[0];
+            CurrentKinect = KinectSensor.KinectSensors[0];
             //stop any previous kinect session
-            StopKinect(kinect);
-            if (kinect == null)
+            StopKinect(CurrentKinect);
+            if (CurrentKinect == null)
             {
                 return;
             }
@@ -174,12 +180,12 @@ namespace Admo
                         this.Image.Source = bi3;
                     }
                     
-                    kinect = args.NewSensor;
+                    CurrentKinect = args.NewSensor;
                     
                     try
                     {
                         args.NewSensor.Start();
-                        args.NewSensor.ElevationAngle = elevationAngle = Config.GetElevationAngle();
+                        args.NewSensor.ElevationAngle = KinectElevationAngle = Config.GetElevationAngle();
                     }
                     catch (System.IO.IOException ioe)
                     {
@@ -359,7 +365,7 @@ namespace Admo
                             {
                                 try
                                 {
-                                    this.faceTracker = new FaceTracker(kinect);
+                                    this.faceTracker = new FaceTracker(CurrentKinect);
                                     Console.WriteLine("initiate new FaceTracker");
                                 }
                                 catch (InvalidOperationException)
@@ -525,7 +531,7 @@ namespace Admo
                 }
                 depth.CopyPixelDataTo(depthImage);
 
-                CoordinateMapper cm = new CoordinateMapper(kinect);
+                CoordinateMapper cm = new CoordinateMapper(CurrentKinect);
                 //Map a skeletal point to a point on the color image 
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
@@ -713,10 +719,6 @@ namespace Admo
 
             return skeleton;
         }
-
-        //public static Stopwatch stopwatch = new Stopwatch();
-        public static StreamWriter objWriter;
-        public static StreamReader objReader;
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
