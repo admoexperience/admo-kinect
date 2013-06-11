@@ -101,12 +101,12 @@ namespace Admo.classes
 
         private static String GetLocalConfig(String configOption)
         {
-            return BaseDropboxFolder + @"\" + Environment.MachineName + @"\" + configOption + ".txt"; ;
+            return BaseDropboxFolder + @"\" + GetHostName() + @"\" + configOption + ".txt"; ;
         }
 
         private static String GetCmsConfigCacheFile()
         {
-            return BaseDropboxFolder + @"\" + Environment.MachineName + @"\configcache.json"; ;
+            return BaseDropboxFolder + @"\" + GetHostName() + @"\configcache.json"; ;
         }
 
         private static String GetApiKey()
@@ -145,6 +145,10 @@ namespace Admo.classes
                 temp = objReader.ReadLine();
                 objReader.Close();
             }
+            catch (DirectoryNotFoundException dnfe){
+                Log.Debug("Config file not found [" + filePath + "]");
+                return String.Empty;
+            }
             catch (FileNotFoundException fnfe)
             {
                 Log.Debug("Config file not found [" + filePath + "]");
@@ -174,6 +178,11 @@ namespace Admo.classes
                     new StreamReader(cacheFile);
                 temp = objReader.ReadLine();
                 objReader.Close();
+            }
+            catch (DirectoryNotFoundException dnfe)
+            {
+                Log.Debug("Cache file not found [" + cacheFile + "]");
+                return string.Empty;
             }
             catch (FileNotFoundException fnfe)
             {

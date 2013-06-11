@@ -22,6 +22,7 @@ using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
 using Microsoft.Kinect.Toolkit.FaceTracking;
 using NLog;
+using Newtonsoft.Json;
 
 namespace Admo
 {
@@ -82,7 +83,6 @@ namespace Admo
             Config.Init();
             Config.OptionChanged += OnConfigChange;
   
-            
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
