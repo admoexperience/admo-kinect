@@ -31,10 +31,11 @@ namespace Admo
             StartupUrlClosed,
             AppStarted
         }
-        private static RestartingStage _currentRestartingStage = RestartingStage.None;
+
+        public static RestartingStage _currentRestartingStage = RestartingStage.None;
 
         private static double _restartTime = GetCurrentTimeInSeconds();
-        private static Boolean _restartingBrowser = false;
+        public static Boolean _restartingBrowser = false;
         private static double _browserTime = GetCurrentTimeInSeconds();
 
         private static bool _monitorWrite = true;
