@@ -76,6 +76,8 @@ namespace Admo
         {
             KinectElevationAngle = Config.GetElevationAngle();
             CurrentKinect.ElevationAngle = KinectElevationAngle;
+            LifeCycle._restartingBrowser = true;
+            LifeCycle._currentRestartingStage = LifeCycle.RestartingStage.None;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
