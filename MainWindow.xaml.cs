@@ -81,7 +81,7 @@ namespace Admo
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
             Config.Init();
-            Config.OptionChanged += OnConfigChange;
+            Config.OptionChanged += OnConfigChange;     
   
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];

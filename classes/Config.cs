@@ -33,12 +33,13 @@ namespace Admo.classes
             return Environment.MachineName;
         }
 
+
         public static void Init()
         {
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
             pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnect);
 
-            var pod = new PodWatcher(BaseDropboxFolder + "pods", BaseDropboxFolder + "new_pods");
+            var pod = new PodWatcher(GetPodFolder(), @"C:\\smartroom\pods\current");
             pod.StartWatcher();
             pod.Changed += NewPodData;
         }
@@ -82,6 +83,13 @@ namespace Admo.classes
         public static String GetBaseConfigPath()
         {
             return BaseDropboxFolder;
+        }
+
+
+        public static String GetPodFolder()
+        {
+            var pod = ReadConfigOption("pod_folder", BaseDropboxFolder + "pods");
+            return pod;
         }
 
         public static String GetCurrentApp()
