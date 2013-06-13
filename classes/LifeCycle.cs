@@ -10,7 +10,8 @@ namespace Admo
 {
     class LifeCycle
     {
-        private const string BrowserExe = "Chrome.exe";
+        private const string Browser = "Chrome";
+        private const string BrowserExe = Browser + ".exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly double StartupTime = GetCurrentTimeInSeconds();
 
@@ -39,7 +40,7 @@ namespace Admo
         private static bool _monitorWrite = true;
 
         private static String _appName = Config.GetCurrentApp();
-
+        
         private static Process _startupProcess;
         private static Process _applicationBrowserProcess;
 
@@ -77,6 +78,8 @@ namespace Admo
                 case StartupStage.Startup:
                     if (timeDiff > 10)
                     {
+                        //Force kill any chrome windows that may or may not be running.
+                        KillAllBrowserWindows();
                         Log.Debug("Starting up browser with startup url");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
                         _currentStartupStage = StartupStage.ClosingStartup;
@@ -198,8 +201,46 @@ namespace Admo
             }
         }
 
+        private static void KillAllBrowserWindows()
+        {
+            var proc = Process.GetProcessesByName(Browser);
+            Log.Debug("Found "+ proc.Length+ " browser proccessing trying to kill them all");
+            foreach (var b in proc)
+            {
+                Log.Debug("Killing " + b);
+                TryKillBrowser(b, true);
+                b.WaitForExit();
+            }
+        }
 
-        
+        private static void TryKillBrowser(Process browerPid, Boolean force)
+        {
+            if (browerPid == null) return;
+            try
+            {
+                browerPid.CloseMainWindow();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Could not close browser");
+            }
+
+            //Force killing doesn't gracefully close the browser it hard kills it.
+
+            if (!force) return;
+
+            try
+            {
+                browerPid.Kill();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Could not force close browser");
+            }
+        }
+
+
+
         private static void RestartBrowser()
         {
             var currentTime = GetCurrentTimeInSeconds();
@@ -209,6 +250,9 @@ namespace Admo
                 case RestartingStage.None:
                     if (timeDiff > 2)
                     {
+                        //Try kill both before doing any thing
+                        TryKillBrowser(_startupProcess,true);
+                        TryKillBrowser(_applicationBrowserProcess, true);
                         Log.Info("RestartingStage.None");
                         _startupProcess = LaunchBrowser(Config.GetWebServer());
                         _currentRestartingStage = RestartingStage.StartupUrl;
@@ -218,15 +262,8 @@ namespace Admo
                     if (timeDiff > 3)
                     {
                         //Killing the process directly causes the chrome message
-                        try
-                        {
-                            Log.Info("RestartingStage.StartupUrl");
-                            _startupProcess.CloseMainWindow();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Warn("Start up process has failed to close possible reasons are it has already exited", e);
-                        }
+                        Log.Info("RestartingStage.StartupUrl");
+                        TryKillBrowser(_startupProcess, false);
                         _currentRestartingStage = RestartingStage.StartupUrlClosed;
                     }
                     break;
