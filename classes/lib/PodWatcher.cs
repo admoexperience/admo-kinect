@@ -35,8 +35,7 @@ namespace Admo.classes.lib
             var watcher = new FileSystemWatcher
                 {
                     Path = _podSrcFolder,
-                    NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-                                   | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
                     Filter = "*" + podExt
                 };
 
@@ -90,18 +89,50 @@ namespace Admo.classes.lib
         {
             try
             {
-                Logger.Info("Clearning the contents out of ["+destFolder+"]");
-                Empty(new DirectoryInfo(destFolder));
+                //Logger.Info("Clearning the contents out of ["+destFolder+"]");
+                //For now we are not cleaning out the older content.
+                //Empty(new DirectoryInfo(destFolder));
+                //We need a way of deleting diffs
                 
                 Logger.Debug("Extracting ["+file+"] to ["+destFolder+"]");
                 ZipFile.ExtractToDirectory(file, destFolder);
+                CopyAll(new DirectoryInfo( _podSrcFolder +@"\content"), new DirectoryInfo(destFolder));
                 if (Changed != null) Changed(destFolder);
             }
             catch (Exception e)
             {
-                Logger.Error("Failed to unzip "+file, e);
+                Logger.Error("Failed to unzip "+file+" "+e.ToString(), e);
             }
 
+        }
+        
+        private void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            Logger.Debug("Trying to copy from " + source.ToString() +" to "+target.ToString());
+            if (source.FullName.ToLower() == target.FullName.ToLower())
+            {
+                return;
+            }
+
+            // Check if the target directory exists, if not, create it.
+            if (Directory.Exists(target.FullName) == false)
+            {
+                Directory.CreateDirectory(target.FullName);
+            }
+
+            // Copy each file into it's new directory.
+            foreach (var fi in source.GetFiles())
+            {
+                fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true);
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (var diSourceSubDir in source.GetDirectories())
+            {
+                var nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
         }
     }
 }

@@ -69,8 +69,6 @@ namespace Admo
             Application_Handler.fov_height = 205*2;
             Application_Handler.fov_width = 205*2*4/3;
 
-            SocketServer.StartServer();
-
             //in dev mode do nothing.
             if (Config.IsDevMode()) return;
 

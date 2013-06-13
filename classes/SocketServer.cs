@@ -44,14 +44,6 @@ namespace Admo
 		}
 
 
-        //Depricated
-       /* public static void SendRawData(String data)
-        {
-            var properties = new Dictionary<string, object>();
-            properties["gesture"] = data;
-            SendToAll(JsonConvert.SerializeObject(properties));
-        }*/
-
         public static void SendKinectData(KinectState state)
         {
             var cont = new DataContainer {Type = "kinectState", Data = state};
@@ -109,7 +101,8 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnReceive(UserContext context)
         {
-           // Log.Debug("Received Data From :" + context.ClientAddress);
+           Log.Debug("Received Data From :" + context.ClientAddress);
+           Log.Debug("Received Data :" + context.DataFrame.ToString());
             try
             {
                 var json = context.DataFrame.ToString();
@@ -125,11 +118,12 @@ namespace Admo
             }
             catch (Exception e) // Bad JSON! For shame.
             {
-                Log.Error("Error parsing json from client "+context.ClientAddress,e);
+                Log.Debug(context.DataFrame.ToString());
+                Log.Error("Error parsing json from client " + context.ClientAddress, e);
             }
         }
 
-        /// <summary>
+        /// <summary> 
         /// Event fired when the Alchemy Websockets server instance sends data to a client.
         /// Logs the data to the console and performs no further action.
         /// </summary>
