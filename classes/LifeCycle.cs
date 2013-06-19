@@ -81,7 +81,7 @@ namespace Admo
                         //Force kill any chrome windows that may or may not be running.
                         KillAllBrowserWindows();
                         Log.Debug("Starting up browser with startup url");
-                        _startupProcess = LaunchBrowser(Config.GetWebServer());
+                        _startupProcess = LaunchBrowser(Config.GetLoadingPage());
                         _currentStartupStage = StartupStage.ClosingStartup;
                     }
                     break;
@@ -254,7 +254,7 @@ namespace Admo
                         TryKillBrowser(_startupProcess,true);
                         TryKillBrowser(_applicationBrowserProcess, true);
                         Log.Info("RestartingStage.None");
-                        _startupProcess = LaunchBrowser(Config.GetWebServer());
+                        _startupProcess = LaunchBrowser(Config.GetLoadingPage());
                         _currentRestartingStage = RestartingStage.StartupUrl;
                     }
                     break;

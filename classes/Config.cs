@@ -75,6 +75,12 @@ namespace Admo.classes
             return appName;
         }
 
+        public static String GetLoadingPage()
+        {
+            var loading = ReadConfigOption("loading_page", "loading.html");
+            return GetWebServer() + "/" + loading;
+        }
+
         public static int GetElevationAngle()
         {
             var temp = ReadConfigOption("kinect_elevation","1");
