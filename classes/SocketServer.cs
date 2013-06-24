@@ -50,6 +50,7 @@ namespace Admo
 
         public static void SendUpdatedConfig()
         {
+            Log.Debug("Sending updated config to clients");
             var config = Config.GetConfiguration();
             var sendData = ConvertToJson("config", config);
             SendToAll(sendData);
@@ -136,7 +137,7 @@ namespace Admo
             catch (Exception e) // Bad JSON! For shame.
             {
                 Log.Error("Error parsing json from client "+context.ClientAddress,e);
-                Log.Error(context.DataFrame.ToString());
+                Log.Error(context.DataFrame);
             }
         }
 
