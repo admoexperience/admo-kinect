@@ -43,18 +43,22 @@ namespace Admo
             _serverRunning = true;
 		}
 
-
-        //Depricated
-       /* public static void SendRawData(String data)
-        {
-            var properties = new Dictionary<string, object>();
-            properties["gesture"] = data;
-            SendToAll(JsonConvert.SerializeObject(properties));
-        }*/
-
         public static void SendKinectData(KinectState state)
         {
-            var cont = new DataContainer {Type = "kinectState", Data = state};
+            SendToAll(ConvertToJson("kinectState",state));
+        }
+
+        public static void SendUpdatedConfig()
+        {
+            var config = Config.GetConfiguration();
+            var sendData = ConvertToJson("config", config);
+            SendToAll(sendData);
+        }
+
+        //Converts data to json
+        public static String ConvertToJson(String type, Object data)
+        {
+            var cont = new DataContainer { Type = type, Data = data };
 
             var x = JsonConvert.SerializeObject(cont,
                                               Formatting.None,
@@ -64,7 +68,7 @@ namespace Admo
                                                   Formatting = Formatting.None,
                                                   ContractResolver = new CamelCasePropertyNamesContractResolver()
                                               });
-            SendToAll(x);
+            return x;
         }
 
 
@@ -120,12 +124,19 @@ namespace Admo
                 {
                     LifeCycle.SetBrowserTimeNow();
                    // SendRawData("host-"+ Config.GetHostName());
+                }else if (obj.type == "config")
+                {
+                    //Send the config options on each client connect
+                    var config = Config.GetConfiguration();
+                    var sendData = ConvertToJson("config", config);
+                    context.Send(sendData);
                 }
 
             }
             catch (Exception e) // Bad JSON! For shame.
             {
                 Log.Error("Error parsing json from client "+context.ClientAddress,e);
+                Log.Error(context.DataFrame.ToString());
             }
         }
 
