@@ -127,6 +127,7 @@ namespace Admo
                    // SendRawData("host-"+ Config.GetHostName());
                 }else if (obj.type == "config")
                 {
+                    Log.Debug("Client requested config");
                     //Send the config options on each client connect
                     var config = Config.GetConfiguration();
                     var sendData = ConvertToJson("config", config);
@@ -137,7 +138,7 @@ namespace Admo
             catch (Exception e) // Bad JSON! For shame.
             {
                 Log.Error("Error parsing json from client "+context.ClientAddress,e);
-                Log.Error(context.DataFrame);
+                Log.Error(context.DataFrame.ToString());
             }
         }
 
