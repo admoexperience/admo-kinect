@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using Admo.classes.lib;
@@ -98,6 +99,12 @@ namespace Admo.classes
             return appName;
         }
 
+        public static String GetLoadingPage()
+        {
+            var loading = ReadConfigOption("loading_page", "loading.html");
+            return GetWebServer() + "/" + loading;
+        }
+
         public static int GetElevationAngle()
         {
             var temp = ReadConfigOption("kinect_elevation","1");
@@ -176,7 +183,14 @@ namespace Admo.classes
             return val;
         }
 
-        public static String ReadConfigOption(String option)
+        public static JObject GetConfiguration()
+        {
+            var x = GetJsonConfig()["config"] as JObject;
+            x.Add("hostname",GetHostName());
+            return x;
+        }
+
+        private static JObject GetJsonConfig()
         {
             var cacheFile = GetCmsConfigCacheFile();
             String temp = null;
@@ -190,15 +204,21 @@ namespace Admo.classes
             catch (DirectoryNotFoundException dnfe)
             {
                 Log.Debug("Cache file not found [" + cacheFile + "]");
-                return string.Empty;
+                return new JObject();
             }
             catch (FileNotFoundException fnfe)
             {
                 Log.Debug("Cache file not found [" + cacheFile + "]");
-                return string.Empty;
+                return new JObject();
             }
             var obj = (JObject)JsonConvert.DeserializeObject(temp);
-           
+            return obj;
+        }
+
+        public static String ReadConfigOption(String option)
+        {
+
+            var obj = GetJsonConfig();
             object optionValue = obj["config"][option];
 
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
@@ -235,14 +255,22 @@ namespace Admo.classes
                 {
                     Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
                 }
-
-                //Hack for checking config changes. this SHOULD be done via an interface so lots of classes can read callbacks.
-                if (OptionChanged != null) OptionChanged();
             }
             catch (Exception e)
             {
                 //Happens when the unit is offline
                 Log.Warn("Unable to update the cacheconfig file",e);
+            }
+
+            try
+            {
+                SocketServer.SendUpdatedConfig();
+                //Hack for checking config changes. this SHOULD be done via an interface so lots of classes can read callbacks.
+                if (OptionChanged != null) OptionChanged();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Unable to do config callbacks", e);
             }
         } 
 

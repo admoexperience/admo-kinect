@@ -83,6 +83,9 @@
     <Reference Include="NLog">
       <HintPath>packages\NLog.2.0.1.2\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="NLog.Targets.Syslog">
+      <HintPath>packages\NLog.Targets.Syslog.1.0.0\lib\net20\NLog.Targets.Syslog.dll</HintPath>
+    </Reference>
     <Reference Include="SocketIOClient, Version=0.6.26.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\SocketIOClient.dll</HintPath>
@@ -168,6 +171,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="NLog.release.config" />
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -215,6 +219,9 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if $(ConfigurationName) == Release copy "$(ProjectDir)\NLog.release.config" "$(TargetDir)nlog.config"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
