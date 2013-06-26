@@ -24,6 +24,8 @@ namespace Admo.classes
         private static String _webServer = null;
         private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
+        private const String PodFolder = @"C:\smartroom\pods\";
+
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
         public static event ConfigOptionChanged OptionChanged;
@@ -40,14 +42,14 @@ namespace Admo.classes
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
             pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnect);
 
-            var pod = new PodWatcher(GetPodFolder(), @"C:\\smartroom\pods\current");
+            var pod = new PodWatcher(GetPodFile(), PodFolder);
             pod.StartWatcher();
-            pod.Changed += NewPodData;
+            pod.Changed += NewWebContent;
         }
 
-        public static void NewPodData(String file)
+        public static void NewWebContent(String file)
         {
-            Log.Debug("New pod data found at location "+ file);
+            Log.Debug("New server data "+ file);
         }
 
         private static void OnPubNubConnect(string result)
@@ -87,9 +89,9 @@ namespace Admo.classes
         }
 
 
-        public static String GetPodFolder()
+        public static String GetPodFile()
         {
-            var pod = ReadConfigOption("pod_folder", BaseDropboxFolder + "pods");
+            var pod = ReadConfigOption("pod_file", BaseDropboxFolder + "pods/dist.pod.zip");
             return pod;
         }
 

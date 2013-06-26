@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Permissions;
+using System.Timers;
 using NLog;
 using System.IO;
 using System.IO.Compression;
@@ -16,45 +17,81 @@ namespace Admo.classes.lib
     internal class PodWatcher
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly String _podSrcFolder;
+        private readonly String _podFile;
         private readonly String _podDestFolder;
 
-        public event PodDataCahnged Changed;
+        private Timer _fileChangedTimer;
+        private Timer _podChangedTimer;
 
-        public PodWatcher(String podSrcFolder, String podDestFolder)
+
+        public event PodDataCahnged Changed;
+        public delegate void PodDataCahnged(string podFolder);
+
+        public PodWatcher(String podFile, String podDestFolder)
         {
-            _podSrcFolder = podSrcFolder;
+            _podFile = podFile;
             _podDestFolder = podDestFolder;
         }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void StartWatcher()
         {
-            var podExt = ".zip";
             // Create a new FileSystemWatcher and set its properties.
-            var watcher = new FileSystemWatcher
+            var podWatcher = new FileSystemWatcher
                 {
-                    Path = _podSrcFolder,
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                    Filter = "*" + podExt
+                    Path = Path.GetDirectoryName(_podFile), 
+                    Filter = Path.GetFileName(_podFile),
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
                 };
 
             // Add event handlers.
-            watcher.Changed += OnChanged;
-            watcher.Created += OnChanged;
-            watcher.Deleted += OnChanged;
-            watcher.Renamed += OnRenamed;
-
+            podWatcher.Changed += OnChanged;
+            podWatcher.Created += OnChanged;
             // Begin watching.
-            watcher.EnableRaisingEvents = true;
-            Logger.Debug("Watching for changes to " + _podSrcFolder);
+            podWatcher.EnableRaisingEvents = true;
+            Logger.Debug("Watching for changes to " + _podFile);
             
             //It should try unzip all the pod files in the directory. (theortically there should only be one)
-            var files = Directory.GetFiles(_podSrcFolder, "*.*", SearchOption.TopDirectoryOnly).Where(s => s.EndsWith(podExt));
-            foreach (var file in files)
+            TryUnzipPodInto(_podFile, _podDestFolder + "current");
+
+            // Create a new FileSystemWatcher and set its properties.
+            var destFolderWatcher = new FileSystemWatcher
             {
-                TryUnzipPodInto(file,_podDestFolder);   
-            }
+                Path = _podDestFolder,
+                Filter = "*",
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+            };
+            Logger.Debug("Watching for changes to " + _podDestFolder);
+
+            // Add event handlers.
+            destFolderWatcher.Changed += OnWebSiteContentChanged;
+            destFolderWatcher.Created += OnWebSiteContentChanged;
+            destFolderWatcher.EnableRaisingEvents = true;
+
+            _fileChangedTimer  = new Timer {AutoReset = false, Interval = 2000};
+            _fileChangedTimer.Elapsed += FileTimerElapsed;
+
+            _podChangedTimer = new Timer { AutoReset = false, Interval = 2000 };
+            _podChangedTimer.Elapsed += PodTimerElapsed;
+        }
+
+        private void FileTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (Changed != null) Changed(_podDestFolder);
+        }
+
+        private void PodTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            TryUnzipPodInto(_podFile, _podDestFolder + "current");
+        }
+
+        // Define the event handlers. 
+        private void OnWebSiteContentChanged(object source, FileSystemEventArgs e)
+        {
+            //Basically forces the "onChange" Event to only happen once.
+            _fileChangedTimer.Stop();
+            _fileChangedTimer.Start();
         }
 
         // Define the event handlers. 
@@ -62,26 +99,17 @@ namespace Admo.classes.lib
         {
             // Specify what is done when a file is changed, created, or deleted.
             Logger.Debug("File: " + e.FullPath + " " + e.ChangeType);
-            if (e.ChangeType == WatcherChangeTypes.Changed || e.ChangeType == WatcherChangeTypes.Created)
-            {
-                TryUnzipPodInto(e.FullPath, this._podDestFolder);
-            }
+            //Basically forces the "onChange" Event to only happen once.
+            _fileChangedTimer.Stop();
+            _fileChangedTimer.Start();
         }
 
-        private void OnRenamed(object source, RenamedEventArgs e)
-        {
-            // Specify what is done when a file is renamed.
-            Logger.Debug("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
-        }
 
-        private static void Empty(DirectoryInfo directory)
+        private static void ClearDirectory(DirectoryInfo directory)
         {
             foreach (var file in directory.GetFiles()) file.Delete();
             foreach (var subDirectory in directory.GetDirectories()) subDirectory.Delete(true);
         }
-
-
-        public delegate void PodDataCahnged(string podFolder);
 
 
         //Tries
@@ -89,50 +117,24 @@ namespace Admo.classes.lib
         {
             try
             {
-                //Logger.Info("Clearning the contents out of ["+destFolder+"]");
+                Logger.Debug("Clearning the contents out of ["+destFolder+"]");
+                var dir = new DirectoryInfo(destFolder);
+                if (!dir.Exists)
+                {
+                    dir.Create();
+                }
                 //For now we are not cleaning out the older content.
-                //Empty(new DirectoryInfo(destFolder));
+                ClearDirectory(dir);
                 //We need a way of deleting diffs
                 
                 Logger.Debug("Extracting ["+file+"] to ["+destFolder+"]");
                 ZipFile.ExtractToDirectory(file, destFolder);
-                CopyAll(new DirectoryInfo( _podSrcFolder +@"\content"), new DirectoryInfo(destFolder));
-                if (Changed != null) Changed(destFolder);
             }
             catch (Exception e)
             {
-                Logger.Error("Failed to unzip "+file+" "+e.ToString(), e);
+                Logger.Error("Failed to unzip "+file+" "+e.ToString());
             }
 
-        }
-        
-        private void CopyAll(DirectoryInfo source, DirectoryInfo target)
-        {
-            Logger.Debug("Trying to copy from " + source.ToString() +" to "+target.ToString());
-            if (source.FullName.ToLower() == target.FullName.ToLower())
-            {
-                return;
-            }
-
-            // Check if the target directory exists, if not, create it.
-            if (Directory.Exists(target.FullName) == false)
-            {
-                Directory.CreateDirectory(target.FullName);
-            }
-
-            // Copy each file into it's new directory.
-            foreach (var fi in source.GetFiles())
-            {
-                fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true);
-            }
-
-            // Copy each subdirectory using recursion.
-            foreach (var diSourceSubDir in source.GetDirectories())
-            {
-                var nextTargetSubDir =
-                    target.CreateSubdirectory(diSourceSubDir.Name);
-                CopyAll(diSourceSubDir, nextTargetSubDir);
-            }
         }
     }
 }
