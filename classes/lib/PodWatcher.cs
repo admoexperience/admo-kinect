@@ -78,12 +78,12 @@ namespace Admo.classes.lib
                 {
                     //Update the checkpath to the reference for the symbolic link
                     var newLink = JunctionPoint.GetTarget(checkPath);
-                    Logger.Debug("Found symbolic link " + file.FullName +  "==> " + checkPath);
+                    Logger.Debug("Found symbolic link " + checkPath + "==> " + newLink);
                     AddDestWatcher(newLink);
                 }
                 else
                 {
-                    AddFileWatchersIncludingSymlinks(file.FullName);
+                    AddFileWatchersIncludingSymlinks(checkPath);
                 }
             }
         }

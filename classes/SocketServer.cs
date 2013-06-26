@@ -43,6 +43,11 @@ namespace Admo
             _serverRunning = true;
 		}
 
+        public static void SendReloadEvent()
+        {
+            SendToAll(ConvertToJson("reload","reload"));
+        }
+
         public static void SendKinectData(KinectState state)
         {
             SendToAll(ConvertToJson("kinectState",state));

@@ -50,6 +50,7 @@ namespace Admo.classes
         public static void NewWebContent(String file)
         {
             Log.Debug("New server data "+ file);
+            SocketServer.SendReloadEvent();
         }
 
         private static void OnPubNubConnect(string result)
