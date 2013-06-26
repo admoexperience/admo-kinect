@@ -45,8 +45,8 @@ namespace Admo.classes.lib
                 };
 
             // Add event handlers.
-            podWatcher.Changed += OnChanged;
-            podWatcher.Created += OnChanged;
+            podWatcher.Changed += OnPodChanged;
+            podWatcher.Created += OnPodChanged;
             // Begin watching.
             podWatcher.EnableRaisingEvents = true;
             Logger.Debug("Watching for changes to " + _podFile);
@@ -119,19 +119,20 @@ namespace Admo.classes.lib
         // Define the event handlers. 
         private void OnWebSiteContentChanged(object source, FileSystemEventArgs e)
         {
+            //Ignore tvr files
+            if (e.FullPath.EndsWith(".tvrdat")) return;
             //Basically forces the "onChange" Event to only happen once.
             _fileChangedTimer.Stop();
             _fileChangedTimer.Start();
         }
 
         // Define the event handlers. 
-        private void OnChanged(object source, FileSystemEventArgs e)
+        private void OnPodChanged(object source, FileSystemEventArgs e)
         {
-            // Specify what is done when a file is changed, created, or deleted.
-            Logger.Debug("File: " + e.FullPath + " " + e.ChangeType);
-            //Basically forces the "onChange" Event to only happen once.
-            _fileChangedTimer.Stop();
-            _fileChangedTimer.Start();
+            //Ignore tvr files
+            if (e.FullPath.EndsWith(".tvrdat")) return;
+            _podChangedTimer.Stop();
+            _podChangedTimer.Start();
         }
 
 
