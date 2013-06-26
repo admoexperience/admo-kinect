@@ -114,8 +114,6 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnReceive(UserContext context)
         {
-           Log.Debug("Received Data From :" + context.ClientAddress);
-           Log.Debug("Received Data :" + context.DataFrame.ToString());
             try
             {
                 var json = context.DataFrame.ToString();
