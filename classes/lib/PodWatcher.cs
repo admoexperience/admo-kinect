@@ -55,6 +55,7 @@ namespace Admo.classes.lib
             TryUnzipPodInto(_podFile, _podDestFolder + "current");
 
             // Create a new FileSystemWatcher for pods dir
+            AddDestWatcher(_podDestFolder);
             AddFileWatchersIncludingSymlinks(_podDestFolder);
            
 
@@ -67,36 +68,41 @@ namespace Admo.classes.lib
 
         private void AddFileWatchersIncludingSymlinks(string path)
         {
-            Logger.Debug("Checking "+path+"For symbolic links");
             var directory = new DirectoryInfo(path);
-            Logger.Debug(directory.GetFiles().Length);
-            Logger.Debug(directory.GetDirectories().Length);
             foreach (var file in directory.GetDirectories())
             {
                 var checkPath = file.FullName;
-                Logger.Debug("Checking " + checkPath + "For symbolic links");
                 var attributes = File.GetAttributes(checkPath);
                 // Now, check whether directory is Reparse point or symbolic link
                 if (attributes == (FileAttributes.Directory | FileAttributes.ReparsePoint))
                 {
                     //Update the checkpath to the reference for the symbolic link
-                    checkPath = JunctionPoint.GetTarget(checkPath);
-                    Logger.Debug("Found symbolic link"+ file.FullName+ "==>" + checkPath);
+                    var newLink = JunctionPoint.GetTarget(checkPath);
+                    Logger.Debug("Found symbolic link " + file.FullName +  "==> " + checkPath);
+                    AddDestWatcher(newLink);
                 }
-                //Add a watcher for each sub folder or the source of the link
-                var destFolderWatcher = new FileSystemWatcher
+                else
                 {
-                    Path = checkPath,
-                    Filter = "*",
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
-                };
-                Logger.Debug("Adding file watcher for " + checkPath);
-                // Add event handlers.
-                destFolderWatcher.Changed += OnWebSiteContentChanged;
-                destFolderWatcher.Created += OnWebSiteContentChanged;
-                destFolderWatcher.EnableRaisingEvents = true;
+                    AddFileWatchersIncludingSymlinks(file.FullName);
+                }
             }
+        }
+
+        private void AddDestWatcher(string path)
+        {
+            //Add a watcher for each sub folder or the source of the link
+            var destFolderWatcher = new FileSystemWatcher
+            {
+                Path = path,
+                Filter = "*",
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+            };
+            Logger.Debug("Adding file watcher for " + path);
+            // Add event handlers.
+            destFolderWatcher.Changed += OnWebSiteContentChanged;
+            destFolderWatcher.Created += OnWebSiteContentChanged;
+            destFolderWatcher.EnableRaisingEvents = true;
         }
 
 
