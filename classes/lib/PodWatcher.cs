@@ -54,20 +54,9 @@ namespace Admo.classes.lib
             //It should try unzip all the pod files in the directory. (theortically there should only be one)
             TryUnzipPodInto(_podFile, _podDestFolder + "current");
 
-            // Create a new FileSystemWatcher and set its properties.
-            var destFolderWatcher = new FileSystemWatcher
-            {
-                Path = _podDestFolder,
-                Filter = "*",
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
-            };
-            Logger.Debug("Watching for changes to " + _podDestFolder);
-
-            // Add event handlers.
-            destFolderWatcher.Changed += OnWebSiteContentChanged;
-            destFolderWatcher.Created += OnWebSiteContentChanged;
-            destFolderWatcher.EnableRaisingEvents = true;
+            // Create a new FileSystemWatcher for pods dir
+            AddFileWatchersIncludingSymlinks(_podDestFolder);
+           
 
             _fileChangedTimer  = new Timer {AutoReset = false, Interval = 2000};
             _fileChangedTimer.Elapsed += FileTimerElapsed;
@@ -75,6 +64,41 @@ namespace Admo.classes.lib
             _podChangedTimer = new Timer { AutoReset = false, Interval = 2000 };
             _podChangedTimer.Elapsed += PodTimerElapsed;
         }
+
+        private void AddFileWatchersIncludingSymlinks(string path)
+        {
+            Logger.Debug("Checking "+path+"For symbolic links");
+            var directory = new DirectoryInfo(path);
+            Logger.Debug(directory.GetFiles().Length);
+            Logger.Debug(directory.GetDirectories().Length);
+            foreach (var file in directory.GetDirectories())
+            {
+                var checkPath = file.FullName;
+                Logger.Debug("Checking " + checkPath + "For symbolic links");
+                var attributes = File.GetAttributes(checkPath);
+                // Now, check whether directory is Reparse point or symbolic link
+                if (attributes == (FileAttributes.Directory | FileAttributes.ReparsePoint))
+                {
+                    //Update the checkpath to the reference for the symbolic link
+                    checkPath = JunctionPoint.GetTarget(checkPath);
+                    Logger.Debug("Found symbolic link"+ file.FullName+ "==>" + checkPath);
+                }
+                //Add a watcher for each sub folder or the source of the link
+                var destFolderWatcher = new FileSystemWatcher
+                {
+                    Path = checkPath,
+                    Filter = "*",
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+                };
+                Logger.Debug("Adding file watcher for " + checkPath);
+                // Add event handlers.
+                destFolderWatcher.Changed += OnWebSiteContentChanged;
+                destFolderWatcher.Created += OnWebSiteContentChanged;
+                destFolderWatcher.EnableRaisingEvents = true;
+            }
+        }
+
 
         private void FileTimerElapsed(object sender, ElapsedEventArgs e)
         {
