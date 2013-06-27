@@ -31,10 +31,11 @@ namespace Admo
             StartupUrlClosed,
             AppStarted
         }
-        private static RestartingStage _currentRestartingStage = RestartingStage.None;
+
+        public static RestartingStage _currentRestartingStage = RestartingStage.None;
 
         private static double _restartTime = GetCurrentTimeInSeconds();
-        private static Boolean _restartingBrowser = false;
+        public static Boolean _restartingBrowser = false;
         private static double _browserTime = GetCurrentTimeInSeconds();
 
         private static bool _monitorWrite = true;
@@ -67,8 +68,6 @@ namespace Admo
             Application_Handler.fov_left = 26*2;
             Application_Handler.fov_height = 205*2;
             Application_Handler.fov_width = 205*2*4/3;
-
-            SocketServer.StartServer();
 
             //in dev mode do nothing.
             if (Config.IsDevMode()) return;

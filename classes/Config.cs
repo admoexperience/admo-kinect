@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using Admo.classes.lib;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,15 +24,33 @@ namespace Admo.classes
         private static String _webServer = null;
         private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
+        private const String PodFolder = @"C:\smartroom\pods\";
+
+        //Event handler when a config option changed.
+        //Currently can't pick up which config event changed.
+        public static event ConfigOptionChanged OptionChanged;
+        public delegate void ConfigOptionChanged();
+
         public static String GetHostName()
         {
             return Environment.MachineName;
         }
 
-        public static void InitPubNub()
+
+        public static void Init()
         {
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
             pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnect);
+
+            var pod = new PodWatcher(GetPodFile(), PodFolder);
+            pod.StartWatcher();
+            pod.Changed += NewWebContent;
+        }
+
+        public static void NewWebContent(String file)
+        {
+            Log.Debug("New server data "+ file);
+            SocketServer.SendReloadEvent();
         }
 
         private static void OnPubNubConnect(string result)
@@ -68,6 +87,13 @@ namespace Admo.classes
         public static String GetBaseConfigPath()
         {
             return BaseDropboxFolder;
+        }
+
+
+        public static String GetPodFile()
+        {
+            var pod = ReadConfigOption("pod_file", BaseDropboxFolder + "pods/dist.pod.zip");
+            return pod;
         }
 
         public static String GetCurrentApp()
@@ -243,7 +269,7 @@ namespace Admo.classes
             {
                 SocketServer.SendUpdatedConfig();
                 //Hack for checking config changes. this SHOULD be done via an interface so lots of classes can read callbacks.
-                MainWindow.OnConfigChange();
+                if (OptionChanged != null) OptionChanged();
             }
             catch (Exception e)
             {

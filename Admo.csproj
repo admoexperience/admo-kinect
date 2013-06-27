@@ -95,6 +95,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceModel" />
@@ -138,6 +139,7 @@
     <Compile Include="classes\Cursor_Handler.cs" />
     <Compile Include="classes\Image_Processing.cs" />
     <Compile Include="classes\KeyboardDriver.cs" />
+    <Compile Include="classes\lib\JunctionPoint.cs" />
     <Compile Include="classes\lib\Pubnub.cs" />
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\MouseDriver.cs" />
@@ -165,8 +167,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Compile Include="classes\lib\PodWatcher.cs" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="NLog.release.config" />
     <None Include="NLog.xsd">

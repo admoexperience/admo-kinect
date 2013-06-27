@@ -80,8 +80,10 @@ namespace Admo
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
-            Config.InitPubNub();
-
+            Config.Init();
+            Config.OptionChanged += OnConfigChange;
+            SocketServer.StartServer();
+  
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();

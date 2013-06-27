@@ -43,6 +43,11 @@ namespace Admo
             _serverRunning = true;
 		}
 
+        public static void SendReloadEvent()
+        {
+            SendToAll(ConvertToJson("reload","reload"));
+        }
+
         public static void SendKinectData(KinectState state)
         {
             SendToAll(ConvertToJson("kinectState",state));
@@ -114,7 +119,6 @@ namespace Admo
         /// <param name="context">The user's connection context</param>
         public static void OnReceive(UserContext context)
         {
-           // Log.Debug("Received Data From :" + context.ClientAddress);
             try
             {
                 var json = context.DataFrame.ToString();
@@ -142,7 +146,7 @@ namespace Admo
             }
         }
 
-        /// <summary>
+        /// <summary> 
         /// Event fired when the Alchemy Websockets server instance sends data to a client.
         /// Logs the data to the console and performs no further action.
         /// </summary>
