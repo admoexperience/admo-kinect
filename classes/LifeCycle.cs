@@ -53,8 +53,6 @@ namespace Admo
         {
                 //startup chorme in fullscreen and use mouse driver to allow webcam
                 Startup();
-                //listen for restarting call
-                RestartMachine();
                 Monitor();
         }
 
@@ -285,23 +283,5 @@ namespace Admo
         {
             _browserTime = GetCurrentTimeInSeconds();
         }
-
-        //restart PC
-        public static void RestartMachine()
-        {
-            var datetime = DateTime.Now.ToString("HH:mm:ss tt");
-            var hour = Convert.ToInt32(datetime.Substring(0, 2));
-            var min = Convert.ToInt32(datetime.Substring(3, 2));
-
-            //Reboot the machine at 23:59
-            if ((hour == 23) && (min == 59))
-            {
-                Process.Start("shutdown.exe", "/r /t 10");
-                var window = Application.Current.Windows[0];
-                if (window != null) window.Close();
-                Log.Info(Application.Current.Windows.Count);
-            }
-        }
-
     }
 }
