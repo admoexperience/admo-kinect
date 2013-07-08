@@ -52,7 +52,7 @@ namespace Admo.classes.lib
             Logger.Debug("Watching for changes to " + _podFile);
             
             //It should try unzip all the pod files in the directory. (theortically there should only be one)
-            TryUnzipPodInto(_podFile, _podDestFolder + "current");
+            TryUnzipPodInto(_podFile, Path.Combine(_podDestFolder, "current"));
 
             // Create a new FileSystemWatcher for pods dir
             AddDestWatcher(_podDestFolder);
@@ -113,7 +113,7 @@ namespace Admo.classes.lib
 
         private void PodTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            TryUnzipPodInto(_podFile, _podDestFolder + "current");
+            TryUnzipPodInto(_podFile, Path.Combine(_podDestFolder, "current"));
         }
 
         // Define the event handlers. 
@@ -148,24 +148,25 @@ namespace Admo.classes.lib
         {
             try
             {
-                Logger.Debug("Clearning the contents out of ["+destFolder+"]");
-                var dir = new DirectoryInfo(destFolder);
-                if (!dir.Exists)
+                using (var archive = ZipFile.Open(file, ZipArchiveMode.Read))
                 {
-                    dir.Create();
+                    //Try read the entries, should fail if the zip isn't fully completed copying
+                    var x = archive.Entries;
+                    Logger.Debug("Clearning the contents out of [" + destFolder + "]");
+                    var dir = new DirectoryInfo(destFolder);
+                    if (!dir.Exists)
+                    {
+                        dir.Create();
+                    }
+                    ClearDirectory(dir);
+                    Logger.Debug("Extracting [" + file + "] to [" + destFolder + "]");
+                    archive.ExtractToDirectory(destFolder);
                 }
-                //For now we are not cleaning out the older content.
-                ClearDirectory(dir);
-                //We need a way of deleting diffs
-                
-                Logger.Debug("Extracting ["+file+"] to ["+destFolder+"]");
-                ZipFile.ExtractToDirectory(file, destFolder);
             }
             catch (Exception e)
             {
-                Logger.Error("Failed to unzip "+file+" "+e.ToString());
+                Logger.Error("Failed to unzip " + file + " " + e);
             }
-
         }
     }
 }

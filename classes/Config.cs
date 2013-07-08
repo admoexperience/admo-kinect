@@ -12,6 +12,15 @@ namespace Admo.classes
 {
     class Config
     {
+        class ConfigKeys
+        {
+            public const string Environment = "environment";
+            public const string WebUiServer = "web_ui_server";
+            public const string PodFile = "pod_file";
+            public const string App = "app";
+            public const string LoadingPage = "loading_page";
+            public const string KinectElevation = "kinect_elevation";
+        }
 
         private static Pubnub pubnub;
         public const double CheckingInterval = 5 * 60; //Once every 5mins
@@ -25,6 +34,8 @@ namespace Admo.classes
         private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         private const String PodFolder = @"C:\smartroom\pods\";
+
+        private const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
 
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
@@ -72,7 +83,7 @@ namespace Admo.classes
         {
             if (_enviroment == null)
             {
-                _enviroment = ReadConfigOption("environment","production");
+                _enviroment = ReadConfigOption(ConfigKeys.Environment,"production");
             }
             return _enviroment.Equals("development");
         }
@@ -80,7 +91,7 @@ namespace Admo.classes
         public static String GetWebServer()
         {
             if (_webServer != null) return _webServer;
-            _webServer = ReadConfigOption("web_ui_server","https://localhost:3001");
+            _webServer = ReadConfigOption(ConfigKeys.WebUiServer, "https://localhost:3001");
             return _webServer;
         }
 
@@ -92,25 +103,26 @@ namespace Admo.classes
 
         public static String GetPodFile()
         {
-            var pod = ReadConfigOption("pod_file", BaseDropboxFolder + "pods/dist.pod.zip");
+            var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
+            var pod = ReadConfigOption(ConfigKeys.PodFile, def);
             return pod;
         }
 
         public static String GetCurrentApp()
         {
-            var appName = ReadConfigOption("app","demo");
+            var appName = ReadConfigOption(ConfigKeys.App,"demo");
             return appName;
         }
 
         public static String GetLoadingPage()
         {
-            var loading = ReadConfigOption("loading_page", "loading.html");
+            var loading = ReadConfigOption(ConfigKeys.LoadingPage, "loading.html");
             return GetWebServer() + "/" + loading;
         }
 
         public static int GetElevationAngle()
         {
-            var temp = ReadConfigOption("kinect_elevation","1");
+            var temp = ReadConfigOption(ConfigKeys.KinectElevation,"1");
             var elevationAngle = Convert.ToInt32(temp);
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
@@ -119,12 +131,12 @@ namespace Admo.classes
 
         private static String GetLocalConfig(String configOption)
         {
-            return BaseDropboxFolder + @"\" + GetHostName() + @"\" + configOption + ".txt"; ;
+            return Path.Combine(BaseDropboxFolder, GetHostName(), configOption + ".txt");
         }
 
         private static String GetCmsConfigCacheFile()
         {
-            return BaseDropboxFolder + @"\" + GetHostName() + @"\configcache.json"; ;
+            return Path.Combine(BaseDropboxFolder, GetHostName(), "configcache.json");
         }
 
         private static String GetApiKey()
@@ -139,7 +151,7 @@ namespace Admo.classes
         
         private static String GetPubNubSubKey()
         {
-            var key = ReadFile(BaseDropboxFolder +"\\config\\"+"PubNubSubKey.txt");
+            var key = ReadFile(Path.Combine(BaseDropboxFolder,"config","PubNubSubKey.txt"));
             if (key.Equals(String.Empty))
             {
                  throw new Exception("PubNubSubKey not found please add it");
@@ -179,7 +191,7 @@ namespace Admo.classes
         {
             var val = ReadConfigOption(option);
             //If the config option isn't there return the default value
-            if (val.Equals(String.Empty))
+            if (String.IsNullOrEmpty(val))
             {
                 val = defaultOption;
             }
@@ -235,7 +247,7 @@ namespace Admo.classes
             {
                 Log.Debug("Updating config");
                 var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, "http://cms.admo.co/api/v1/unit/config.json");
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get, CmsUrl+ "config.json");
                 // Add our custom headers
                 requestMessage.Headers.Add("Api-Key", GetApiKey());
 
@@ -286,7 +298,7 @@ namespace Admo.classes
                 // You need to add a reference to System.Net.Http to declare client.
                 var httpClient = new HttpClient();
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get,
-                                                            "http://cms.admo.co/api/v1/unit/checkin.json");
+                                                            CmsUrl+ "checkin.json");
                 // Add our custom headers
                 requestMessage.Headers.Add("Api-Key", GetApiKey());
 
