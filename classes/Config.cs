@@ -56,6 +56,7 @@ namespace Admo.classes
             var pod = new PodWatcher(GetPodFile(), PodFolder);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
+            OptionChanged += pod.OnConfigChange;
         }
 
         public static void NewWebContent(String file)

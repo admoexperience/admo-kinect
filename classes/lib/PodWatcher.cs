@@ -1,5 +1,6 @@
 ﻿using System;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Permissions;
@@ -17,11 +18,13 @@ namespace Admo.classes.lib
     internal class PodWatcher
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly String _podFile;
+        private String _podFile;
         private readonly String _podDestFolder;
 
         private Timer _fileChangedTimer;
         private Timer _podChangedTimer;
+
+        private readonly List<FileSystemWatcher> _watchers = new List<FileSystemWatcher>();
 
 
         public event PodDataCahnged Changed;
@@ -31,6 +34,19 @@ namespace Admo.classes.lib
         {
             _podFile = podFile;
             _podDestFolder = podDestFolder;
+        }
+
+
+        //Called when config is changed
+        public void OnConfigChange()
+        {
+            if (_podFile == Config.GetPodFile()) return;
+            Logger.Debug("Pod file changed from ["+_podFile+"] to ["+Config.GetPodFile()+"]");
+            _podFile = Config.GetPodFile();
+            //Restart the watchers and reload the content
+            StopWatchers();
+            StartWatcher();
+            SocketServer.SendReloadEvent();
         }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -43,7 +59,7 @@ namespace Admo.classes.lib
                     Filter = Path.GetFileName(_podFile),
                     NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
                 };
-
+            _watchers.Add(podWatcher);
             // Add event handlers.
             podWatcher.Changed += OnPodChanged;
             podWatcher.Created += OnPodChanged;
@@ -103,6 +119,18 @@ namespace Admo.classes.lib
             destFolderWatcher.Changed += OnWebSiteContentChanged;
             destFolderWatcher.Created += OnWebSiteContentChanged;
             destFolderWatcher.EnableRaisingEvents = true;
+            _watchers.Add(destFolderWatcher);
+        }
+
+        //Stops and removes all the current watchers
+        public void StopWatchers()
+        {
+            foreach (var watcher in _watchers)
+            {
+                watcher.EnableRaisingEvents = false;
+                watcher.Dispose();
+            }
+            _watchers.Clear();
         }
 
 
