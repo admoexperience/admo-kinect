@@ -202,6 +202,8 @@ namespace Admo.classes
         {
             var x = GetJsonConfig()["config"] as JObject;
             x.Add("hostname",GetHostName());
+            x.Add("api_key", GetApiKey());
+            x.Add("cms_uri", CmsUrl);
             return x;
         }
 
