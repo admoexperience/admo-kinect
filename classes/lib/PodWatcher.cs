@@ -46,6 +46,7 @@ namespace Admo.classes.lib
             //Restart the watchers and reload the content
             StopWatchers();
             StartWatcher();
+            SocketServer.SendReloadEvent();
         }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
