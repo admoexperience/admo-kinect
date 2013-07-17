@@ -51,7 +51,7 @@ namespace Admo.classes
         public static void Init()
         {
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
-            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnect);
+            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnection);
 
             var pod = new PodWatcher(GetPodFile(), PodFolder);
             pod.StartWatcher();
@@ -65,11 +65,23 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
-        private static void OnPubNubConnect(string result)
+        private static void OnPubNubConnection(string result)
         {
-            UpdateConfigCache();
-            CheckIn();
-            Log.Debug("Pubnub connected "+ result);
+            //List order is  
+            // 0,1 connected disconnected
+            //message
+            //api key
+            var list = JsonConvert.DeserializeObject<List<object>>(result);
+            if (list[0].ToString().Equals("1"))
+            {
+                UpdateConfigCache();
+                CheckIn();
+                Log.Debug("Pubnub connected [" + list[1]+"]");
+            }
+            else
+            {
+                Log.Debug("Pubnub disconnected [" + list[1] + "]");
+            }
         }
 
         private static void OnPubNubMessage(string result)
