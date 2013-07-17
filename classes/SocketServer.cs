@@ -34,7 +34,6 @@ namespace Admo
                     OnReceive = OnReceive,
                     OnSend = OnSend,
                     OnConnected = OnConnect,
-                    OnConnect = OnConnect,
                     OnDisconnect = OnDisconnect,
                     TimeOut = new TimeSpan(0, 5, 0)
                 };
