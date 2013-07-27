@@ -20,6 +20,7 @@ namespace Admo.classes
             public const string App = "app";
             public const string LoadingPage = "loading_page";
             public const string KinectElevation = "kinect_elevation";
+            public const string PubnubSubscribeKey = "pubnub_subscribe_key";
         }
 
         private static Pubnub pubnub;
@@ -50,6 +51,8 @@ namespace Admo.classes
 
         public static void Init()
         {
+            UpdateConfigCache();
+
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
             pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnection);
 
@@ -164,10 +167,13 @@ namespace Admo.classes
         
         private static String GetPubNubSubKey()
         {
-            var key = ReadFile(Path.Combine(BaseDropboxFolder,"config","PubNubSubKey.txt"));
-            if (key.Equals(String.Empty))
+            var key = ReadConfigOption(ConfigKeys.PubnubSubscribeKey, "");
+            if (String.IsNullOrEmpty(key))
             {
-                 throw new Exception("PubNubSubKey not found please add it");
+                Log.Warn("Pubnubkey not found manually triggering an update; please restart application");
+                //TODO: This should throw some sort of exception.
+                //We need to make sure the config is bootstraped from the app before starting.
+                UpdateConfigCache();
             }
             return key;
         }
@@ -233,12 +239,12 @@ namespace Admo.classes
             }
             catch (DirectoryNotFoundException dnfe)
             {
-                Log.Debug("Cache file not found [" + cacheFile + "]");
+                Log.Error("Cache file not found [" + cacheFile + "]");
                 return new JObject();
             }
             catch (FileNotFoundException fnfe)
             {
-                Log.Debug("Cache file not found [" + cacheFile + "]");
+                Log.Error("Cache file not found [" + cacheFile + "]");
                 return new JObject();
             }
             var obj = (JObject)JsonConvert.DeserializeObject(temp);
