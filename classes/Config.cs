@@ -36,7 +36,7 @@ namespace Admo.classes
 
         private const String PodFolder = @"C:\smartroom\pods\";
 
-        private const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
+        private static CmsApi _api;
 
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
@@ -51,6 +51,7 @@ namespace Admo.classes
 
         public static void Init()
         {
+            _api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
@@ -78,7 +79,7 @@ namespace Admo.classes
             if (list[0].ToString().Equals("1"))
             {
                 UpdateConfigCache();
-                CheckIn();
+                _api.CheckIn();
                 Log.Debug("Pubnub connected [" + list[1]+"]");
             }
             else
@@ -222,7 +223,7 @@ namespace Admo.classes
             var x = GetJsonConfig()["config"] as JObject;
             x.Add("hostname",GetHostName());
             x.Add("apiKey", GetApiKey());
-            x.Add("cmsUri", CmsUrl);
+            x.Add("cmsUri", CmsApi.CmsUrl);
             return x;
         }
 
@@ -262,21 +263,19 @@ namespace Admo.classes
     
         }
 
+        public static void CheckIn()
+        {
+            //TODO:Refactor this out of here.
+            _api.CheckIn();
+        }
+
         public static async void UpdateConfigCache()
         {
             try
             {
                 Log.Debug("Updating config");
-                var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, CmsUrl+ "config.json");
-                // Add our custom headers
-                requestMessage.Headers.Add("Api-Key", GetApiKey());
 
-                // Send the request to the server
-                var response = await httpClient.SendAsync(requestMessage);
-
-                // Just as an example I'm turning the response into a string here
-                var responseAsString = await response.Content.ReadAsStringAsync();
+                var responseAsString = await _api.GetConfig();
 
                 dynamic obj = JsonConvert.DeserializeObject(responseAsString);
 
@@ -309,31 +308,5 @@ namespace Admo.classes
                 Log.Warn("Unable to do config callbacks", e);
             }
         } 
-
-
-        public static async void CheckIn()
-        {
-            try
-            {
-                Log.Debug("Checking into the CMS");
-                // You need to add a reference to System.Net.Http to declare client.
-                var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get,
-                                                            CmsUrl+ "checkin.json");
-                // Add our custom headers
-                requestMessage.Headers.Add("Api-Key", GetApiKey());
-
-                // Send the request to the server
-                var response = await httpClient.SendAsync(requestMessage);
-
-
-                var responseAsString = await response.Content.ReadAsStringAsync();
-            }
-            catch (Exception e)
-            {
-                //Happens when the unit is offline
-                Log.Warn("Unable to check in",e);
-            }
-        }
     }
 }

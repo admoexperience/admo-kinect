@@ -134,12 +134,12 @@
     <Compile Include="classes\Application_Handler.cs" />
     <Compile Include="classes\DataContainer.cs" />
     <Compile Include="classes\KinectState.cs" />
-    <Compile Include="classes\CmsApi.cs" />
     <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />
     <Compile Include="classes\Cursor_Handler.cs" />
     <Compile Include="classes\Image_Processing.cs" />
     <Compile Include="classes\KeyboardDriver.cs" />
+    <Compile Include="classes\lib\CmsApi.cs" />
     <Compile Include="classes\lib\JunctionPoint.cs" />
     <Compile Include="classes\lib\Pubnub.cs" />
     <Compile Include="classes\LifeCycle.cs" />
