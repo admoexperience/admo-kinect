@@ -146,7 +146,7 @@ namespace Admo
         {
             //Only monitor every second.
             var temp = GetCurrentTimeInSeconds();
-            if (!(temp - _lastScreenshotTime > Config.ScreenshotInterval)) return;
+            if (!(temp - _lastScreenshotTime > Config.GetScreenshotInterval())) return;
 
             _lastScreenshotTime = temp;
             Config.TakeScreenshot();
