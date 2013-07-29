@@ -13,8 +13,7 @@ namespace Admo.classes.lib
 {
     class CmsApi
     {
-       // public const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
-        public const String CmsUrl = "http://10.20.0.249:3002/api/v1/unit/";
+        public const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly String _apiKey;
 
