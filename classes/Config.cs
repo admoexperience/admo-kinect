@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using Admo.classes.lib;
@@ -25,6 +26,7 @@ namespace Admo.classes
 
         private static Pubnub pubnub;
         public const double CheckingInterval = 5 * 60; //Once every 5mins
+        public const double ScreenshotInterval = 30 * 60; //Once every 30mins
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -266,6 +268,7 @@ namespace Admo.classes
         public static void CheckIn()
         {
             //TODO:Refactor this out of here.
+            TakeScreenshot();
             _api.CheckIn();
         }
 
@@ -307,6 +310,30 @@ namespace Admo.classes
             {
                 Log.Warn("Unable to do config callbacks", e);
             }
-        } 
+        }
+
+        public static async void TakeScreenshot()
+        {
+            try
+            {
+                Log.Debug("Taking screenshot");
+                var sc = new ScreenCapture();
+                // capture entire screen
+                var img = sc.CaptureScreen();
+                
+                //Resize it slightly? 
+                const int compress = 2;
+                var width = (int)(img.Width / compress);
+                var height = (int)(img.Height / compress);
+                var smallImage = (Image) new Bitmap(img, width, height);
+                var result = await _api.PostScreenShot(smallImage);
+                Log.Debug("Screen shot result " + result);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Unable to save screen shot", e);
+            }
+        }
+
     }
 }

@@ -142,6 +142,7 @@
     <Compile Include="classes\lib\CmsApi.cs" />
     <Compile Include="classes\lib\JunctionPoint.cs" />
     <Compile Include="classes\lib\Pubnub.cs" />
+    <Compile Include="classes\lib\ScreenCapture.cs" />
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\MouseDriver.cs" />
     <Compile Include="classes\SocketServer.cs" />

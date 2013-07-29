@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,7 +13,8 @@ namespace Admo.classes.lib
 {
     class CmsApi
     {
-        public const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
+       // public const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
+        public const String CmsUrl = "http://10.20.0.249:3002/api/v1/unit/";
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly String _apiKey;
 
@@ -57,6 +61,25 @@ namespace Admo.classes.lib
             // Just as an example I'm turning the response into a string here
             var responseAsString = await response.Content.ReadAsStringAsync();
             return responseAsString;
+        }
+
+        public async Task<String> PostScreenShot(Image img)
+        {
+            var httpClient = new HttpClient();
+            const string url = CmsUrl + "screenshot.json";
+            // httpClient.DefaultRequestHeaders.TransferEncodingChunked = true;
+            httpClient.DefaultRequestHeaders.Add("Api-Key", _apiKey);
+
+
+            var form = new MultipartFormDataContent();
+            var stream = new MemoryStream();
+            img.Save(stream, ImageFormat.Jpeg);
+            HttpContent c = new ByteArrayContent(stream.ToArray());
+            form.Add(c, "screenshot",  "screenshot.jpeg");
+            var responseMessage = httpClient.PostAsync(url, form).Result;
+
+            var data = await responseMessage.Content.ReadAsStringAsync();
+            return data;
         }
     }
 }
