@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using Admo.classes.lib;
@@ -21,10 +22,12 @@ namespace Admo.classes
             public const string LoadingPage = "loading_page";
             public const string KinectElevation = "kinect_elevation";
             public const string PubnubSubscribeKey = "pubnub_subscribe_key";
+            public const string ScreenshotInterval = "screenshot_interval";
         }
 
         private static Pubnub pubnub;
         public const double CheckingInterval = 5 * 60; //Once every 5mins
+        private const double ScreenshotInterval = 30 * 60; //Once every 30mins
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -36,7 +39,7 @@ namespace Admo.classes
 
         private const String PodFolder = @"C:\smartroom\pods\";
 
-        private const String CmsUrl = "http://cms.admo.co/api/v1/unit/";
+        private static CmsApi _api;
 
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
@@ -51,6 +54,7 @@ namespace Admo.classes
 
         public static void Init()
         {
+            _api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
@@ -78,7 +82,7 @@ namespace Admo.classes
             if (list[0].ToString().Equals("1"))
             {
                 UpdateConfigCache();
-                CheckIn();
+                _api.CheckIn();
                 Log.Debug("Pubnub connected [" + list[1]+"]");
             }
             else
@@ -114,6 +118,14 @@ namespace Admo.classes
         public static String GetBaseConfigPath()
         {
             return BaseDropboxFolder;
+        }
+
+        public static double GetScreenshotInterval()
+        {
+            var val = ReadConfigOption(ConfigKeys.ScreenshotInterval, ScreenshotInterval.ToString());
+            var result = ScreenshotInterval;
+            double.TryParse(val, out result);
+            return result;
         }
 
 
@@ -222,7 +234,7 @@ namespace Admo.classes
             var x = GetJsonConfig()["config"] as JObject;
             x.Add("hostname",GetHostName());
             x.Add("apiKey", GetApiKey());
-            x.Add("cmsUri", CmsUrl);
+            x.Add("cmsUri", CmsApi.CmsUrl);
             return x;
         }
 
@@ -262,21 +274,18 @@ namespace Admo.classes
     
         }
 
+        public static void CheckIn()
+        {
+            _api.CheckIn();
+        }
+
         public static async void UpdateConfigCache()
         {
             try
             {
                 Log.Debug("Updating config");
-                var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, CmsUrl+ "config.json");
-                // Add our custom headers
-                requestMessage.Headers.Add("Api-Key", GetApiKey());
 
-                // Send the request to the server
-                var response = await httpClient.SendAsync(requestMessage);
-
-                // Just as an example I'm turning the response into a string here
-                var responseAsString = await response.Content.ReadAsStringAsync();
+                var responseAsString = await _api.GetConfig();
 
                 dynamic obj = JsonConvert.DeserializeObject(responseAsString);
 
@@ -308,32 +317,30 @@ namespace Admo.classes
             {
                 Log.Warn("Unable to do config callbacks", e);
             }
-        } 
+        }
 
-
-        public static async void CheckIn()
+        public static async void TakeScreenshot()
         {
             try
             {
-                Log.Debug("Checking into the CMS");
-                // You need to add a reference to System.Net.Http to declare client.
-                var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get,
-                                                            CmsUrl+ "checkin.json");
-                // Add our custom headers
-                requestMessage.Headers.Add("Api-Key", GetApiKey());
-
-                // Send the request to the server
-                var response = await httpClient.SendAsync(requestMessage);
-
-
-                var responseAsString = await response.Content.ReadAsStringAsync();
+                Log.Debug("Taking screenshot");
+                var sc = new ScreenCapture();
+                // capture entire screen
+                var img = sc.CaptureScreen();
+                
+                //Resize it slightly? 
+                const int compress = 2;
+                var width = (int)(img.Width / compress);
+                var height = (int)(img.Height / compress);
+                var smallImage = (Image) new Bitmap(img, width, height);
+                var result = await _api.PostScreenShot(smallImage);
+                Log.Debug("Screen shot result " + result);
             }
             catch (Exception e)
             {
-                //Happens when the unit is offline
-                Log.Warn("Unable to check in",e);
+                Log.Error("Unable to save screen shot", e);
             }
         }
+
     }
 }

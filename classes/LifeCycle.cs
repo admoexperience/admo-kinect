@@ -47,7 +47,8 @@ namespace Admo
 
         private static double _lastMonitorTime = GetCurrentTimeInSeconds();
         private static double _lastCheckinTime = _lastMonitorTime;
-  
+        private static double _lastScreenshotTime = _lastMonitorTime;
+
 
         public static void LifeLoop()
         {
@@ -141,6 +142,17 @@ namespace Admo
            
         }
 
+        private static void Screenshot()
+        {
+            //Only monitor every second.
+            var temp = GetCurrentTimeInSeconds();
+            if (!(temp - _lastScreenshotTime > Config.GetScreenshotInterval())) return;
+
+            _lastScreenshotTime = temp;
+            Config.TakeScreenshot();
+
+        }
+
 
         private static void Monitor()
         {
@@ -159,6 +171,7 @@ namespace Admo
             }
 
             Checkin();
+            Screenshot();
            
             //Don't do any of this in dev mode.
             if (Config.IsDevMode()) return;
@@ -217,7 +230,7 @@ namespace Admo
             {
                 browerPid.CloseMainWindow();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Log.Warn("Could not close browser");
             }
@@ -230,7 +243,7 @@ namespace Admo
             {
                 browerPid.Kill();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Log.Warn("Could not force close browser");
             }
