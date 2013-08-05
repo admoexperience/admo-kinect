@@ -338,6 +338,7 @@ namespace Admo.classes
             }
             catch (Exception e)
             {
+                Log.Error(e);
                 Log.Error("Unable to save screen shot", e);
             }
         }
