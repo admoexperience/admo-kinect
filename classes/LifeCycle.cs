@@ -113,7 +113,7 @@ namespace Admo
             }
         }
 
-        private static double GetCurrentTimeInSeconds()
+        public static double GetCurrentTimeInSeconds()
         {
             return Convert.ToDouble(DateTime.Now.Ticks) / 10000 / 1000;
         }

@@ -44,6 +44,10 @@ namespace Admo
             short[] rawDepthData = new short[depthFrame.PixelDataLength];
             int[,] array = new int[depthFrame.Height,depthFrame.Width]; //(480,640)
 
+            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
+            double timeDelta = timeNow - timeLostUser;
+            double timeWait = 2.5;
+
             depthFrame.CopyPixelDataTo(rawDepthData);
 
             Byte[] pixels = new byte[depthFrame.Height*depthFrame.Width*4];
@@ -97,9 +101,7 @@ namespace Admo
 
             //checks whether the user was standing in the middle of the fov when tracking of said user was lost
             //if this is the case then in all likelyhood someone walk inbetween the kinect and the user
-            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-            double timeDelta = timeNow - timeLostUser;
-            double timeWait = 2500;
+            
             if ((standinMiddle) && (previousKinectState != null) && (timeDelta < timeWait))
             {
                 //since the user is still in the fov, although not visible by the kinect, use the kinectState of when the user was last visible until the user is visible again
@@ -107,7 +109,7 @@ namespace Admo
                 first_detection = false;
 
                 lostUser = true;
-                timeFoundUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
             }
             else
             {
@@ -128,8 +130,8 @@ namespace Admo
         public static bool standinMiddle = false;
         public static bool lostUser = false;
         public static KinectState previousKinectState = new KinectState();
-        public static double timeLostUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-        public static double timeFoundUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static double timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
+        public static double timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
@@ -138,6 +140,9 @@ namespace Admo
             int right_hand_z = (int) (coordinates[15]*1000);
             int left_hand_z = (int) (coordinates[14]*1000);
             int head_z = (int) (coordinates[19]*1000);
+            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
+            double timeDelta = timeNow - timeFoundUser;
+            double timeWait = 2.5;
 
             //adjust skeletal coordinates for kinect and webcam fov difference
             for (int t = 0; t < 6; t = t + 2)
@@ -180,7 +185,7 @@ namespace Admo
                 standinMiddle = true;
                 //remember the kinectState(t-1)
                 previousKinectState = kinectState;
-                timeLostUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+                timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
             }
             else
             {
@@ -188,9 +193,7 @@ namespace Admo
             }
 
             //he was lost but now he is found
-            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
-            double timeDelta = timeNow - timeFoundUser;
-            double timeWait = 2500;
+            
             if (lostUser)
             {
                 kinectState = previousKinectState;
