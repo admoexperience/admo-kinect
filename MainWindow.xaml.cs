@@ -330,9 +330,7 @@ namespace Admo
 
                         //Managing data send to Node                 
                         Application_Handler.Manage_Skeletal_Data(coordinates, first);
-
-                        //Manage the Elevation Angle of the Kinect
-                        //Application_Handler.ChangeAngle(kinect);                        
+                 
                         
                         if ((coordinates[19] > 0.9)&&(Config.RunningFacetracking))
                         {
@@ -689,17 +687,7 @@ namespace Admo
                 }
 
             }
-            /*
-            skeleton_count = 0;
-            //Find the closest skeleton        
-            for (int i = 0; i < skeletons.Length; i++)
-            {                
-                if ((skeletons[i].TrackingState == SkeletonTrackingState.PositionOnly)|(skeletons[i].TrackingState == SkeletonTrackingState.Tracked))
-                {
-                    skeleton_count++;
-                }                
-            }
-            */
+
             //if there is no other users in die fov and the locked skeleton moves out of the field of view
             //stop stopwatch 
             if ((skeleton == null) && (Application_Handler.locked_skeleton == true))

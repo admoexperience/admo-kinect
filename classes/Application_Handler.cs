@@ -94,8 +94,29 @@ namespace Admo
             }
 
             stickman = Convert.ToString(mode) + "-" + video_coord;
+
+            //checks whether the user was standing in the middle of the fov when tracking of said user was lost
+            //if this is the case then in all likelyhood someone walk inbetween the kinect and the user
+            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double timeDelta = timeNow - timeLostUser;
+            double timeWait = 2500;
+            if ((standinMiddle) && (previousKinectState != null) && (timeDelta < timeWait))
+            {
+                //since the user is still in the fov, although not visible by the kinect, use the kinectState of when the user was last visible until the user is visible again
+                kinectState = previousKinectState;
+                first_detection = false;
+
+                lostUser = true;
+                timeFoundUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            }
+            else
+            {
+                first_detection = true;
+                lostUser = false;
+            }
+
             SocketServer.SendKinectData(kinectState);
-            first_detection = true;
+            
         }
 
 
@@ -104,6 +125,11 @@ namespace Admo
         public static bool detected = false;
         public static bool first_detection = true;
         public static bool locked_skeleton = false;
+        public static bool standinMiddle = false;
+        public static bool lostUser = false;
+        public static KinectState previousKinectState = new KinectState();
+        public static double timeLostUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+        public static double timeFoundUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
@@ -138,12 +164,6 @@ namespace Admo
                 }
             }
 
-           /* String head = Convert.ToString(stick_coord[0]) + "^" + Convert.ToString(stick_coord[1]) + "^" +
-                          Convert.ToString(head_z);
-            String left_hand = "^" + Convert.ToString(stick_coord[2]) + "^" + Convert.ToString(stick_coord[3]) + "^" +
-                               Convert.ToString(left_hand_z);
-            String right_hand = "^" + Convert.ToString(stick_coord[4]) + "^" + Convert.ToString(stick_coord[5]) + "^" +
-                                Convert.ToString(right_hand_z);*/
 
             int mode = Stages(coordinates, first);
 
@@ -152,12 +172,38 @@ namespace Admo
             kinectState.SetHead(stick_coord[0], stick_coord[1], head_z);
             kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z);
             kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z);
-            //MainWindow.face_x
-            // MainWindow.face_y
 
+            //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
+            const double deltaMiddle = 0.4;
+            if ((coordinates[6] < deltaMiddle) && (coordinates[6] > -deltaMiddle))
+            {
+                standinMiddle = true;
+                //remember the kinectState(t-1)
+                previousKinectState = kinectState;
+                timeLostUser = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            }
+            else
+            {
+                standinMiddle = false;
+            }
 
-           // stickman = Convert.ToString(mode) + "-" + head + left_hand + right_hand + "-" + MainWindow.hand_state + "-" +
-           //          Convert.ToString() + "^" + Convert.ToString();
+            //he was lost but now he is found
+            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
+            double timeDelta = timeNow - timeFoundUser;
+            double timeWait = 2500;
+            if (lostUser)
+            {
+                kinectState = previousKinectState;
+                if ((coordinates[6] < deltaMiddle) && (coordinates[6] > -deltaMiddle))
+                {
+                    lostUser = false;
+                }
+                else if (timeDelta > timeWait)
+                {
+                    lostUser = false;
+                }
+
+            }
 
             SocketServer.SendKinectData(kinectState);
         }
