@@ -23,6 +23,10 @@ namespace Admo.classes
             public const string KinectElevation = "kinect_elevation";
             public const string PubnubSubscribeKey = "pubnub_subscribe_key";
             public const string ScreenshotInterval = "screenshot_interval";
+            public const string FOVcropTop = "fov_crop_top";
+            public const string FOVcropLeft = "fov_crop_left";
+            public const string FOVcropWidth = "fov_crop_width";
+            public const string SetCalibrate = "set_calibrate";
         }
 
         private static Pubnub pubnub;
@@ -155,6 +159,69 @@ namespace Admo.classes
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
 
+        }
+
+        public static void GetFovCropValues()
+        {
+            var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
+            var appName = ReadConfigOption(ConfigKeys.PodFile, def);
+            if (appName.IndexOf("calibration") != -1)
+            {
+                var tempCalibrate = ReadConfigOption(ConfigKeys.SetCalibrate, "false");
+
+                if (tempCalibrate == "True")
+                {
+                    SetFovCropValues();
+                }
+                else
+                {
+                    //use default values
+                    Application_Handler.fov_top = 0;
+                    Application_Handler.fov_left = 0;
+                    Application_Handler.fov_width = 640;
+                    Application_Handler.fov_height = 480;
+                }
+                
+            }
+            else
+            {
+                var tempTop = ReadConfigOption(ConfigKeys.FOVcropTop, "1");
+                var tempLeft = ReadConfigOption(ConfigKeys.FOVcropLeft, "1");
+                var tempWidth = ReadConfigOption(ConfigKeys.FOVcropWidth, "1");
+
+                Application_Handler.fov_top = Convert.ToInt32(tempTop);
+                Application_Handler.fov_left = Convert.ToInt32(tempLeft);
+                Application_Handler.fov_width = Convert.ToInt32(tempWidth);
+                Application_Handler.fov_height = Application_Handler.fov_width*3/4;
+            }
+
+        }
+
+        public static void SetFovCropValues()
+        {
+
+            float trueWidth = Application_Handler.UncalibratedCoordinates[4] -
+                            Application_Handler.UncalibratedCoordinates[2];
+
+            float falseWidth = 340;
+            float scalingFactor = trueWidth / falseWidth;
+
+            float trueLeft = Application_Handler.UncalibratedCoordinates[2];
+            float falseLeft = 150;
+
+            float trueTop = Application_Handler.UncalibratedCoordinates[3];
+            float falseTop = 200;
+
+            Application_Handler.fov_width = 640 * scalingFactor;
+            Application_Handler.fov_height = 480 * scalingFactor;
+
+            Application_Handler.fov_left = trueLeft - (falseLeft * scalingFactor);
+            Application_Handler.fov_top = trueTop - (falseTop * scalingFactor);
+            
+            Log.Info("calibration values changed");
+            Log.Info("fov_top: " + Application_Handler.fov_top);
+            Log.Info("fov_left: " + Application_Handler.fov_left);
+            Log.Info("fov_width: " + Application_Handler.fov_width);
         }
 
         private static String GetLocalConfig(String configOption)

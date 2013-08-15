@@ -61,13 +61,13 @@ namespace Admo
         {
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - StartupTime;
-            
+            /*
             //Set the kinect and webcam config
             Application_Handler.fov_top = 28*2;
             Application_Handler.fov_left = 26*2;
             Application_Handler.fov_height = 205*2;
             Application_Handler.fov_width = 205*2*4/3;
-
+            */
             //in dev mode do nothing.
             if (Config.IsDevMode()) return;
 
