@@ -154,28 +154,31 @@ namespace Admo
             double timeDelta = timeNow - timeFoundUser;
             double timeWait = 2.5;
 
+            double kinectFovHeight = 480;
+            double kinectFovWidth = 640;
+
             //adjust skeletal coordinates for kinect and webcam fov difference
             for (int t = 0; t < 6; t = t + 2)
             {
-                stick_coord[t] = (int) ((stick_coord[t] - fov_left)*(640/fov_width));
-                stick_coord[t + 1] = (int) ((stick_coord[t + 1] - fov_top)*(480/fov_height));
+                stick_coord[t] = (int)((stick_coord[t] - fov_left) * (kinectFovWidth / fov_width));
+                stick_coord[t + 1] = (int)((stick_coord[t + 1] - fov_top) * (kinectFovHeight / fov_height));
 
                 if (stick_coord[t] < 0)
                 {
                     stick_coord[t] = 0;
                 }
-                else if (stick_coord[t] > 640)
+                else if (stick_coord[t] > kinectFovWidth)
                 {
-                    stick_coord[t] = 640;
+                    stick_coord[t] = kinectFovWidth;
                 }
 
                 if (stick_coord[t + 1] < 0)
                 {
                     stick_coord[t + 1] = 0;
                 }
-                else if (stick_coord[t + 1] > 480)
+                else if (stick_coord[t + 1] > kinectFovHeight)
                 {
-                    stick_coord[t + 1] = 480;
+                    stick_coord[t + 1] = kinectFovHeight;
                 }
             }
 

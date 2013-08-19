@@ -165,6 +165,7 @@ namespace Admo.classes
         {
             var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
             var appName = ReadConfigOption(ConfigKeys.PodFile, def);
+            //check if the calibration app has been set to run
             if (appName.IndexOf("calibration") != -1)
             {
                 var tempCalibrate = ReadConfigOption(ConfigKeys.SetCalibrate, "false");
@@ -175,7 +176,7 @@ namespace Admo.classes
                 }
                 else
                 {
-                    //use default values
+                    //set calibration values to zero in preparation for calibration
                     Application_Handler.fov_top = 0;
                     Application_Handler.fov_left = 0;
                     Application_Handler.fov_width = 640;
@@ -185,10 +186,14 @@ namespace Admo.classes
             }
             else
             {
-                var tempTop = ReadConfigOption(ConfigKeys.FOVcropTop, "1");
-                var tempLeft = ReadConfigOption(ConfigKeys.FOVcropLeft, "1");
-                var tempWidth = ReadConfigOption(ConfigKeys.FOVcropWidth, "1");
+                //read calibration values from CMS if calibration app has not been set to run
+                //use legacy calibration values if there is no calibration values in the CMS
+                var tempTop = ReadConfigOption(ConfigKeys.FOVcropTop, "56");
+                var tempLeft = ReadConfigOption(ConfigKeys.FOVcropLeft, "52");
+                var tempWidth = ReadConfigOption(ConfigKeys.FOVcropWidth, "547");
 
+                //refer to document Calibration Method
+                //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
                 Application_Handler.fov_top = Convert.ToInt32(tempTop);
                 Application_Handler.fov_left = Convert.ToInt32(tempLeft);
                 Application_Handler.fov_width = Convert.ToInt32(tempWidth);
@@ -199,17 +204,23 @@ namespace Admo.classes
 
         public static void SetFovCropValues()
         {
-
+            //get the distance the user's hands is appart
+            //the user should be hovering his hands over the circles on the HUD at this stage
             float trueWidth = Application_Handler.UncalibratedCoordinates[4] -
                             Application_Handler.UncalibratedCoordinates[2];
 
+            //the circles on the calibration app HUD is 340px appart meusared in Kinect coordinates
             float falseWidth = 340;
             float scalingFactor = trueWidth / falseWidth;
 
+            //this is the uncalibrated value of the left hand relative to the left margin
             float trueLeft = Application_Handler.UncalibratedCoordinates[2];
+            //this value is set in the calibration app to position the calibration circles from the left margin
             float falseLeft = 150;
 
+            //this is the uncalibrated value of the left hand relative to the top margin
             float trueTop = Application_Handler.UncalibratedCoordinates[3];
+            //this value is set in the calibration app to position the calibration circles from the top margin
             float falseTop = 200;
 
             Application_Handler.fov_width = 640 * scalingFactor;
