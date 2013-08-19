@@ -154,8 +154,8 @@ namespace Admo
             double timeDelta = timeNow - timeFoundUser;
             double timeWait = 2.5;
 
-            double kinectFovHeight = 480;
-            double kinectFovWidth = 640;
+            int kinectFovHeight = 480;
+            int kinectFovWidth = 640;
 
             //adjust skeletal coordinates for kinect and webcam fov difference
             for (int t = 0; t < 6; t = t + 2)
