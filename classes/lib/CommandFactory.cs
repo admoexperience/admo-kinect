@@ -15,6 +15,7 @@ namespace Admo.classes.lib
             { "screenshot", new ScreenshotCommand()},
             { "checkin", new CheckinCommand()},
             { "updateConfig", new UpdateConfigCommand()},
+            { "calibrate", new CalibrateCommand()},
         };
 
 
