@@ -118,7 +118,7 @@ namespace Admo.classes
         public static String GetWebServer()
         {
             if (_webServer != null) return _webServer;
-            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:3001");
+            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:4001");
             return _webServer;
         }
 
@@ -145,7 +145,8 @@ namespace Admo.classes
 
         public static String GetCurrentApp()
         {
-            var appName = ReadConfigOption(Keys.App,"demo");
+            //TODO: this shouldn't actually be an 'app' config var
+            var appName = ReadConfigOption(Keys.App,"index.html");
             return appName;
         }
 
