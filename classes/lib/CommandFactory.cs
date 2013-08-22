@@ -15,6 +15,7 @@ namespace Admo.classes.lib
             { "screenshot", typeof(ScreenshotCommand)},
             { "checkin", typeof(CheckinCommand)},
             { "updateConfig", typeof(UpdateConfigCommand)},
+            { "calibrate", typeof(CalibrateCommand)},
         };
 
 
