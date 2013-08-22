@@ -130,7 +130,7 @@ namespace Admo
         }
 
 
-        public static int[] stick_coord = new int[6];
+        public static int[] stick_coord = new int[10];
         public static int[] UncalibratedCoordinates = new int[6];
         public static double time_start_hud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool detected = false;
@@ -149,6 +149,9 @@ namespace Admo
             int right_hand_z = (int) (coordinates[15]*1000);
             int left_hand_z = (int) (coordinates[14]*1000);
             int head_z = (int) (coordinates[19]*1000);
+            //no need to get z coordinate of elbows - wil pass them when code is made better
+            int leftElbowZ = left_hand_z;
+            int rightElbowZ = right_hand_z;
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - timeFoundUser;
@@ -158,7 +161,7 @@ namespace Admo
             int kinectFovWidth = 640;
 
             //adjust skeletal coordinates for kinect and webcam fov difference
-            for (int t = 0; t < 6; t = t + 2)
+            for (int t = 0; t < 10; t = t + 2)
             {
                 stick_coord[t] = (int)((stick_coord[t] - fov_left) * (kinectFovWidth / fov_width));
                 stick_coord[t + 1] = (int)((stick_coord[t + 1] - fov_top) * (kinectFovHeight / fov_height));
@@ -189,6 +192,8 @@ namespace Admo
             kinectState.SetHead(stick_coord[0], stick_coord[1], head_z);
             kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z);
             kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z);
+            kinectState.SetLeftElbow(stick_coord[6], stick_coord[7], leftElbowZ);
+            kinectState.SetRightElbow(stick_coord[8], stick_coord[9], rightElbowZ);
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;
