@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Net.Http;
 using Admo.classes.lib;
 using NLog;
 using Newtonsoft.Json;
@@ -76,6 +75,7 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
+
         private static void OnPubNubConnection(string result)
         {
             //List order is  
@@ -95,10 +95,13 @@ namespace Admo.classes
             }
         }
 
+        
         private static void OnPubNubMessage(string result)
         {
-            UpdateConfigCache();
-            Log.Debug("Pubnub message " + result);
+            var list = JsonConvert.DeserializeObject<List<String>>(result);
+            var command = CommandFactory.ParseCommand(list[0]);
+            //Performs the command
+            command.Perform();
         }
 
         //Production mode by default. 
