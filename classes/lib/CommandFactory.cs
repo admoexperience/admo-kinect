@@ -10,12 +10,12 @@ namespace Admo.classes.lib
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static readonly Dictionary<string, Type> Commmands = new Dictionary<string, Type>()
+        private static readonly Dictionary<string, BaseCommand> Commmands = new Dictionary<string, BaseCommand>()
         {
-            { "screenshot", typeof(ScreenshotCommand)},
-            { "checkin", typeof(CheckinCommand)},
-            { "updateConfig", typeof(UpdateConfigCommand)},
-            { "calibrate", typeof(CalibrateCommand)},
+            { "screenshot", new ScreenshotCommand()},
+            { "checkin", new CheckinCommand()},
+            { "updateConfig", new UpdateConfigCommand()},
+            { "calibrate", new CalibrateCommand()},
         };
 
 
@@ -25,7 +25,7 @@ namespace Admo.classes.lib
             string cmd = rawOjbect.command;
             if (Commmands.ContainsKey(cmd))
             {
-                return (BaseCommand) Activator.CreateInstance(Commmands[cmd]);
+                return Commmands[cmd];
             }
             Logger.Error("Unkown command ["+cmd+"]");
             return new UnknownCommand();
