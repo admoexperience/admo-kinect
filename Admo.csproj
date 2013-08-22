@@ -142,6 +142,7 @@
     <Compile Include="classes\lib\CmsApi.cs" />
     <Compile Include="classes\lib\CommandFactory.cs" />
     <Compile Include="classes\lib\commands\BaseCommand.cs" />
+    <Compile Include="classes\lib\commands\CalibrateCommand.cs" />
     <Compile Include="classes\lib\commands\CheckinCommand.cs" />
     <Compile Include="classes\lib\commands\ScreenshotCommand.cs" />
     <Compile Include="classes\lib\commands\UnknownCommand.cs" />

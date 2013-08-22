@@ -12,7 +12,7 @@ namespace Admo.classes
 {
     class Config
     {
-        class ConfigKeys
+        public class Keys
         {
             public const string Environment = "environment";
             public const string WebUiServer = "web_ui_server";
@@ -110,7 +110,7 @@ namespace Admo.classes
         {
             if (_enviroment == null)
             {
-                _enviroment = ReadConfigOption(ConfigKeys.Environment,"production");
+                _enviroment = ReadConfigOption(Keys.Environment,"production");
             }
             return _enviroment.Equals("development");
         }
@@ -118,7 +118,7 @@ namespace Admo.classes
         public static String GetWebServer()
         {
             if (_webServer != null) return _webServer;
-            _webServer = ReadConfigOption(ConfigKeys.WebUiServer, "https://localhost:3001");
+            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:3001");
             return _webServer;
         }
 
@@ -129,7 +129,7 @@ namespace Admo.classes
 
         public static double GetScreenshotInterval()
         {
-            var val = ReadConfigOption(ConfigKeys.ScreenshotInterval, ScreenshotInterval.ToString());
+            var val = ReadConfigOption(Keys.ScreenshotInterval, ScreenshotInterval.ToString());
             var result = ScreenshotInterval;
             double.TryParse(val, out result);
             return result;
@@ -139,103 +139,29 @@ namespace Admo.classes
         public static String GetPodFile()
         {
             var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
-            var pod = ReadConfigOption(ConfigKeys.PodFile, def);
+            var pod = ReadConfigOption(Keys.PodFile, def);
             return pod;
         }
 
         public static String GetCurrentApp()
         {
-            var appName = ReadConfigOption(ConfigKeys.App,"demo");
+            var appName = ReadConfigOption(Keys.App,"demo");
             return appName;
         }
 
         public static String GetLoadingPage()
         {
-            var loading = ReadConfigOption(ConfigKeys.LoadingPage, "loading.html");
+            var loading = ReadConfigOption(Keys.LoadingPage, "loading.html");
             return GetWebServer() + "/" + loading;
         }
 
         public static int GetElevationAngle()
         {
-            var temp = ReadConfigOption(ConfigKeys.KinectElevation,"1");
+            var temp = ReadConfigOption(Keys.KinectElevation,"1");
             var elevationAngle = Convert.ToInt32(temp);
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
 
-        }
-
-        public static void GetFovCropValues()
-        {
-            var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
-            var appName = ReadConfigOption(ConfigKeys.PodFile, def);
-            //check if the calibration app has been set to run
-            if (appName.IndexOf("calibration") != -1)
-            {
-                var tempCalibrate = ReadConfigOption(ConfigKeys.CalibrationActive, "false");
-
-                if (tempCalibrate == "True")
-                {
-                    SetFovCropValues();
-                }
-                else
-                {
-                    //set calibration values to zero in preparation for calibration
-                    Application_Handler.fov_top = 0;
-                    Application_Handler.fov_left = 0;
-                    Application_Handler.fov_width = 640;
-                    Application_Handler.fov_height = 480;
-                }
-                
-            }
-            else
-            {
-                //read calibration values from CMS if calibration app has not been set to run
-                //use legacy calibration values if there is no calibration values in the CMS
-                var tempTop = ReadConfigOption(ConfigKeys.FOVcropTop, "56");
-                var tempLeft = ReadConfigOption(ConfigKeys.FOVcropLeft, "52");
-                var tempWidth = ReadConfigOption(ConfigKeys.FOVcropWidth, "547");
-
-                //refer to document Calibration Method
-                //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
-                Application_Handler.fov_top = Convert.ToInt32(tempTop);
-                Application_Handler.fov_left = Convert.ToInt32(tempLeft);
-                Application_Handler.fov_width = Convert.ToInt32(tempWidth);
-                Application_Handler.fov_height = Application_Handler.fov_width*3/4;
-            }
-
-        }
-
-        public static void SetFovCropValues()
-        {
-            //get the distance the user's hands is appart
-            //the user should be hovering his hands over the circles on the HUD at this stage
-            float trueWidth = Application_Handler.UncalibratedCoordinates[4] -
-                            Application_Handler.UncalibratedCoordinates[2];
-
-            //the circles on the calibration app HUD is 340px appart meusared in Kinect coordinates
-            float falseWidth = 340;
-            float scalingFactor = trueWidth / falseWidth;
-
-            //this is the uncalibrated value of the left hand relative to the left margin
-            float trueLeft = Application_Handler.UncalibratedCoordinates[2];
-            //this value is set in the calibration app to position the calibration circles from the left margin
-            float falseLeft = 150;
-
-            //this is the uncalibrated value of the left hand relative to the top margin
-            float trueTop = Application_Handler.UncalibratedCoordinates[3];
-            //this value is set in the calibration app to position the calibration circles from the top margin
-            float falseTop = 200;
-
-            Application_Handler.fov_width = 640 * scalingFactor;
-            Application_Handler.fov_height = 480 * scalingFactor;
-
-            Application_Handler.fov_left = trueLeft - (falseLeft * scalingFactor);
-            Application_Handler.fov_top = trueTop - (falseTop * scalingFactor);
-            
-            Log.Info("calibration values changed");
-            Log.Info("fov_top: " + Application_Handler.fov_top);
-            Log.Info("fov_left: " + Application_Handler.fov_left);
-            Log.Info("fov_width: " + Application_Handler.fov_width);
         }
 
         private static String GetLocalConfig(String configOption)
@@ -260,7 +186,7 @@ namespace Admo.classes
         
         private static String GetPubNubSubKey()
         {
-            var key = ReadConfigOption(ConfigKeys.PubnubSubscribeKey, "");
+            var key = ReadConfigOption(Keys.PubnubSubscribeKey, "");
             if (String.IsNullOrEmpty(key))
             {
                 Log.Warn("Pubnubkey not found manually triggering an update; please restart application");
@@ -415,7 +341,6 @@ namespace Admo.classes
                 var height = (int)(img.Height / compress);
                 var smallImage = (Image) new Bitmap(img, width, height);
                 var result = await _api.PostScreenShot(smallImage);
-                Log.Debug("Screen shot result " + result);
             }
             catch (Exception e)
             {

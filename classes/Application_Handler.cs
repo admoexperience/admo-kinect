@@ -384,5 +384,21 @@ namespace Admo
 
             return real_hand;
         }
+
+        public static void ConfigureCalibrationByConfig()
+        {
+            //read calibration values from CMS if calibration app has not been set to run
+            //use legacy calibration values if there is no calibration values in the CMS
+            var tempTop = Config.ReadConfigOption(Config.Keys.FOVcropTop, "56");
+            var tempLeft = Config.ReadConfigOption(Config.Keys.FOVcropLeft, "52");
+            var tempWidth = Config.ReadConfigOption(Config.Keys.FOVcropWidth, "547");
+
+            //refer to document Calibration Method
+            //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
+            fov_top = Convert.ToInt32(tempTop);
+            fov_left = Convert.ToInt32(tempLeft);
+            fov_width = Convert.ToInt32(tempWidth);
+            fov_height = fov_width * 3 / 4;
+        }
     }
 }

@@ -64,7 +64,14 @@ namespace Admo
             KinectElevationAngle = Config.GetElevationAngle();
             CurrentKinect.ElevationAngle = KinectElevationAngle;
 
-            Config.GetFovCropValues();
+            if (Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive)))
+            {
+                //set calibration values to zero in preparation for calibration
+                Application_Handler.fov_top = 0;
+                Application_Handler.fov_left = 0;
+                Application_Handler.fov_width = 640;
+                Application_Handler.fov_height = 480;
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
@@ -72,6 +79,8 @@ namespace Admo
             Config.Init();
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
+
+            Application_Handler.ConfigureCalibrationByConfig();
   
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
