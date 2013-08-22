@@ -26,7 +26,7 @@ namespace Admo.classes
             public const string FOVcropTop = "fov_crop_top";
             public const string FOVcropLeft = "fov_crop_left";
             public const string FOVcropWidth = "fov_crop_width";
-            public const string SetCalibrate = "set_calibrate";
+            public const string CalibrationActive = "calibration_active";
         }
 
         private static Pubnub pubnub;
@@ -168,7 +168,7 @@ namespace Admo.classes
             //check if the calibration app has been set to run
             if (appName.IndexOf("calibration") != -1)
             {
-                var tempCalibrate = ReadConfigOption(ConfigKeys.SetCalibrate, "false");
+                var tempCalibrate = ReadConfigOption(ConfigKeys.CalibrationActive, "false");
 
                 if (tempCalibrate == "True")
                 {
