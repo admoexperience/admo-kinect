@@ -82,13 +82,21 @@ namespace Admo
             kinectState.Phase = 1;
             String video_coord = "0^0^0^0^0^0^0^0^0";
 
+            
+
             if ((x_coord > 50) && (x_coord < 590) && (y_coord < 250))
             {
-                float[] array_xy = Coordinate_History.Filter_Depth(x_coord, y_coord);
-                //TODO: figure out what 35000 and 80000 mean
-                x_coord = (int) (array_xy[0] + 35000/z_coord);
-                y_coord = (int) (array_xy[1] + 80000/z_coord);
+                //array_xy[] provides the x and y coordinates of the first pixel detected in the depthmap between 450mm and 3000mm, in this case the users head
+                //because the closest pixel search in the depthmap starts at the top and left margins, the first pixel (array_xy) would be at the top left corner of the user's head
+                //to get the centre of the user's head, we must add a dynamic variable (which change depending on how far away the user is) to the x and y coordinates
+                double xMiddle = 35000 / z_coord;
+                double yMiddle = 80000 / z_coord;
 
+                float[] array_xy = Coordinate_History.Filter_Depth(x_coord, y_coord);
+                x_coord = (int)(array_xy[0] + xMiddle);
+                y_coord = (int)(array_xy[1] + yMiddle);
+
+                
                 String head = Convert.ToString(x_coord) + "^" + Convert.ToString(y_coord);
                 String depth_head = Convert.ToString(z_coord);
                 video_coord = head + "^" + depth_head + "^0^0^0^0^0^0";
@@ -123,6 +131,7 @@ namespace Admo
 
 
         public static int[] stick_coord = new int[6];
+        public static int[] UncalibratedCoordinates = new int[6];
         public static double time_start_hud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool detected = false;
         public static bool first_detection = true;
@@ -140,35 +149,38 @@ namespace Admo
             int right_hand_z = (int) (coordinates[15]*1000);
             int left_hand_z = (int) (coordinates[14]*1000);
             int head_z = (int) (coordinates[19]*1000);
+
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - timeFoundUser;
             double timeWait = 2.5;
 
+            int kinectFovHeight = 480;
+            int kinectFovWidth = 640;
+
             //adjust skeletal coordinates for kinect and webcam fov difference
             for (int t = 0; t < 6; t = t + 2)
             {
-                stick_coord[t] = (int) ((stick_coord[t] - fov_left)*(640/fov_width));
-                stick_coord[t + 1] = (int) ((stick_coord[t + 1] - fov_top)*(480/fov_height));
+                stick_coord[t] = (int)((stick_coord[t] - fov_left) * (kinectFovWidth / fov_width));
+                stick_coord[t + 1] = (int)((stick_coord[t + 1] - fov_top) * (kinectFovHeight / fov_height));
 
                 if (stick_coord[t] < 0)
                 {
                     stick_coord[t] = 0;
                 }
-                else if (stick_coord[t] > 640)
+                else if (stick_coord[t] > kinectFovWidth)
                 {
-                    stick_coord[t] = 640;
+                    stick_coord[t] = kinectFovWidth;
                 }
 
                 if (stick_coord[t + 1] < 0)
                 {
                     stick_coord[t + 1] = 0;
                 }
-                else if (stick_coord[t + 1] > 480)
+                else if (stick_coord[t + 1] > kinectFovHeight)
                 {
-                    stick_coord[t + 1] = 480;
+                    stick_coord[t + 1] = kinectFovHeight;
                 }
             }
-
 
             int mode = Stages(coordinates, first);
 

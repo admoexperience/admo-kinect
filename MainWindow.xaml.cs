@@ -63,6 +63,8 @@ namespace Admo
         {
             KinectElevationAngle = Config.GetElevationAngle();
             CurrentKinect.ElevationAngle = KinectElevationAngle;
+
+            Config.GetFovCropValues();
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
@@ -547,8 +549,8 @@ namespace Admo
 
                 if (hand_selection == 1)
                 {
-                    Application_Handler.stick_coord[4] = rightColorPoint.X;
-                    Application_Handler.stick_coord[5] = rightColorPoint.Y;
+                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.stick_coord[4] = rightColorPoint.X;
+                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.stick_coord[5] = rightColorPoint.Y;
                     Coordinate_History.x_filter.Clear();
                     Coordinate_History.y_filter.Clear();
                     Coordinate_History.previous_x = rightColorPoint.X;
@@ -558,16 +560,16 @@ namespace Admo
                 {
                     Coordinate_History.old_x = rightColorPoint.X;
                     Coordinate_History.old_y = rightColorPoint.Y;
-                    Application_Handler.stick_coord[4] = depth_hand.X;
-                    Application_Handler.stick_coord[5] = depth_hand.Y;
+                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.stick_coord[4] = depth_hand.X;
+                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.stick_coord[5] = depth_hand.Y;
                     Coordinate_History.FilterCoordinates(Application_Handler.stick_coord[4], Application_Handler.stick_coord[5]);
                 }
 
-                Application_Handler.stick_coord[0] = headColorPoint.X;
-                Application_Handler.stick_coord[1] = headColorPoint.Y;
+                Application_Handler.UncalibratedCoordinates[0] = Application_Handler.stick_coord[0] = headColorPoint.X;
+                Application_Handler.UncalibratedCoordinates[1] = Application_Handler.stick_coord[1] = headColorPoint.Y;
 
-                Application_Handler.stick_coord[2] = leftColorPoint.X;
-                Application_Handler.stick_coord[3] = leftColorPoint.Y;
+                Application_Handler.UncalibratedCoordinates[2] = Application_Handler.stick_coord[2] = leftColorPoint.X;
+                Application_Handler.UncalibratedCoordinates[3] = Application_Handler.stick_coord[3] = leftColorPoint.Y;
 
                 //only show video HUD when running in dev mode
                 if (Config.IsDevMode())
@@ -617,6 +619,12 @@ namespace Admo
             Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
             Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
 
+            crop_rectangle.Width = Application_Handler.fov_width;
+            crop_rectangle.Height = Application_Handler.fov_height;
+
+            Canvas.SetTop(crop_rectangle, Application_Handler.fov_top);
+            Canvas.SetLeft(crop_rectangle, Application_Handler.fov_left);
+            
         }
 
         //set element position on canvas

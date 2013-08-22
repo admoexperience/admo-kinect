@@ -23,6 +23,10 @@ namespace Admo.classes
             public const string KinectElevation = "kinect_elevation";
             public const string PubnubSubscribeKey = "pubnub_subscribe_key";
             public const string ScreenshotInterval = "screenshot_interval";
+            public const string FOVcropTop = "fov_crop_top";
+            public const string FOVcropLeft = "fov_crop_left";
+            public const string FOVcropWidth = "fov_crop_width";
+            public const string CalibrationActive = "calibration_active";
         }
 
         private static Pubnub pubnub;
@@ -155,6 +159,80 @@ namespace Admo.classes
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
 
+        }
+
+        public static void GetFovCropValues()
+        {
+            var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
+            var appName = ReadConfigOption(ConfigKeys.PodFile, def);
+            //check if the calibration app has been set to run
+            if (appName.IndexOf("calibration") != -1)
+            {
+                var tempCalibrate = ReadConfigOption(ConfigKeys.CalibrationActive, "false");
+
+                if (tempCalibrate == "True")
+                {
+                    SetFovCropValues();
+                }
+                else
+                {
+                    //set calibration values to zero in preparation for calibration
+                    Application_Handler.fov_top = 0;
+                    Application_Handler.fov_left = 0;
+                    Application_Handler.fov_width = 640;
+                    Application_Handler.fov_height = 480;
+                }
+                
+            }
+            else
+            {
+                //read calibration values from CMS if calibration app has not been set to run
+                //use legacy calibration values if there is no calibration values in the CMS
+                var tempTop = ReadConfigOption(ConfigKeys.FOVcropTop, "56");
+                var tempLeft = ReadConfigOption(ConfigKeys.FOVcropLeft, "52");
+                var tempWidth = ReadConfigOption(ConfigKeys.FOVcropWidth, "547");
+
+                //refer to document Calibration Method
+                //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
+                Application_Handler.fov_top = Convert.ToInt32(tempTop);
+                Application_Handler.fov_left = Convert.ToInt32(tempLeft);
+                Application_Handler.fov_width = Convert.ToInt32(tempWidth);
+                Application_Handler.fov_height = Application_Handler.fov_width*3/4;
+            }
+
+        }
+
+        public static void SetFovCropValues()
+        {
+            //get the distance the user's hands is appart
+            //the user should be hovering his hands over the circles on the HUD at this stage
+            float trueWidth = Application_Handler.UncalibratedCoordinates[4] -
+                            Application_Handler.UncalibratedCoordinates[2];
+
+            //the circles on the calibration app HUD is 340px appart meusared in Kinect coordinates
+            float falseWidth = 340;
+            float scalingFactor = trueWidth / falseWidth;
+
+            //this is the uncalibrated value of the left hand relative to the left margin
+            float trueLeft = Application_Handler.UncalibratedCoordinates[2];
+            //this value is set in the calibration app to position the calibration circles from the left margin
+            float falseLeft = 150;
+
+            //this is the uncalibrated value of the left hand relative to the top margin
+            float trueTop = Application_Handler.UncalibratedCoordinates[3];
+            //this value is set in the calibration app to position the calibration circles from the top margin
+            float falseTop = 200;
+
+            Application_Handler.fov_width = 640 * scalingFactor;
+            Application_Handler.fov_height = 480 * scalingFactor;
+
+            Application_Handler.fov_left = trueLeft - (falseLeft * scalingFactor);
+            Application_Handler.fov_top = trueTop - (falseTop * scalingFactor);
+            
+            Log.Info("calibration values changed");
+            Log.Info("fov_top: " + Application_Handler.fov_top);
+            Log.Info("fov_left: " + Application_Handler.fov_left);
+            Log.Info("fov_width: " + Application_Handler.fov_width);
         }
 
         private static String GetLocalConfig(String configOption)
