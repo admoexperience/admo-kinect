@@ -35,8 +35,9 @@ namespace Admo
                     AllSockets.Add(socket);
                 };
                 socket.OnClose = () =>
-                {
-                    Logger.Debug("Client Disconnected : " + socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort
+                    {
+                        Logger.Debug("Client Disconnected : " + socket.ConnectionInfo.ClientIpAddress + ":" +
+                                     socket.ConnectionInfo.ClientPort);
                     AllSockets.Remove(socket);
                 };
                 socket.OnMessage = OnReceive;
