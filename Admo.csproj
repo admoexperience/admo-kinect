@@ -56,9 +56,9 @@
     <Reference Include="Alchemy">
       <HintPath>packages\Alchemy.2.2.1\lib\net40\Alchemy.dll</HintPath>
     </Reference>
-    <Reference Include="Fleck, Version=0.9.6.12, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Fleck, Version=0.9.7.22, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Fleck.dll</HintPath>
+      <HintPath>packages\Fleck.0.9.7.22\lib\net40\Fleck.dll</HintPath>
     </Reference>
     <Reference Include="InputSimulator, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
