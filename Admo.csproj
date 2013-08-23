@@ -177,6 +177,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Compile Include="classes\lib\PodWatcher.cs" />
+    <Resource Include="images\background.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -196,9 +197,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="images\website_logo_withbackground.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\Icon.ico" />

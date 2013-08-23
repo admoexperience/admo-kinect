@@ -175,7 +175,7 @@ namespace Admo
                         
                         BitmapImage bi3 = new BitmapImage();
                         bi3.BeginInit();
-                        bi3.UriSource = new Uri("images/website_logo_withbackground.png", UriKind.Relative);
+                        bi3.UriSource = new Uri("images/background.png", UriKind.Relative);
                         bi3.EndInit();
                         this.Image.Stretch = Stretch.Uniform;
                         this.Image.Source = bi3;
