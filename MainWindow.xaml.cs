@@ -535,6 +535,8 @@ namespace Admo
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
+                ColorImagePoint leftElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);    
+                ColorImagePoint rightElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
 
                 int[] depth_coord = Image_Processing.ProcessHands(depthImage);
                 DepthImagePoint new_hand = new DepthImagePoint();
@@ -579,6 +581,12 @@ namespace Admo
 
                 Application_Handler.UncalibratedCoordinates[2] = Application_Handler.stick_coord[2] = leftColorPoint.X;
                 Application_Handler.UncalibratedCoordinates[3] = Application_Handler.stick_coord[3] = leftColorPoint.Y;
+
+                //elbows don't need to be passed to uncalibrated coordinate set
+                Application_Handler.stick_coord[6] = leftElbowColorPoint.X;
+                Application_Handler.stick_coord[7] = leftElbowColorPoint.Y;
+                Application_Handler.stick_coord[8] = rightElbowColorPoint.X;
+                Application_Handler.stick_coord[9] = rightElbowColorPoint.Y;
 
                 //only show video HUD when running in dev mode
                 if (Config.IsDevMode())

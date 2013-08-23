@@ -7,6 +7,8 @@ namespace Admo.classes
         public Position LeftHand = new Position();
         public Position RightHand = new Position();
         public Position Head = new Position();
+        public Position RightElbow = new Position();
+        public Position LeftElbow = new Position();
         public String HandState;
         public int Phase = 1;
 
@@ -29,6 +31,20 @@ namespace Admo.classes
             RightHand.X = x;
             RightHand.Y = y;
             RightHand.Z = z;
+        }
+
+        public void SetRightElbow(int x, int y, int z)
+        {
+            RightElbow.X = x;
+            RightElbow.Y = y;
+            RightElbow.Z = z;
+        }
+
+        public void SetLeftElbow(int x, int y, int z)
+        {
+            LeftElbow.X = x;
+            LeftElbow.Y = y;
+            LeftElbow.Z = z;
         }
     }
 
