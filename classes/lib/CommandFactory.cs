@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Admo.classes.lib
 {
-    class CommandFactory
+    public class CommandFactory
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
