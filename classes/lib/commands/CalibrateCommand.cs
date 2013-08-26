@@ -7,7 +7,7 @@ using NLog;
 
 namespace Admo.classes.lib.commands
 {
-    class CalibrateCommand :BaseCommand
+    public class CalibrateCommand :BaseCommand
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public override void Perform()
