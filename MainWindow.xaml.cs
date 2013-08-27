@@ -27,7 +27,7 @@ namespace Admo
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
         Skeleton old_first;
-        public static KinectSensor CurrentKinect;
+        public static KinectSensor CurrentKinectSensor;
         public static String kinect_type;
         public static int KinectElevationAngle = 0;
    
@@ -59,6 +59,10 @@ namespace Admo
         public static bool skeleton_locked = false;
         public static int skeleton_id = 0;
         public static int skeleton_count = 0;
+        public static String hand_state = "released-right";
+        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
+        private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
+
 
         public static KinectLib KinectLib = new KinectLib();
 
@@ -71,7 +75,7 @@ namespace Admo
         public static void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
-            CurrentKinect.ElevationAngle = KinectElevationAngle;
+            CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
 
             if (Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive)))
             {
@@ -113,10 +117,10 @@ namespace Admo
         {
 
             //get kinect sensor
-            CurrentKinect = KinectSensor.KinectSensors[0];
+            CurrentKinectSensor = KinectSensor.KinectSensors[0];
             //stop any previous kinect session
-            KinectLib.StopKinectSensor(CurrentKinect);
-            if (CurrentKinect == null)
+            KinectLib.StopKinectSensor(CurrentKinectSensor);
+            if (CurrentKinectSensor == null)
             {
                 return;
             }
@@ -190,7 +194,7 @@ namespace Admo
                         this.Image.Source = bi3;
                     }
                     
-                    CurrentKinect = args.NewSensor;
+                    CurrentKinectSensor = args.NewSensor;
                     
                     try
                     {
@@ -234,30 +238,22 @@ namespace Admo
            
         }
 
-        public static String hand_state = "released-right";
-        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
-        private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
-
+     
         public void Dispose()
         {
-            this.DestroyFaceTracker();
+            DestroyFaceTracker();
         }
 
         private void DestroyFaceTracker()
         {
-            if (this.faceTracker != null)
-            {
-                this.faceTracker.Dispose();
-                this.faceTracker = null;
-            }
+            if (faceTracker == null) return;
+            faceTracker.Dispose();
+            faceTracker = null;
         }
 
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            if (closing)
-            {
-                return;
-            }
+            if (closing) return;
 
             ColorImageFrame colorFrame = null;
             DepthImageFrame depthFrame = null;
@@ -373,7 +369,7 @@ namespace Admo
                             {
                                 try
                                 {
-                                    this.faceTracker = new FaceTracker(CurrentKinect);
+                                    this.faceTracker = new FaceTracker(CurrentKinectSensor);
                                     Console.WriteLine("initiate new FaceTracker");
                                 }
                                 catch (InvalidOperationException)
@@ -466,21 +462,19 @@ namespace Admo
         void DisplayVideo(ColorImageFrame colorFrame)
         {
             //color frame handlers
-            if (colorFrame != null)
-            {
-                // Copy the pixel data from the image to a temporary array
-                colorFrame.CopyPixelDataTo(this.colorImage);
+            if (colorFrame == null) return;
+            // Copy the pixel data from the image to a temporary array
+            colorFrame.CopyPixelDataTo(this.colorImage);
 
-                if (Config.IsDevMode())
-                {
-                    // Write the pixel data into our bitmap
-                    this.colorBitmap.WritePixels(
-                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                        this.colorImage,
-                        this.colorBitmap.PixelWidth * sizeof(int),
-                        0);
-                }
-            }               
+            if (Config.IsDevMode())
+            {
+                // Write the pixel data into our bitmap
+                this.colorBitmap.WritePixels(
+                    new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
+                    this.colorImage,
+                    this.colorBitmap.PixelWidth * sizeof(int),
+                    0);
+            }
         }
 
         
@@ -497,7 +491,7 @@ namespace Admo
                 }
                 depth.CopyPixelDataTo(depthImage);
 
-                CoordinateMapper cm = new CoordinateMapper(CurrentKinect);
+                CoordinateMapper cm = new CoordinateMapper(CurrentKinectSensor);
                 //Map a skeletal point to a point on the color image 
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
@@ -567,9 +561,9 @@ namespace Admo
         //delete if in production
         public void Animations(Skeleton first, ColorImagePoint headColorPoint, ColorImagePoint leftColorPoint, ColorImagePoint rightColorPoint, ColorImagePoint depth_hand, ColorImagePoint depth_hand2, float[] coord, int[] depth_coord, int hand_selection)
         {
-            Joint left_hand = first.Joints[JointType.HandLeft];
-            Joint right_hand = first.Joints[JointType.HandRight];
-            if (Convert.ToString(left_hand.TrackingState) == "Tracked")
+            var leftHand = first.Joints[JointType.HandLeft];
+            var rightHand = first.Joints[JointType.HandRight];
+            if (leftHand.TrackingState == JointTrackingState.Tracked)
             {
                 leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
             }
@@ -578,7 +572,7 @@ namespace Admo
                 leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
             }
 
-            if (Convert.ToString(right_hand.TrackingState) == "Tracked")
+            if (rightHand.TrackingState == JointTrackingState.Tracked)
             {
                 rightEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
             }
