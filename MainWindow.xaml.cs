@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
+using Admo.classes.lib;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
@@ -52,6 +53,14 @@ namespace Admo
 
         //variable indicating whether user is looking at the screen
         public static bool looking_at_screen = false;
+
+        //find closest skeleton
+        public static bool track_near = true;
+        public static bool skeleton_locked = false;
+        public static int skeleton_id = 0;
+        public static int skeleton_count = 0;
+
+        public static KinectLib KinectLib = new KinectLib();
 
         public MainWindow()
         {
@@ -106,7 +115,7 @@ namespace Admo
             //get kinect sensor
             CurrentKinect = KinectSensor.KinectSensors[0];
             //stop any previous kinect session
-            StopKinect(CurrentKinect);
+            KinectLib.StopKinectSensor(CurrentKinect);
             if (CurrentKinect == null)
             {
                 return;
@@ -311,7 +320,7 @@ namespace Admo
                 {
                     //get closest skeleton
                     skeletonFrameData.CopySkeletonDataTo(allSkeletons);
-                    Skeleton first = GetPrimarySkeleton(allSkeletons);
+                    Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
                     //check whether there is a user/skeleton
                     if (first == null)
@@ -653,104 +662,15 @@ namespace Admo
             Canvas.SetTop(element, point.Y  - element.Height / 2);
         }
 
-        //find closest skeleton
-        public static bool track_near = true;
-        public static bool skeleton_locked = false;
-        public static int skeleton_id = 0;
-        public static int locked_skeleton_id = 0;
-        public static Skeleton locked_skeleton = null;
-        public static int skeleton_count = 0;
-        private Skeleton GetPrimarySkeleton(Skeleton[] skeletons)
-        {
-            Skeleton skeleton = null;
 
-            if (skeletons != null)
-            {
-
-                //check if any skeletons has been locked on in t-1        
-                if (Application_Handler.locked_skeleton == true)
-                {
-                    for (int i = 0; i < skeletons.Length; i++)
-                    {
-                        if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                        {
-                            if (skeletons[i].TrackingId == locked_skeleton_id)
-                            {
-                                //locked skeletal is still in range
-                                skeleton = locked_skeleton;
-                                break;
-                            }
-                            else
-                            {
-                                Application_Handler.locked_skeleton = false;
-                                
-                            }
-                        }
-                    }
-
-                }
-                else
-                {
-                    //Find the closest skeleton        
-                    for (int i = 0; i < skeletons.Length; i++)
-                    {
-                        if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                        {
-                            if (skeleton == null)
-                            {
-                                skeleton = skeletons[i];
-                            }
-                            else
-                            {
-                                if ((skeleton.Position.Z > skeletons[i].Position.Z))//if not just use the closest skeleton
-                                {
-                                    skeleton = skeletons[i];
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            //if there is no other users in die fov and the locked skeleton moves out of the field of view
-            //stop stopwatch 
-            if ((skeleton == null) && (Application_Handler.locked_skeleton == true))
-            {
-                Application_Handler.locked_skeleton = false;
-            }
-
-            return skeleton;
-        }
+        
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            //this.sensorChooser.Stop();
-            StopKinect(sensorChooser.Kinect);
+            KinectLib.StopKinectSensor(sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");
             closing = true; 
         }
-
-        //stop kinect
-        public static void StopKinect(KinectSensor sensor)
-        {
-            if (sensor != null)
-            {
-                if (sensor.IsRunning)
-                {
-                    //stop sensor 
-                    sensor.Stop();
-
-                    //stop audio if not null
-                    if (sensor.AudioSource != null)
-                    {
-                        sensor.AudioSource.Stop();
-                    }
-
-                }
-            }
-        }
-
     }
 }
