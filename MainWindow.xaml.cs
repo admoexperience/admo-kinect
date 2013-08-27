@@ -516,6 +516,8 @@ namespace Admo
             coordinates[22] = right_elbow.Position.X;
             coordinates[23] = right_elbow.Position.Y;
 
+            Application_Handler.SkeletalCoordinates = coordinates;
+
             return coordinates;
         }
 
