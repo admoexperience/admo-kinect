@@ -145,6 +145,7 @@
     <Compile Include="classes\lib\commands\UnknownCommand.cs" />
     <Compile Include="classes\lib\commands\UpdateConfigCommand.cs" />
     <Compile Include="classes\lib\JunctionPoint.cs" />
+    <Compile Include="classes\lib\KinectLib.cs" />
     <Compile Include="classes\lib\Pubnub.cs" />
     <Compile Include="classes\lib\ScreenCapture.cs" />
     <Compile Include="classes\LifeCycle.cs" />
