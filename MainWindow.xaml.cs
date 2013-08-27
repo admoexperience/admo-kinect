@@ -340,7 +340,7 @@ namespace Admo
                         hand_state = KinectRegion.message_hand;
 
                         //get joint coordinates
-                        float[] coordinates = setCoordinates(first);
+                        float[] coordinates = KinectLib.GetCoordinates(first);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
@@ -484,49 +484,7 @@ namespace Admo
         }
 
         
-        float[] setCoordinates(Skeleton first)
-        {
-            //get joint coordinates
-            float[] coordinates = new float[24];
-            Joint left_hand = first.Joints[JointType.HandLeft];
-            Joint right_hand = first.Joints[JointType.HandRight];
-            Joint spine_center = first.Joints[JointType.Spine];
-            Joint head = first.Joints[JointType.Head];
-            Joint shoulder_left = first.Joints[JointType.ShoulderLeft];
-            Joint shoulder_right = first.Joints[JointType.ShoulderRight];
-            Joint hip_center = first.Joints[JointType.HipCenter];
-            Joint shoulder_center = first.Joints[JointType.ShoulderCenter];
-            Joint left_elbow = first.Joints[JointType.ElbowLeft];
-            Joint right_elbow = first.Joints[JointType.ElbowRight];
-
-            //set joint coordinates into array
-            coordinates[0] = left_hand.Position.X;
-            coordinates[1] = left_hand.Position.Y;
-            coordinates[2] = right_hand.Position.X;
-            coordinates[3] = right_hand.Position.Y;
-            coordinates[4] = 0;// spine_center.Position.X;
-            coordinates[5] = 0;// spine_center.Position.Y;
-            coordinates[6] = head.Position.X;
-            coordinates[7] = head.Position.Y;
-            coordinates[8] = shoulder_left.Position.X;
-            coordinates[9] = shoulder_left.Position.Y;
-            coordinates[10] = shoulder_right.Position.X;
-            coordinates[11] = shoulder_right.Position.Y;
-            coordinates[12] = 0;// hip_center.Position.X;
-            coordinates[13] = 0;// hip_center.Position.Z;
-            coordinates[14] = left_hand.Position.Z;
-            coordinates[15] = right_hand.Position.Z;
-            coordinates[16] = shoulder_center.Position.X;
-            coordinates[17] = shoulder_center.Position.Y;
-            coordinates[18] = spine_center.Position.Z;
-            coordinates[19] = head.Position.Z;
-            coordinates[20] = left_elbow.Position.X;
-            coordinates[21] = left_elbow.Position.Y;
-            coordinates[22] = right_elbow.Position.X;
-            coordinates[23] = right_elbow.Position.Y;
-
-            return coordinates;
-        }
+        
 
         
         //overlaying IR camera and RGB camera video feeds
