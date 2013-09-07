@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -65,6 +66,7 @@ namespace Admo
 
 
         public static KinectLib KinectLib = new KinectLib();
+        private static System.Timers.Timer _lifeCycleTimer; 
 
         public MainWindow()
         {
@@ -75,16 +77,14 @@ namespace Admo
         public static void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
-            CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
+            if (CurrentKinectSensor != null) CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
 
-            if (Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive)))
-            {
-                //set calibration values to zero in preparation for calibration
-                Application_Handler.fov_top = 0;
-                Application_Handler.fov_left = 0;
-                Application_Handler.fov_width = 640;
-                Application_Handler.fov_height = 480;
-            }
+            if (!Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive))) return;
+            //set calibration values to zero in preparation for calibration
+            Application_Handler.fov_top = 0;
+            Application_Handler.fov_left = 0;
+            Application_Handler.fov_width = 640;
+            Application_Handler.fov_height = 480;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
@@ -164,7 +164,12 @@ namespace Admo
                     args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                     args.NewSensor.SkeletonStream.Enable(parameters);
 
-                    args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);                    
+                    args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);
+
+                    _lifeCycleTimer = new System.Timers.Timer(5000);
+                    _lifeCycleTimer.Elapsed += LifeCycleTimer;
+
+                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
@@ -238,6 +243,10 @@ namespace Admo
            
         }
 
+        private static void LifeCycleTimer(object source, ElapsedEventArgs e)
+        {
+            LifeCycle.LifeLoop();
+        }
      
         public void Dispose()
         {
@@ -303,7 +312,7 @@ namespace Admo
                     }
                 }
 
-                LifeCycle.LifeLoop();
+                //LifeCycle.LifeLoop();
 
                 if ((colorFrame != null)&&((Config.RunningFacetracking)|| Config.IsDevMode()))
                 {
