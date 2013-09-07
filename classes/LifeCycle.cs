@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using Admo.classes;
 using NLog;
+using System.Linq;
 
 namespace Admo
 {
