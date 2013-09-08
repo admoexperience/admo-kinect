@@ -99,6 +99,7 @@ namespace Admo
             
             sensorChooserUi.KinectSensorChooser = _sensorChooser;
             _sensorChooser.Start();
+            LifeCycle.ActivateTimers();
 
             if (!Config.IsDevMode())
             {
@@ -113,7 +114,6 @@ namespace Admo
 
             //get kinect sensor
             _currentKinectSensor = KinectSensor.KinectSensors[0];
-            //CurrentKinectSensor. += KinectStatusChanged;
             
             //stop any previous kinect session
             KinectLib.StopKinectSensor(_currentKinectSensor);
@@ -156,7 +156,6 @@ namespace Admo
                 try
                 {
 
-                    LifeCycle.ActivateTimers();
 
                     //set depthstream and skeletal tracking options
                     args.NewSensor.DepthStream.Range = DepthRange.Default;
@@ -186,7 +185,7 @@ namespace Admo
                     else
                     {
                         
-                        BitmapImage bi3 = new BitmapImage();
+                        var bi3 = new BitmapImage();
                         bi3.BeginInit();
                         bi3.UriSource = new Uri("images/background.png", UriKind.Relative);
                         bi3.EndInit();

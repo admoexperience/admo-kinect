@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.Timers;
-using System.Windows;
 using System.Diagnostics;
-using System.IO;
 using Admo.classes;
 using NLog;
-using System.Linq;
 
 namespace Admo
 {
