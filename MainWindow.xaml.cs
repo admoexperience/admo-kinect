@@ -55,16 +55,12 @@ namespace Admo
 
         //variable indicating whether user is looking at the screen
         private bool LookingAtScreen = false; //currently not used but keeping cause it might used
-
+        private static readonly LifeCycle LifeCycle=new LifeCycle();
    
         private ColorImageFormat _colorImageFormat = ColorImageFormat.Undefined;
         private DepthImageFormat _depthImageFormat = DepthImageFormat.Undefined;
 
         public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
-        private Timer _lifeCycleMonitorTimer;
-        private Timer _lifeCycleStartUpTimer;
-        private const int LifeCycleStartupInt = 4000;
-        private const int LifeCycleMonitorInt = 2000;
 
         public MainWindow()
         {
@@ -98,16 +94,16 @@ namespace Admo
             sensor1.Stop();
 
             // initialize the sensor chooser and UI
-            this._sensorChooser = new KinectSensorChooser();
-            this._sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
+            _sensorChooser = new KinectSensorChooser();
+            _sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             
-            this.sensorChooserUi.KinectSensorChooser = this._sensorChooser;
-            this._sensorChooser.Start();
+            sensorChooserUi.KinectSensorChooser = _sensorChooser;
+            _sensorChooser.Start();
 
             if (!Config.IsDevMode())
             {
                 //Minimize the window so that the chrome window is always infront.
-                this.WindowState = (WindowState) FormWindowState.Minimized;
+                WindowState = (WindowState) FormWindowState.Minimized;
             }
 
         }
@@ -160,19 +156,15 @@ namespace Admo
                 try
                 {
 
+                    LifeCycle.ActivateTimers();
+
                     //set depthstream and skeletal tracking options
                     args.NewSensor.DepthStream.Range = DepthRange.Default;
                     args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                     args.NewSensor.SkeletonStream.Enable(parameters);
 
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(SensorAllFramesReady);
-
-                    _lifeCycleStartUpTimer = new System.Timers.Timer(LifeCycleStartupInt);
-                    _lifeCycleStartUpTimer.Elapsed += LifeCycleStartUpTimer;
-                    _lifeCycleMonitorTimer = new System.Timers.Timer(LifeCycleMonitorInt);
-                    _lifeCycleMonitorTimer.Elapsed += LifeCycleMonitorTimer;
-
-                    
+                   
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
@@ -246,18 +238,6 @@ namespace Admo
            
         }
 
-        private void LifeCycleMonitorTimer(object sender, ElapsedEventArgs e)
-        {
-            LifeCycle.Monitor();
-        }
-
-        private void LifeCycleStartUpTimer(object sender, ElapsedEventArgs e)
-        {
-            LifeCycle.Startup();
-        }
-
-
-     
         public void Dispose()
         {
             DestroyFaceTracker();

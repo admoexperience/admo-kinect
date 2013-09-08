@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Timers;
 using System.Windows;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,7 @@ namespace Admo
         private const string BrowserExe = Browser + ".exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly double StartupTime = GetCurrentTimeInSeconds();
+         
 
         internal enum StartupStage
         {
@@ -50,15 +52,42 @@ namespace Admo
         private static double _lastCheckinTime = _lastMonitorTime;
         private static double _lastScreenshotTime = _lastMonitorTime;
 
+        private const double StartupInt = 3000;
+        private const double MonitorInt = 2000;
+        private readonly Timer _monitorTimer = new Timer(MonitorInt);
+        private readonly Timer _startUpTimer= new Timer(StartupInt);
+        
 
-        public static void LifeLoop()
+        public void ActivateTimers()
+        {
+
+            //_lifeCycleStartUpTimer = new System.Timers.Timer(StartupInt);
+            _startUpTimer.Elapsed += StartUpTimer;
+            _monitorTimer.Elapsed += MonitorTimer;
+            _startUpTimer.Start();
+            _monitorTimer.Start();
+
+
+        }
+
+        private void MonitorTimer(object sender, ElapsedEventArgs e)
+        {
+            Monitor();
+        }
+
+        private void StartUpTimer(object sender, ElapsedEventArgs e)
+        {
+            Startup();
+        }
+
+        private  void LifeLoop()
         {
                 //startup chorme in fullscreen and use mouse driver to allow webcam
                 Startup();
                 Monitor();
         }
 
-        public static void Startup()
+        private void Startup()
         {
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - StartupTime;
@@ -155,7 +184,7 @@ namespace Admo
         }
 
 
-        public static void Monitor()
+        private void Monitor()
         {
             
 
