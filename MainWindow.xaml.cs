@@ -12,6 +12,7 @@ using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
 using Microsoft.Kinect.Toolkit.FaceTracking;
 using NLog;
+using Timer = System.Timers.Timer;
 
 namespace Admo
 {
@@ -22,13 +23,13 @@ namespace Admo
     {
         private Logger Log = LogManager.GetCurrentClassLogger();
         //kinect toolkit variables
-        private KinectSensorChooser sensorChooser;
+        private KinectSensorChooser _sensorChooser;
         //kinect variables
         private bool _closing = false;
         const int SkeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[SkeletonCount];
         Skeleton _oldFirst;
-        private KinectSensor CurrentKinectSensor;
+        private KinectSensor _currentKinectSensor;
         private String _kinectType;
         public static int KinectElevationAngle = 0;  //used in application handler
    
@@ -41,27 +42,29 @@ namespace Admo
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary>
-        private WriteableBitmap colorBitmap;
+        private WriteableBitmap _colorBitmap;
 
         //face tracking variables
-        private FaceTracker faceTracker;
+        private FaceTracker _faceTracker;
 
         /// <summary>
         /// Intermediate storage for the color data received from the camera
         /// </summary>
-        private byte[] colorImage;
-        public short[] depthImage;
+        private byte[] _colorImage;
+        public short[] DepthImage;
 
         //variable indicating whether user is looking at the screen
-        public static bool looking_at_screen = false;
+        private bool LookingAtScreen = false; //currently not used but keeping cause it might used
 
    
-        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
-        private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
-
+        private ColorImageFormat _colorImageFormat = ColorImageFormat.Undefined;
+        private DepthImageFormat _depthImageFormat = DepthImageFormat.Undefined;
 
         public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
-        private System.Timers.Timer _lifeCycleTimer; 
+        private Timer _lifeCycleMonitorTimer;
+        private Timer _lifeCycleStartUpTimer;
+        private const int LifeCycleStartupInt = 4000;
+        private const int LifeCycleMonitorInt = 2000;
 
         public MainWindow()
         {
@@ -72,7 +75,7 @@ namespace Admo
         public void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
-            if (CurrentKinectSensor != null) CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
+            if (_currentKinectSensor != null) _currentKinectSensor.ElevationAngle = KinectElevationAngle;
 
             if (!Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive))) return;
             //set calibration values to zero in preparation for calibration
@@ -95,11 +98,11 @@ namespace Admo
             sensor1.Stop();
 
             // initialize the sensor chooser and UI
-            this.sensorChooser = new KinectSensorChooser();
-            this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
+            this._sensorChooser = new KinectSensorChooser();
+            this._sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             
-            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
-            this.sensorChooser.Start();
+            this.sensorChooserUi.KinectSensorChooser = this._sensorChooser;
+            this._sensorChooser.Start();
 
             if (!Config.IsDevMode())
             {
@@ -113,12 +116,12 @@ namespace Admo
         {
 
             //get kinect sensor
-            CurrentKinectSensor = KinectSensor.KinectSensors[0];
+            _currentKinectSensor = KinectSensor.KinectSensors[0];
             //CurrentKinectSensor. += KinectStatusChanged;
             
             //stop any previous kinect session
-            KinectLib.StopKinectSensor(CurrentKinectSensor);
-            if (CurrentKinectSensor == null)
+            KinectLib.StopKinectSensor(_currentKinectSensor);
+            if (_currentKinectSensor == null)
             {
                 return;
             }
@@ -164,8 +167,10 @@ namespace Admo
 
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(SensorAllFramesReady);
 
-                    _lifeCycleTimer = new System.Timers.Timer(5000);
-                    _lifeCycleTimer.Elapsed += LifeCycleTimer;
+                    _lifeCycleStartUpTimer = new System.Timers.Timer(LifeCycleStartupInt);
+                    _lifeCycleStartUpTimer.Elapsed += LifeCycleStartUpTimer;
+                    _lifeCycleMonitorTimer = new System.Timers.Timer(LifeCycleMonitorInt);
+                    _lifeCycleMonitorTimer.Elapsed += LifeCycleMonitorTimer;
 
                     
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
@@ -173,18 +178,18 @@ namespace Admo
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
                         args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                        this.colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
+                        this._colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
                     }                       
                        
                     //setup short containing depth data
-                    this.depthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
+                    this.DepthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
                     // This is the bitmap we'll display on-screen
-                    this.colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+                    this._colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                     
                     if (Config.IsDevMode())
                     {                       
                         // Set the image we display to point to the bitmap where we'll put the image data
-                        this.Image.Source = this.colorBitmap;
+                        this.Image.Source = this._colorBitmap;
                     }
                     else
                     {
@@ -197,7 +202,7 @@ namespace Admo
                         this.Image.Source = bi3;
                     }
                     
-                    CurrentKinectSensor = args.NewSensor;
+                    _currentKinectSensor = args.NewSensor;
                     
                     try
                     {
@@ -241,10 +246,17 @@ namespace Admo
            
         }
 
-        private void LifeCycleTimer(object source, ElapsedEventArgs e)
+        private void LifeCycleMonitorTimer(object sender, ElapsedEventArgs e)
         {
-            LifeCycle.LifeLoop();
+            LifeCycle.Monitor();
         }
+
+        private void LifeCycleStartUpTimer(object sender, ElapsedEventArgs e)
+        {
+            LifeCycle.Startup();
+        }
+
+
      
         public void Dispose()
         {
@@ -253,9 +265,9 @@ namespace Admo
 
         private void DestroyFaceTracker()
         {
-            if (faceTracker == null) return;
-            faceTracker.Dispose();
-            faceTracker = null;
+            if (_faceTracker == null) return;
+            _faceTracker.Dispose();
+            _faceTracker = null;
         }
 
         void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
@@ -284,18 +296,18 @@ namespace Admo
                     {
                         // Check for changes in any of the data this function is receiving
                         // and reset things appropriately.
-                        if (this.depthImageFormat != depthFrame.Format)
+                        if (this._depthImageFormat != depthFrame.Format)
                         {
                             this.DestroyFaceTracker();
                             //this.depthImage = null;
-                            this.depthImageFormat = depthFrame.Format;
+                            this._depthImageFormat = depthFrame.Format;
                         }
 
-                        if (this.colorImageFormat != colorFrame.Format)
+                        if (this._colorImageFormat != colorFrame.Format)
                         {
                             this.DestroyFaceTracker();
                             //this.colorImage = null;
-                            this.colorImageFormat = colorFrame.Format;
+                            this._colorImageFormat = colorFrame.Format;
                         }
                     }
                 }
@@ -364,17 +376,17 @@ namespace Admo
                             {
                                 Console.WriteLine("locked skeleton changed");
                                 _oldFirst = first;
-                                if ((this.faceTracker != null))
+                                if ((this._faceTracker != null))
                                 {
-                                    this.faceTracker.ResetTracking();
+                                    this._faceTracker.ResetTracking();
                                 }
                             }
 
-                            if (this.faceTracker == null)
+                            if (this._faceTracker == null)
                             {
                                 try
                                 {
-                                    this.faceTracker = new FaceTracker(CurrentKinectSensor);
+                                    this._faceTracker = new FaceTracker(_currentKinectSensor);
                                     Console.WriteLine("initiate new FaceTracker");
                                 }
                                 catch (InvalidOperationException)
@@ -382,17 +394,17 @@ namespace Admo
                                     // During some shutdown scenarios the FaceTracker
                                     // is unable to be instantiated.  Catch that exception
                                     // and don't track a face.                            
-                                    this.faceTracker = null;
+                                    this._faceTracker = null;
                                 }
                             }
 
-                            if (this.faceTracker != null)
+                            if (this._faceTracker != null)
                             {
-                                FaceTrackFrame faceTrackFrame = this.faceTracker.Track(
-                                    colorImageFormat,
-                                    this.colorImage,
-                                    depthImageFormat,
-                                    this.depthImage,
+                                FaceTrackFrame faceTrackFrame = this._faceTracker.Track(
+                                    _colorImageFormat,
+                                    this._colorImage,
+                                    _depthImageFormat,
+                                    this.DepthImage,
                                     first);
 
 
@@ -417,9 +429,9 @@ namespace Admo
 
                                     //set variable indicating whether user is looking at the screen (where the screen 2000mmx1700mm)
                                     if ((_faceY < 1000) && (_faceY > -1000))
-                                        looking_at_screen = true;
+                                        LookingAtScreen = true;
                                     else
-                                        looking_at_screen = false;
+                                        LookingAtScreen = false;
 
                                     //display ellipse indicating where useris looking
                                     if (Config.IsDevMode())
@@ -469,15 +481,15 @@ namespace Admo
             //color frame handlers
             if (colorFrame == null) return;
             // Copy the pixel data from the image to a temporary array
-            colorFrame.CopyPixelDataTo(this.colorImage);
+            colorFrame.CopyPixelDataTo(this._colorImage);
 
             if (Config.IsDevMode())
             {
                 // Write the pixel data into our bitmap
-                this.colorBitmap.WritePixels(
-                    new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                    this.colorImage,
-                    this.colorBitmap.PixelWidth * sizeof(int),
+                this._colorBitmap.WritePixels(
+                    new Int32Rect(0, 0, this._colorBitmap.PixelWidth, this._colorBitmap.PixelHeight),
+                    this._colorImage,
+                    this._colorBitmap.PixelWidth * sizeof(int),
                     0);
             }
         }
@@ -487,13 +499,13 @@ namespace Admo
         void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth, float[] coord)
         {
             
-                if (depth == null || sensorChooser.Kinect == null)
+                if (depth == null || _sensorChooser.Kinect == null)
                 {
                     return;
                 }
-                depth.CopyPixelDataTo(depthImage);
+                depth.CopyPixelDataTo(DepthImage);
 
-                CoordinateMapper cm = new CoordinateMapper(CurrentKinectSensor);
+                CoordinateMapper cm = new CoordinateMapper(_currentKinectSensor);
                 //Map a skeletal point to a point on the color image 
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
@@ -501,7 +513,7 @@ namespace Admo
                 ColorImagePoint leftElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);    
                 ColorImagePoint rightElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
 
-                int[] depth_coord = Image_Processing.ProcessHands(depthImage);
+                int[] depth_coord = Image_Processing.ProcessHands(DepthImage);
                 DepthImagePoint new_hand = new DepthImagePoint();
                 new_hand.X = depth_coord[0];
                 new_hand.Y = depth_coord[1];
@@ -619,7 +631,7 @@ namespace Admo
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            KinectLib.StopKinectSensor(sensorChooser.Kinect);
+            KinectLib.StopKinectSensor(_sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");
             _closing = true; 

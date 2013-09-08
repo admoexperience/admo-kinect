@@ -58,7 +58,7 @@ namespace Admo
                 Monitor();
         }
 
-        private static void Startup()
+        public static void Startup()
         {
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - StartupTime;
@@ -155,7 +155,7 @@ namespace Admo
         }
 
 
-        private static void Monitor()
+        public static void Monitor()
         {
             
 
