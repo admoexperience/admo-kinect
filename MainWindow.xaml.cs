@@ -24,17 +24,17 @@ namespace Admo
         //kinect toolkit variables
         private KinectSensorChooser sensorChooser;
         //kinect variables
-        public static bool closing = false;
-        const int skeletonCount = 6;
-        Skeleton[] allSkeletons = new Skeleton[skeletonCount];
-        Skeleton old_first;
-        public static KinectSensor CurrentKinectSensor;
-        public static String kinect_type;
-        public static int KinectElevationAngle = 0;
+        private bool _closing = false;
+        const int SkeletonCount = 6;
+        Skeleton[] allSkeletons = new Skeleton[SkeletonCount];
+        Skeleton _oldFirst;
+        private KinectSensor CurrentKinectSensor;
+        private String _kinectType;
+        public static int KinectElevationAngle = 0;  //used in application handler
    
         //drawing variables
-        public static int face_x = 700;
-        public static int face_y = 1000;
+        private int _faceX = 700;
+        private int _faceY = 1000;
        
 
 
@@ -55,18 +55,13 @@ namespace Admo
         //variable indicating whether user is looking at the screen
         public static bool looking_at_screen = false;
 
-        //find closest skeleton
-        public static bool track_near = true;
-        public static bool skeleton_locked = false;
-        public static int skeleton_id = 0;
-        public static int skeleton_count = 0;
-        public static String hand_state = "released-right";
+   
         private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
         private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
 
 
-        public static KinectLib KinectLib = new KinectLib();
-        private static System.Timers.Timer _lifeCycleTimer; 
+        public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
+        private System.Timers.Timer _lifeCycleTimer; 
 
         public MainWindow()
         {
@@ -74,7 +69,7 @@ namespace Admo
             Loaded += OnLoaded;
         }
 
-        public static void OnConfigChange()
+        public void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
             if (CurrentKinectSensor != null) CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
@@ -102,6 +97,7 @@ namespace Admo
             // initialize the sensor chooser and UI
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
+            
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
 
@@ -118,6 +114,8 @@ namespace Admo
 
             //get kinect sensor
             CurrentKinectSensor = KinectSensor.KinectSensors[0];
+            //CurrentKinectSensor. += KinectStatusChanged;
+            
             //stop any previous kinect session
             KinectLib.StopKinectSensor(CurrentKinectSensor);
             if (CurrentKinectSensor == null)
@@ -164,7 +162,7 @@ namespace Admo
                     args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                     args.NewSensor.SkeletonStream.Enable(parameters);
 
-                    args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);
+                    args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(SensorAllFramesReady);
 
                     _lifeCycleTimer = new System.Timers.Timer(5000);
                     _lifeCycleTimer.Elapsed += LifeCycleTimer;
@@ -217,14 +215,14 @@ namespace Admo
                     {
                         args.NewSensor.DepthStream.Range = DepthRange.Near;
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
-                        kinect_type = "kinect for windows";
-                        Log.Info("Using " + kinect_type);
+                        _kinectType = "kinect for windows";
+                        Log.Info("Using " + _kinectType);
                     }
                     catch (InvalidOperationException)
                     {
-                        kinect_type = "xbox kinect";
-                        Console.WriteLine(kinect_type);
-                        Log.Info("Using " + kinect_type);
+                        _kinectType = "xbox kinect";
+                        Console.WriteLine(_kinectType);
+                        Log.Info("Using " + _kinectType);
                     } 
                 }
                 catch (InvalidOperationException)
@@ -243,7 +241,7 @@ namespace Admo
            
         }
 
-        private static void LifeCycleTimer(object source, ElapsedEventArgs e)
+        private void LifeCycleTimer(object source, ElapsedEventArgs e)
         {
             LifeCycle.LifeLoop();
         }
@@ -260,9 +258,9 @@ namespace Admo
             faceTracker = null;
         }
 
-        void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
+        void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            if (closing) return;
+            if (_closing) return;
 
             ColorImageFrame colorFrame = null;
             DepthImageFrame depthFrame = null;
@@ -341,8 +339,6 @@ namespace Admo
                     }
                     else
                     {
-                        //check if hand is open or closed
-                        hand_state = KinectRegion.message_hand;
 
                         //get joint coordinates
                         float[] coordinates = KinectLib.GetCoordinates(first);
@@ -359,15 +355,15 @@ namespace Admo
                         
                         if ((coordinates[19] > 0.9)&&(Config.RunningFacetracking))
                         {
-                            if (old_first == null)
+                            if (_oldFirst == null)
                             {
-                                old_first = first;
+                                _oldFirst = first;
                                 Log.Debug("first skeleton lock");
                             }
-                            else if ((old_first != first))
+                            else if ((_oldFirst != first))
                             {
                                 Console.WriteLine("locked skeleton changed");
-                                old_first = first;
+                                _oldFirst = first;
                                 if ((this.faceTracker != null))
                                 {
                                     this.faceTracker.ResetTracking();
@@ -402,25 +398,25 @@ namespace Admo
 
                                 if (faceTrackFrame.TrackSuccessful)
                                 {                                    
-                                    face_x = (int)(100 * faceTrackFrame.Rotation.X);
+                                    _faceX = (int)(100 * faceTrackFrame.Rotation.X);
 
                                     //gets the x,y-coordinate of where the user is looking at the screen
-                                    face_x = Convert.ToInt32((-700 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.X * Math.PI / 180)) + (coordinates[6] * 1000));
-                                    face_y = Convert.ToInt32((-1000 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.Y * Math.PI / 180)) + (coordinates[6] * 1000));
+                                    _faceX = Convert.ToInt32((-700 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.X * Math.PI / 180)) + (coordinates[6] * 1000));
+                                    _faceY = Convert.ToInt32((-1000 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.Y * Math.PI / 180)) + (coordinates[6] * 1000));
 
                                     //set limits
-                                    if (face_x > 700)
-                                        face_x = 700;
-                                    else if (face_x < -700)
-                                        face_x = -700;
+                                    if (_faceX > 700)
+                                        _faceX = 700;
+                                    else if (_faceX < -700)
+                                        _faceX = -700;
 
-                                    if (face_y > 1000)
-                                        face_y = 1000;
-                                    else if (face_y < -1000)
-                                        face_y = -1000;
+                                    if (_faceY > 1000)
+                                        _faceY = 1000;
+                                    else if (_faceY < -1000)
+                                        _faceY = -1000;
 
                                     //set variable indicating whether user is looking at the screen (where the screen 2000mmx1700mm)
-                                    if ((face_y < 1000) && (face_y > -1000))
+                                    if ((_faceY < 1000) && (_faceY > -1000))
                                         looking_at_screen = true;
                                     else
                                         looking_at_screen = false;
@@ -428,13 +424,13 @@ namespace Admo
                                     //display ellipse indicating where useris looking
                                     if (Config.IsDevMode())
                                     {
-                                        Canvas.SetTop(faceEllipse, ((240 - face_x / 10) - faceEllipse.Height / 2));
-                                        Canvas.SetLeft(faceEllipse, ((320 + face_y/2) - faceEllipse.Width / 2));
+                                        Canvas.SetTop(faceEllipse, ((240 - _faceX / 10) - faceEllipse.Height / 2));
+                                        Canvas.SetLeft(faceEllipse, ((320 + _faceY/2) - faceEllipse.Width / 2));
                                     }
 
                                     //set x,y-coordinates relative to screen size canvas
-                                    face_x = face_x + 700;
-                                    face_y = face_y + 1000;
+                                    _faceX = _faceX + 700;
+                                    _faceY = _faceY + 1000;
 
 
                                     
@@ -486,10 +482,7 @@ namespace Admo
             }
         }
 
-        
-        
-
-        
+         
         //overlaying IR camera and RGB camera video feeds
         void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth, float[] coord)
         {
@@ -624,14 +617,12 @@ namespace Admo
         }
 
 
-        
-
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             KinectLib.StopKinectSensor(sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");
-            closing = true; 
+            _closing = true; 
         }
     }
 }
