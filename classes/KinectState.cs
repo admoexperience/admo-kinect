@@ -12,49 +12,49 @@ namespace Admo.classes
         public String HandState;
         public int Phase = 1;
 
-        public void SetHead(int x, int y, int z, float metricX, float metricY)
+        public void SetHead(int x, int y, int z, float mmX, float mmY)
         {
             Head.X = x;
             Head.Y = y;
             Head.Z = z;
-            Head.MetricX = metricX;
-            Head.MetricY = metricY;
+            Head.mmX = mmX;
+            Head.mmY = mmY;
         }
 
-        public void SetLeftHand(int x, int y, int z, float metricX, float metricY)
+        public void SetLeftHand(int x, int y, int z, float mmX, float mmY)
         {
             LeftHand.X = x;
             LeftHand.Y = y;
             LeftHand.Z = z;
-            LeftHand.MetricX = metricX;
-            LeftHand.MetricY = metricY;
+            LeftHand.mmX = mmX;
+            LeftHand.mmY = mmY;
         }
 
-        public void SetRightHand(int x, int y, int z, float metricX, float metricY)
+        public void SetRightHand(int x, int y, int z, float mmX, float mmY)
         {
             RightHand.X = x;
             RightHand.Y = y;
             RightHand.Z = z;
-            RightHand.MetricX = metricX;
-            RightHand.MetricY = metricY;
+            RightHand.mmX = mmX;
+            RightHand.mmY = mmY;
         }
 
-        public void SetRightElbow(int x, int y, int z, float metricX, float metricY)
+        public void SetRightElbow(int x, int y, int z, float mmX, float mmY)
         {
             RightElbow.X = x;
             RightElbow.Y = y;
             RightElbow.Z = z;
-            RightElbow.MetricX = metricX;
-            RightElbow.MetricY = metricY;
+            RightElbow.mmX = mmX;
+            RightElbow.mmY = mmY;
         }
 
-        public void SetLeftElbow(int x, int y, int z, float metricX, float metricY)
+        public void SetLeftElbow(int x, int y, int z, float mmX, float mmY)
         {
             LeftElbow.X = x;
             LeftElbow.Y = y;
             LeftElbow.Z = z;
-            LeftElbow.MetricX = metricX;
-            LeftElbow.MetricY = metricY;
+            LeftElbow.mmX = mmX;
+            LeftElbow.mmY = mmY;
         }
     }
 
@@ -65,7 +65,7 @@ namespace Admo.classes
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
-        public float MetricX { get; set; }
-        public float MetricY { get; set; }
+        public float mmX { get; set; }
+        public float mmY { get; set; }
     }
 }
