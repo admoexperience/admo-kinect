@@ -255,8 +255,8 @@ namespace Admo
                         //skeleton lock  
                         if (locked_skeleton == false)
                         {
-                            MainWindow.locked_skeleton_id = first.TrackingId;
-                            MainWindow.locked_skeleton = first;
+                            MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
+                            MainWindow.KinectLib.LockedSkeleton = first;
                             locked_skeleton = true;
                         }
 

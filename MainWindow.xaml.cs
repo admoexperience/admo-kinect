@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
+using Admo.classes.lib;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
@@ -26,7 +27,7 @@ namespace Admo
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
         Skeleton old_first;
-        public static KinectSensor CurrentKinect;
+        public static KinectSensor CurrentKinectSensor;
         public static String kinect_type;
         public static int KinectElevationAngle = 0;
    
@@ -53,6 +54,18 @@ namespace Admo
         //variable indicating whether user is looking at the screen
         public static bool looking_at_screen = false;
 
+        //find closest skeleton
+        public static bool track_near = true;
+        public static bool skeleton_locked = false;
+        public static int skeleton_id = 0;
+        public static int skeleton_count = 0;
+        public static String hand_state = "released-right";
+        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
+        private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
+
+
+        public static KinectLib KinectLib = new KinectLib();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -62,7 +75,7 @@ namespace Admo
         public static void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
-            CurrentKinect.ElevationAngle = KinectElevationAngle;
+            CurrentKinectSensor.ElevationAngle = KinectElevationAngle;
 
             if (Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive)))
             {
@@ -104,10 +117,10 @@ namespace Admo
         {
 
             //get kinect sensor
-            CurrentKinect = KinectSensor.KinectSensors[0];
+            CurrentKinectSensor = KinectSensor.KinectSensors[0];
             //stop any previous kinect session
-            StopKinect(CurrentKinect);
-            if (CurrentKinect == null)
+            KinectLib.StopKinectSensor(CurrentKinectSensor);
+            if (CurrentKinectSensor == null)
             {
                 return;
             }
@@ -181,7 +194,7 @@ namespace Admo
                         this.Image.Source = bi3;
                     }
                     
-                    CurrentKinect = args.NewSensor;
+                    CurrentKinectSensor = args.NewSensor;
                     
                     try
                     {
@@ -225,30 +238,22 @@ namespace Admo
            
         }
 
-        public static String hand_state = "released-right";
-        private ColorImageFormat colorImageFormat = ColorImageFormat.Undefined;
-        private DepthImageFormat depthImageFormat = DepthImageFormat.Undefined;
-
+     
         public void Dispose()
         {
-            this.DestroyFaceTracker();
+            DestroyFaceTracker();
         }
 
         private void DestroyFaceTracker()
         {
-            if (this.faceTracker != null)
-            {
-                this.faceTracker.Dispose();
-                this.faceTracker = null;
-            }
+            if (faceTracker == null) return;
+            faceTracker.Dispose();
+            faceTracker = null;
         }
 
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            if (closing)
-            {
-                return;
-            }
+            if (closing) return;
 
             ColorImageFrame colorFrame = null;
             DepthImageFrame depthFrame = null;
@@ -311,7 +316,7 @@ namespace Admo
                 {
                     //get closest skeleton
                     skeletonFrameData.CopySkeletonDataTo(allSkeletons);
-                    Skeleton first = GetPrimarySkeleton(allSkeletons);
+                    Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
                     //check whether there is a user/skeleton
                     if (first == null)
@@ -331,7 +336,7 @@ namespace Admo
                         hand_state = KinectRegion.message_hand;
 
                         //get joint coordinates
-                        float[] coordinates = setCoordinates(first);
+                        float[] coordinates = KinectLib.GetCoordinates(first);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
@@ -364,7 +369,7 @@ namespace Admo
                             {
                                 try
                                 {
-                                    this.faceTracker = new FaceTracker(CurrentKinect);
+                                    this.faceTracker = new FaceTracker(CurrentKinectSensor);
                                     Console.WriteLine("initiate new FaceTracker");
                                 }
                                 catch (InvalidOperationException)
@@ -457,70 +462,20 @@ namespace Admo
         void DisplayVideo(ColorImageFrame colorFrame)
         {
             //color frame handlers
-            if (colorFrame != null)
+            if (colorFrame == null) return;
+            // Copy the pixel data from the image to a temporary array
+            colorFrame.CopyPixelDataTo(this.colorImage);
+
+            if (Config.IsDevMode())
             {
-                // Copy the pixel data from the image to a temporary array
-                colorFrame.CopyPixelDataTo(this.colorImage);
-
-                if (Config.IsDevMode())
-                {
-                    // Write the pixel data into our bitmap
-                    this.colorBitmap.WritePixels(
-                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                        this.colorImage,
-                        this.colorBitmap.PixelWidth * sizeof(int),
-                        0);
-                }
-            }               
+                // Write the pixel data into our bitmap
+                this.colorBitmap.WritePixels(
+                    new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
+                    this.colorImage,
+                    this.colorBitmap.PixelWidth * sizeof(int),
+                    0);
+            }
         }
-
-        
-        float[] setCoordinates(Skeleton first)
-        {
-            //get joint coordinates
-            float[] coordinates = new float[24];
-            Joint left_hand = first.Joints[JointType.HandLeft];
-            Joint right_hand = first.Joints[JointType.HandRight];
-            Joint spine_center = first.Joints[JointType.Spine];
-            Joint head = first.Joints[JointType.Head];
-            Joint shoulder_left = first.Joints[JointType.ShoulderLeft];
-            Joint shoulder_right = first.Joints[JointType.ShoulderRight];
-            Joint hip_center = first.Joints[JointType.HipCenter];
-            Joint shoulder_center = first.Joints[JointType.ShoulderCenter];
-            Joint left_elbow = first.Joints[JointType.ElbowLeft];
-            Joint right_elbow = first.Joints[JointType.ElbowRight];
-
-            //set joint coordinates into array
-            coordinates[0] = left_hand.Position.X;
-            coordinates[1] = left_hand.Position.Y;
-            coordinates[2] = right_hand.Position.X;
-            coordinates[3] = right_hand.Position.Y;
-            coordinates[4] = 0;// spine_center.Position.X;
-            coordinates[5] = 0;// spine_center.Position.Y;
-            coordinates[6] = head.Position.X;
-            coordinates[7] = head.Position.Y;
-            coordinates[8] = shoulder_left.Position.X;
-            coordinates[9] = shoulder_left.Position.Y;
-            coordinates[10] = shoulder_right.Position.X;
-            coordinates[11] = shoulder_right.Position.Y;
-            coordinates[12] = 0;// hip_center.Position.X;
-            coordinates[13] = 0;// hip_center.Position.Z;
-            coordinates[14] = left_hand.Position.Z;
-            coordinates[15] = right_hand.Position.Z;
-            coordinates[16] = shoulder_center.Position.X;
-            coordinates[17] = shoulder_center.Position.Y;
-            coordinates[18] = spine_center.Position.Z;
-            coordinates[19] = head.Position.Z;
-            coordinates[20] = left_elbow.Position.X;
-            coordinates[21] = left_elbow.Position.Y;
-            coordinates[22] = right_elbow.Position.X;
-            coordinates[23] = right_elbow.Position.Y;
-
-            Application_Handler.SkeletalCoordinates = coordinates;
-
-            return coordinates;
-        }
-
         
         //overlaying IR camera and RGB camera video feeds
         void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth, float[] coord)
@@ -532,7 +487,7 @@ namespace Admo
                 }
                 depth.CopyPixelDataTo(depthImage);
 
-                CoordinateMapper cm = new CoordinateMapper(CurrentKinect);
+                CoordinateMapper cm = new CoordinateMapper(CurrentKinectSensor);
                 //Map a skeletal point to a point on the color image 
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
@@ -602,9 +557,9 @@ namespace Admo
         //delete if in production
         public void Animations(Skeleton first, ColorImagePoint headColorPoint, ColorImagePoint leftColorPoint, ColorImagePoint rightColorPoint, ColorImagePoint depth_hand, ColorImagePoint depth_hand2, float[] coord, int[] depth_coord, int hand_selection)
         {
-            Joint left_hand = first.Joints[JointType.HandLeft];
-            Joint right_hand = first.Joints[JointType.HandRight];
-            if (Convert.ToString(left_hand.TrackingState) == "Tracked")
+            var leftHand = first.Joints[JointType.HandLeft];
+            var rightHand = first.Joints[JointType.HandRight];
+            if (leftHand.TrackingState == JointTrackingState.Tracked)
             {
                 leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
             }
@@ -613,7 +568,7 @@ namespace Admo
                 leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
             }
 
-            if (Convert.ToString(right_hand.TrackingState) == "Tracked")
+            if (rightHand.TrackingState == JointTrackingState.Tracked)
             {
                 rightEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
             }
@@ -655,104 +610,15 @@ namespace Admo
             Canvas.SetTop(element, point.Y  - element.Height / 2);
         }
 
-        //find closest skeleton
-        public static bool track_near = true;
-        public static bool skeleton_locked = false;
-        public static int skeleton_id = 0;
-        public static int locked_skeleton_id = 0;
-        public static Skeleton locked_skeleton = null;
-        public static int skeleton_count = 0;
-        private Skeleton GetPrimarySkeleton(Skeleton[] skeletons)
-        {
-            Skeleton skeleton = null;
 
-            if (skeletons != null)
-            {
-
-                //check if any skeletons has been locked on in t-1        
-                if (Application_Handler.locked_skeleton == true)
-                {
-                    for (int i = 0; i < skeletons.Length; i++)
-                    {
-                        if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                        {
-                            if (skeletons[i].TrackingId == locked_skeleton_id)
-                            {
-                                //locked skeletal is still in range
-                                skeleton = locked_skeleton;
-                                break;
-                            }
-                            else
-                            {
-                                Application_Handler.locked_skeleton = false;
-                                
-                            }
-                        }
-                    }
-
-                }
-                else
-                {
-                    //Find the closest skeleton        
-                    for (int i = 0; i < skeletons.Length; i++)
-                    {
-                        if (skeletons[i].TrackingState == SkeletonTrackingState.Tracked)
-                        {
-                            if (skeleton == null)
-                            {
-                                skeleton = skeletons[i];
-                            }
-                            else
-                            {
-                                if ((skeleton.Position.Z > skeletons[i].Position.Z))//if not just use the closest skeleton
-                                {
-                                    skeleton = skeletons[i];
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            //if there is no other users in die fov and the locked skeleton moves out of the field of view
-            //stop stopwatch 
-            if ((skeleton == null) && (Application_Handler.locked_skeleton == true))
-            {
-                Application_Handler.locked_skeleton = false;
-            }
-
-            return skeleton;
-        }
+        
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            //this.sensorChooser.Stop();
-            StopKinect(sensorChooser.Kinect);
+            KinectLib.StopKinectSensor(sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");
             closing = true; 
         }
-
-        //stop kinect
-        public static void StopKinect(KinectSensor sensor)
-        {
-            if (sensor != null)
-            {
-                if (sensor.IsRunning)
-                {
-                    //stop sensor 
-                    sensor.Stop();
-
-                    //stop audio if not null
-                    if (sensor.AudioSource != null)
-                    {
-                        sensor.AudioSource.Stop();
-                    }
-
-                }
-            }
-        }
-
     }
 }

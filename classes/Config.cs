@@ -38,9 +38,9 @@ namespace Admo.classes
 
         private static String _enviroment = null;
         private static String _webServer = null;
-        private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         private const String PodFolder = @"C:\smartroom\pods\";
+        private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         private static CmsApi _api;
 
@@ -57,6 +57,10 @@ namespace Admo.classes
 
         public static void Init()
         {
+            // 09/09/2013 -- Config was moved from dropbox to local storage folder.
+            // This is only a temp code change to allow for automagic folder and migration to new folder
+            MigratedLegacyConfig();
+
             _api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
@@ -67,6 +71,18 @@ namespace Admo.classes
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
+        }
+
+        private static void MigratedLegacyConfig()
+        {
+            if (Directory.Exists(GetBaseConfigPath())) return;
+            Log.Info(GetBaseConfigPath() + " Doesn't exsist creating it");
+
+            Directory.CreateDirectory(GetBaseConfigPath());
+
+            //Move the config from the old dropbox folder to the new folder.
+            File.Move(Path.Combine(BaseDropboxFolder,GetHostName(),"ApiKey.txt"), Path.Combine(GetBaseConfigPath(),"ApiKey.txt"));
+            File.Move(Path.Combine(BaseDropboxFolder, GetHostName(), "configcache.json"), Path.Combine(GetBaseConfigPath(), "configcache.json"));
         }
 
         public static void NewWebContent(String file)
@@ -124,7 +140,8 @@ namespace Admo.classes
 
         public static String GetBaseConfigPath()
         {
-            return BaseDropboxFolder;
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(appData, "Admo");
         }
 
         public static double GetScreenshotInterval()
@@ -138,16 +155,14 @@ namespace Admo.classes
 
         public static String GetPodFile()
         {
-            var def = Path.Combine(BaseDropboxFolder, "pods", "dist.pod.zip");
+            var def = Path.Combine(GetBaseConfigPath(), "pods", "dist.pod.zip");
             var pod = ReadConfigOption(Keys.PodFile, def);
             return pod;
         }
 
-        public static String GetCurrentApp()
+        public static String GetLaunchUrl()
         {
-            //TODO: this shouldn't actually be an 'app' config var
-            var appName = ReadConfigOption(Keys.App,"index.html");
-            return appName;
+            return GetWebServer() + "/" + "index.html";
         }
 
         public static String GetLoadingPage()
@@ -165,14 +180,14 @@ namespace Admo.classes
 
         }
 
-        private static String GetLocalConfig(String configOption)
+        private static String GetLocalConfig(String config)
         {
-            return Path.Combine(BaseDropboxFolder, GetHostName(), configOption + ".txt");
+            return Path.Combine(GetBaseConfigPath(), config + ".txt");
         }
 
         private static String GetCmsConfigCacheFile()
         {
-            return Path.Combine(BaseDropboxFolder, GetHostName(), "configcache.json");
+            return Path.Combine(GetBaseConfigPath(), "configcache.json");
         }
 
         private static String GetApiKey()
@@ -180,7 +195,7 @@ namespace Admo.classes
             var apiKey = ReadLocalConfig("ApiKey");
             if (apiKey.Equals(String.Empty))
             {
-                throw new Exception("ApiKey not found please add it to [" + GetLocalConfig("ApiKey")+"]");
+                throw new Exception("ApiKey not found please add it to [" + GetLocalConfig("ApiKey") + "]");
             }
             return apiKey;
         }
@@ -254,7 +269,7 @@ namespace Admo.classes
             {
                 var objReader =
                     new StreamReader(cacheFile);
-                temp = objReader.ReadLine();
+                temp = objReader.ReadToEnd();
                 objReader.Close();
             }
             catch (DirectoryNotFoundException dnfe)
@@ -279,7 +294,6 @@ namespace Admo.classes
 
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
             return val;
-    
         }
 
         public static void CheckIn()
@@ -294,9 +308,8 @@ namespace Admo.classes
                 Log.Debug("Updating config");
 
                 var responseAsString = await _api.GetConfig();
-
+                //test its valid json
                 dynamic obj = JsonConvert.DeserializeObject(responseAsString);
-
                 var cacheFile = GetCmsConfigCacheFile();
                 try
                 {
