@@ -40,6 +40,7 @@ namespace Admo.classes
         private static String _webServer = null;
 
         private const String PodFolder = @"C:\smartroom\pods\";
+        private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         private static CmsApi _api;
 
@@ -56,6 +57,10 @@ namespace Admo.classes
 
         public static void Init()
         {
+            // 09/09/2013 -- Config was moved from dropbox to local storage folder.
+            // This is only a temp code change to allow for automagic folder and migration to new folder
+            MigratedLegacyConfig();
+
             _api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
@@ -66,6 +71,18 @@ namespace Admo.classes
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
+        }
+
+        private static void MigratedLegacyConfig()
+        {
+            if (Directory.Exists(GetBaseConfigPath())) return;
+            Log.Info(GetBaseConfigPath() + " Doesn't exsist creating it");
+
+            Directory.CreateDirectory(GetBaseConfigPath());
+
+            //Move the config from the old dropbox folder to the new folder.
+            File.Move(Path.Combine(BaseDropboxFolder,GetHostName(),"ApiKey.txt"), Path.Combine(GetBaseConfigPath(),"ApiKey.txt"));
+            File.Move(Path.Combine(BaseDropboxFolder, GetHostName(), "configcache.json"), Path.Combine(GetBaseConfigPath(), "configcache.json"));
         }
 
         public static void NewWebContent(String file)
