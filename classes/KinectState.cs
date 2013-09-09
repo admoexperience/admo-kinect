@@ -17,8 +17,8 @@ namespace Admo.classes
             Head.X = x;
             Head.Y = y;
             Head.Z = z;
-            Head.mmX = mmX;
-            Head.mmY = mmY;
+            Head.Xmm = mmX;
+            Head.Ymm = mmY;
         }
 
         public void SetLeftHand(int x, int y, int z, float mmX, float mmY)
@@ -26,8 +26,8 @@ namespace Admo.classes
             LeftHand.X = x;
             LeftHand.Y = y;
             LeftHand.Z = z;
-            LeftHand.mmX = mmX;
-            LeftHand.mmY = mmY;
+            LeftHand.Xmm = mmX;
+            LeftHand.Ymm = mmY;
         }
 
         public void SetRightHand(int x, int y, int z, float mmX, float mmY)
@@ -35,8 +35,8 @@ namespace Admo.classes
             RightHand.X = x;
             RightHand.Y = y;
             RightHand.Z = z;
-            RightHand.mmX = mmX;
-            RightHand.mmY = mmY;
+            RightHand.Xmm = mmX;
+            RightHand.Ymm = mmY;
         }
 
         public void SetRightElbow(int x, int y, int z, float mmX, float mmY)
@@ -44,8 +44,8 @@ namespace Admo.classes
             RightElbow.X = x;
             RightElbow.Y = y;
             RightElbow.Z = z;
-            RightElbow.mmX = mmX;
-            RightElbow.mmY = mmY;
+            RightElbow.Xmm = mmX;
+            RightElbow.Ymm = mmY;
         }
 
         public void SetLeftElbow(int x, int y, int z, float mmX, float mmY)
@@ -53,8 +53,8 @@ namespace Admo.classes
             LeftElbow.X = x;
             LeftElbow.Y = y;
             LeftElbow.Z = z;
-            LeftElbow.mmX = mmX;
-            LeftElbow.mmY = mmY;
+            LeftElbow.Xmm = mmX;
+            LeftElbow.Ymm = mmY;
         }
     }
 
@@ -65,7 +65,7 @@ namespace Admo.classes
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
-        public float mmX { get; set; }
-        public float mmY { get; set; }
+        public float Xmm { get; set; }
+        public float Ymm { get; set; }
     }
 }
