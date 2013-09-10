@@ -55,6 +55,11 @@ namespace Admo
             SendToAll(ConvertToJson("kinectState",state));
         }
 
+        public static void SendGestureEvent(String gesture)
+        {
+            SendToAll(ConvertToJson("swipeGesture", gesture));
+        }
+
         public static void SendUpdatedConfig()
         {
             Logger.Debug("Sending updated config to clients");

@@ -144,6 +144,13 @@ namespace Admo
         public static double timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
 
+        //handles swipe gesture event
+        public static void OnGestureDetected(string gesture)
+        {
+            Console.WriteLine(gesture);
+            SocketServer.SendGestureEvent(gesture);
+        }
+
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
         {

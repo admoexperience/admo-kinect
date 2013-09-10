@@ -10,6 +10,7 @@ using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
 using Microsoft.Kinect.Toolkit.FaceTracking;
+using Kinect.Toolbox;
 using NLog;
 
 namespace Admo
@@ -34,8 +35,8 @@ namespace Admo
         //drawing variables
         public static int face_x = 700;
         public static int face_y = 1000;
-       
 
+        SwipeGestureDetector swipeGestureRecognizer;
 
         /// <summary>
         /// Bitmap that will hold color information
@@ -166,6 +167,11 @@ namespace Admo
 
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(sensor_AllFramesReady);                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+
+
+                    swipeGestureRecognizer = new SwipeGestureDetector();
+                    swipeGestureRecognizer.OnGestureDetected += Application_Handler.OnGestureDetected;
+
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
@@ -332,6 +338,11 @@ namespace Admo
                     }
                     else
                     {
+                        
+                        //swipe gesture detection
+                        swipeGestureRecognizer.Add(first.Joints[JointType.HandRight].Position, CurrentKinectSensor);
+                        //swipeGestureRecognizer.Add(first.Joints[JointType.HandLeft].Position, CurrentKinectSensor);
+
                         //check if hand is open or closed
                         hand_state = KinectRegion.message_hand;
 
@@ -615,6 +626,7 @@ namespace Admo
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            swipeGestureRecognizer.OnGestureDetected -= Application_Handler.OnGestureDetected;
             KinectLib.StopKinectSensor(sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");
