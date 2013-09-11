@@ -169,8 +169,8 @@ namespace Admo
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
 
 
-                    swipeGestureRecognizer = new SwipeGestureDetector();
-                    swipeGestureRecognizer.OnGestureDetected += Application_Handler.OnGestureDetected;
+                    //swipeGestureRecognizer = new SwipeGestureDetector();
+                    //swipeGestureRecognizer.OnGestureDetected += Application_Handler.OnGestureDetected;
 
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
@@ -340,7 +340,7 @@ namespace Admo
                     {
                         
                         //swipe gesture detection
-                        swipeGestureRecognizer.Add(first.Joints[JointType.HandRight].Position, CurrentKinectSensor);
+                        //swipeGestureRecognizer.Add(first.Joints[JointType.HandRight].Position, CurrentKinectSensor);
                         //swipeGestureRecognizer.Add(first.Joints[JointType.HandLeft].Position, CurrentKinectSensor);
 
                         //check if hand is open or closed
@@ -348,6 +348,9 @@ namespace Admo
 
                         //get joint coordinates
                         float[] coordinates = KinectLib.GetCoordinates(first);
+
+                        //swipe gesture detection
+                        GestureDetection.GestureHandler(coordinates);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
@@ -626,7 +629,7 @@ namespace Admo
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            swipeGestureRecognizer.OnGestureDetected -= Application_Handler.OnGestureDetected;
+            //swipeGestureRecognizer.OnGestureDetected -= Application_Handler.OnGestureDetected;
             KinectLib.StopKinectSensor(sensorChooser.Kinect);
             SocketServer.Stop();
             Log.Info("Shutting down server");

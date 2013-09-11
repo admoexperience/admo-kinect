@@ -133,6 +133,7 @@
     </Compile>
     <Compile Include="classes\Application_Handler.cs" />
     <Compile Include="classes\DataContainer.cs" />
+    <Compile Include="classes\GestureDetection.cs" />
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />
