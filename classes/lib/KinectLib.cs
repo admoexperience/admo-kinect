@@ -68,6 +68,8 @@ namespace Admo.classes.lib
             coordinates[22] = rightElbow.Position.X;
             coordinates[23] = rightElbow.Position.Y;
 
+            Application_Handler.SkeletalCoordinates = coordinates;
+
             return coordinates;
         }
 

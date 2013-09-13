@@ -473,7 +473,6 @@ namespace Admo
             }
         }
 
-         
         //overlaying IR camera and RGB camera video feeds
         void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth, float[] coord)
         {

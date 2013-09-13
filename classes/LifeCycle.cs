@@ -37,10 +37,6 @@ namespace Admo
         public static Boolean _restartingBrowser = false;
         private static double _browserTime = GetCurrentTimeInSeconds();
 
-        private static bool _monitorWrite = true;
-
-        private static String _appName = Config.GetCurrentApp();
-        
         private static Process _startupProcess;
         private static Process _applicationBrowserProcess;
 
@@ -128,8 +124,8 @@ namespace Admo
                 case StartupStage.LaunchingApp:
                     if (timeDiff > 25)
                     {
-                        Log.Debug("Launching browser with the "+ _appName);
-                        _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
+                        Log.Debug("Launching browser with the " + Config.GetLaunchUrl());
+                        _applicationBrowserProcess = LaunchBrowser(Config.GetLaunchUrl());
                         _currentStartupStage = StartupStage.AppRunning;
                         //set the last accessed time to now.
                         _browserTime = GetCurrentTimeInSeconds();
@@ -206,15 +202,7 @@ namespace Admo
             if (_currentStartupStage != StartupStage.AppRunning) return;
 
             var shouldRestartBrowser = false;
-            
-            //Check if app has changed if it has restart browser
-            var tempAppName = Config.GetCurrentApp();
-            if (_appName != tempAppName)
-            {
-                Log.Info("Changing app from [" + _appName + "] to [" + tempAppName + "]");
-                _appName = tempAppName;
-                shouldRestartBrowser = true;
-            }
+           
 
             //If browser hasn't reported in 30 seconds restart it
             if (!IsBrowserRunning())
@@ -306,8 +294,8 @@ namespace Admo
                 case RestartingStage.StartupUrlClosed:
                     if (timeDiff > 6)
                     {
-                        Log.Info("ReLaunching [" + _appName + "]");
-                        _applicationBrowserProcess = LaunchBrowser(Config.GetWebServer() + "/" + _appName);
+                        Log.Info("ReLaunching [" + Config.GetLaunchUrl() + "]");
+                        _applicationBrowserProcess = LaunchBrowser(Config.GetLaunchUrl());
                         //Set the last browser reported time to be now so it doesn't do this loop again before it checks in.
                         _browserTime = currentTime;
                         _restartingBrowser = false;

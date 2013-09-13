@@ -24,6 +24,8 @@ namespace Admo
         public static double fov_height = 640;
         public static double fov_width = 480;
 
+        //Skeletal coordinates in meters
+        public static float[] SkeletalCoordinates = new float[24];
 
         //manage gestures
         public static void ManageGestures(float[] coordinates)
@@ -100,7 +102,7 @@ namespace Admo
                 String head = Convert.ToString(x_coord) + "^" + Convert.ToString(y_coord);
                 String depth_head = Convert.ToString(z_coord);
                 video_coord = head + "^" + depth_head + "^0^0^0^0^0^0";
-                kinectState.SetHead(x_coord, y_coord, z_coord);
+                kinectState.SetHead(x_coord, y_coord, z_coord, 0, 0);
                 kinectState.Phase = 2;
                 mode = 2;
             }
@@ -189,11 +191,11 @@ namespace Admo
 
             var kinectState = new KinectState {Phase = mode};
 
-            kinectState.SetHead(stick_coord[0], stick_coord[1], head_z);
-            kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z);
-            kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z);
-            kinectState.SetLeftElbow(stick_coord[6], stick_coord[7], leftElbowZ);
-            kinectState.SetRightElbow(stick_coord[8], stick_coord[9], rightElbowZ);
+            kinectState.SetHead(stick_coord[0], stick_coord[1], head_z, SkeletalCoordinates[6], SkeletalCoordinates[7]);
+            kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z, SkeletalCoordinates[0], SkeletalCoordinates[1]);
+            kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z, SkeletalCoordinates[2], SkeletalCoordinates[3]);
+            kinectState.SetLeftElbow(stick_coord[6], stick_coord[7], leftElbowZ, SkeletalCoordinates[20], SkeletalCoordinates[21]);
+            kinectState.SetRightElbow(stick_coord[8], stick_coord[9], rightElbowZ, SkeletalCoordinates[22], SkeletalCoordinates[23]);
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;
