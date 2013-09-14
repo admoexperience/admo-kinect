@@ -1,29 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
 
 namespace Admo.classes
 {
     class GestureDetection
     {
-        public double SwipeDistanceInMeters = 0.3;
-        public double SwipeDeltaY = 0.05;
-        public double SwipeHeight = 0.5;
-        public bool SwipeInDeltaY = false;
-        public double SwipeTimeInFrames = 10; // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
 
-        public static int LeftHandX = 0;
-        public static int LeftHandY = 1;
-        public static int RightHandX = 2;
-        public static int RightHandY = 3;
-        public static int LeftShoulderX = 8;
-        public static int LeftShoulderY = 9;
-        public static int RightShoulderX = 10;
-        public static int RightShoulderY = 11;
-        public static int HeadX = 6;
-        public static int HeadY = 7;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public double SwipeDistanceInMeters = 0.3;
+        public const double SwipeDeltaY = 0.05;
+        public const double SwipeHeight = 0.5;
+        public bool SwipeInDeltaY = false;
+        public const double SwipeTimeInFrames = 10; // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
+
+        
 
         public static int QueueLength = 20; // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
         public Queue<float[]> CoordinateHistory = new Queue<float[]>(QueueLength);
@@ -40,32 +33,35 @@ namespace Admo.classes
         public bool MovedFromPreviousArea = false;
 
         //manage gestures
-        public void GestureHandler(float[] coordinates,String hand)
+        public void GestureHandler(float[] coordinates, BodyPart hand)
         {
  
-            int count = 0;
-            int handX = 0;
-            int handY = 1;
+            var count = 0;
+            var handX = BodyCoordinates.LeftHandX;
+            var handY = BodyCoordinates.LeftHandY;
 
-            if (hand == "left")
+            if (hand == BodyPart.LeftHand)
             {
-                handX = LeftHandX;
-                handY = LeftHandY;
+                handX = BodyCoordinates.LeftHandX;
+                handY = BodyCoordinates.LeftHandY;
             }
-            else if (hand == "right")
+            else if (hand == BodyPart.LeftHand)
             {
-                handX = RightHandX;
-                handY = RightHandY;
+                handX = BodyCoordinates.RightHandX;
+                handY = BodyCoordinates.RightHandY;
             }
 
             SwipeTimeout();
 
             try
             {
+                
                 count = CoordinateHistory.Count();
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                //TODO: Fix this, catch with empty block is BAD
+                //FAIL hard and fail fast this should never cause an error in theory
             }
 
             if (count < QueueLength) //wait until queue is full
@@ -90,7 +86,7 @@ namespace Admo.classes
 
                     //checks to see if user is swiping in deltaY relative center to shoulderY
                     double swipeDeltaY = Math.Abs(coord[handY] - coordinates[handY]);
-                    double swipeHeadY = Math.Abs(coord[handY] - coord[HeadY]);
+                    double swipeHeadY = Math.Abs(coord[handY] - coord[BodyCoordinates.HeadY]);
                     if ((swipeDeltaY > SwipeDeltaY) || (swipeHeadY > SwipeHeight))
                     {
                         SwipeInDeltaY = false;
@@ -117,9 +113,8 @@ namespace Admo.classes
 
                     if ((Math.Abs(swipeDiff) > SwipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) && (MovedFromPreviousArea))
                     {
-                        if (true)
-                        {
-                            Console.WriteLine("Swipe!");
+                            //TODO this shouldn't be here else every time some one uses the app it is going to push to papertrail
+                            Logger.Debug("Swipe!");
                             if (swipeDiff < 0)
                             {
                                 OnGestureDetected("SwipeToRight");
@@ -134,8 +129,6 @@ namespace Admo.classes
                             TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
 
                             break;
-                        }
-
                     }
                     
                     
@@ -152,8 +145,8 @@ namespace Admo.classes
 
         private  void SwipeTimeout()
         {
-            double currentTime = LifeCycle.GetCurrentTimeInSeconds();
-            double timeSinceSwipe = currentTime - TimeSwipeCompleted;
+            var currentTime = LifeCycle.GetCurrentTimeInSeconds();
+            var timeSinceSwipe = currentTime - TimeSwipeCompleted;
 
             if (timeSinceSwipe < SwipeWaitTime)
             {
