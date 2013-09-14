@@ -66,7 +66,8 @@ namespace Admo
 
 
         public static KinectLib KinectLib = new KinectLib();
-        private static GestureDetection _gestureDetection = new GestureDetection();
+        private static GestureDetection _gestureDetectionRight = new GestureDetection();
+        private static GestureDetection _gestureDetectionLeft = new GestureDetection();
 
         public MainWindow()
         {
@@ -351,7 +352,8 @@ namespace Admo
                         float[] coordinates = KinectLib.GetCoordinates(first);
 
                         //swipe gesture detection
-                        _gestureDetection.GestureHandler(coordinates);
+                        _gestureDetectionRight.GestureHandler(coordinates,"right");
+                        _gestureDetectionLeft.GestureHandler(coordinates, "left");
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
