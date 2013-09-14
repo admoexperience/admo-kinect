@@ -29,8 +29,8 @@ namespace Admo.classes
         }
 
         private static Pubnub pubnub;
-        public const double CheckingInterval = 5 * 60; //Once every 5mins
-        private const double ScreenshotInterval = 30 * 60; //Once every 30mins
+        public const int CheckingInterval = 1 * 30; //Once every 5mins
+        private const int ScreenshotInterval = 30 * 60; //Once every 30mins
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -144,11 +144,11 @@ namespace Admo.classes
             return Path.Combine(appData, "Admo");
         }
 
-        public static double GetScreenshotInterval()
+        public static int GetScreenshotInterval()
         {
             var val = ReadConfigOption(Keys.ScreenshotInterval, ScreenshotInterval.ToString());
             var result = ScreenshotInterval;
-            double.TryParse(val, out result);
+            int.TryParse(val, out result);
             return result;
         }
 

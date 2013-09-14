@@ -148,6 +148,9 @@
     <Compile Include="classes\lib\KinectLib.cs" />
     <Compile Include="classes\lib\Pubnub.cs" />
     <Compile Include="classes\lib\ScreenCapture.cs" />
+    <Compile Include="classes\lib\tasks\BaseTask.cs" />
+    <Compile Include="classes\lib\tasks\CheckInTask.cs" />
+    <Compile Include="classes\lib\tasks\ScreenshotTask.cs" />
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\MouseDriver.cs" />
     <Compile Include="classes\SocketServer.cs" />

@@ -55,7 +55,7 @@ namespace Admo
 
         //variable indicating whether user is looking at the screen
         private bool LookingAtScreen = false; //currently not used but keeping cause it might used
-        private static readonly LifeCycle LifeCycle=new LifeCycle();
+        public static readonly LifeCycle LifeCycle=new LifeCycle();
    
         private ColorImageFormat _colorImageFormat = ColorImageFormat.Undefined;
         private DepthImageFormat _depthImageFormat = DepthImageFormat.Undefined;
@@ -86,6 +86,7 @@ namespace Admo
             Config.Init();
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
+            LifeCycle.ActivateTimers();
 
             Application_Handler.ConfigureCalibrationByConfig();
   
@@ -99,7 +100,7 @@ namespace Admo
             
             sensorChooserUi.KinectSensorChooser = _sensorChooser;
             _sensorChooser.Start();
-            LifeCycle.ActivateTimers();
+            
 
             if (!Config.IsDevMode())
             {

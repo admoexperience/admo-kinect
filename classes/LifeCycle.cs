@@ -2,16 +2,17 @@
 using System.Timers;
 using System.Diagnostics;
 using Admo.classes;
+using  Admo.classes.lib.tasks;
 using NLog;
 
 namespace Admo
 {
-    class LifeCycle
+    public class LifeCycle
     {
         private const string Browser = "Chrome";
         private const string BrowserExe = Browser + ".exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private static readonly double StartupTime = GetCurrentTimeInSeconds();
+        private readonly double _startupTime = GetCurrentTimeInSeconds();
          
 
         internal enum StartupStage
@@ -21,7 +22,7 @@ namespace Admo
             LaunchingApp,
             AppRunning
         }
-        private static StartupStage _currentStartupStage = StartupStage.Startup;
+        private  StartupStage _currentStartupStage = StartupStage.Startup;
 
         internal enum RestartingStage
         {
@@ -31,58 +32,44 @@ namespace Admo
             AppStarted
         }
 
-        public static RestartingStage _currentRestartingStage = RestartingStage.None;
+        private  RestartingStage _currentRestartingStage = RestartingStage.None;
 
-        private static double _restartTime = GetCurrentTimeInSeconds();
-        public static Boolean _restartingBrowser = false;
-        private static double _browserTime = GetCurrentTimeInSeconds();
+        private  double _restartTime = GetCurrentTimeInSeconds();
+        private  Boolean _restartingBrowser = false;
+        private  double _browserTime = GetCurrentTimeInSeconds();
 
-        private static Process _startupProcess;
-        private static Process _applicationBrowserProcess;
+        private  Process _startupProcess;
+        private  Process _applicationBrowserProcess;
 
-        private static double _lastMonitorTime = GetCurrentTimeInSeconds();
-        private static double _lastCheckinTime = _lastMonitorTime;
-        private static double _lastScreenshotTime = _lastMonitorTime;
 
-        private const double StartupInt = 3000;
-        private const double MonitorInt = 2000;
+        private const double StartupInt = 1000;
+        private const double MonitorInt = 1000;
+        
+        //TODO: Put these on a single task that triggers other tasks
         private readonly Timer _monitorTimer = new Timer(MonitorInt);
         private readonly Timer _startUpTimer= new Timer(StartupInt);
+
+
+        private readonly CheckInTask _checkInTask = new CheckInTask();
+        private  readonly ScreenshotTask _screenshotTask = new ScreenshotTask();
         
 
         public void ActivateTimers()
         {
-
-            //_lifeCycleStartUpTimer = new System.Timers.Timer(StartupInt);
             _startUpTimer.Elapsed += StartUpTimer;
             _monitorTimer.Elapsed += MonitorTimer;
             _startUpTimer.Start();
             _monitorTimer.Start();
 
-
+            //TODO: Handle config changes to the tasks screenshot interval can be configured
+            _checkInTask.Start(Config.CheckingInterval);
+            _screenshotTask.Start(Config.GetScreenshotInterval());
         }
 
-        private void MonitorTimer(object sender, ElapsedEventArgs e)
-        {
-            Monitor();
-        }
-
-        private void StartUpTimer(object sender, ElapsedEventArgs e)
-        {
-            Startup();
-        }
-
-        private  void LifeLoop()
-        {
-                //startup chorme in fullscreen and use mouse driver to allow webcam
-                Startup();
-                Monitor();
-        }
-
-        private void Startup()
+        private void StartUpTimer(object sender, ElapsedEventArgs eNotUsed)
         {
             var currentTime = GetCurrentTimeInSeconds();
-            var timeDiff = currentTime - StartupTime;
+            var timeDiff = currentTime - _startupTime;
             /*
             //Set the kinect and webcam config
             Application_Handler.fov_top = 28*2;
@@ -145,7 +132,7 @@ namespace Admo
             return Process.Start(BrowserExe, "--kiosk " + url);
         }
 
-        private static Boolean IsBrowserRunning()
+        private  Boolean IsBrowserRunning()
         {
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _browserTime;
@@ -153,48 +140,9 @@ namespace Admo
             return timeDiff  < 20;
         }
 
-        private static void Checkin()
-        {
-            //Only monitor every second.
-            var temp = GetCurrentTimeInSeconds();
-            if (!(temp - _lastCheckinTime > Config.CheckingInterval)) return;
-            
-            _lastCheckinTime = temp;
-            Config.CheckIn();
-           
-        }
-
-        private static void Screenshot()
-        {
-            //Only monitor every second.
-            var temp = GetCurrentTimeInSeconds();
-            if (!(temp - _lastScreenshotTime > Config.GetScreenshotInterval())) return;
-
-            _lastScreenshotTime = temp;
-            Config.TakeScreenshot();
-
-        }
-
-
-        private void Monitor()
-        {
-            
-
-            //Only monitor every second.
-            var temp = GetCurrentTimeInSeconds();
-
-            if (temp - _lastMonitorTime > 1)
-            {
-                _lastMonitorTime = temp;
-            }
-            else
-            {
-                return;
-            }
-
-            Checkin();
-            Screenshot();
-           
+        
+         private void MonitorTimer(object sender, ElapsedEventArgs eNotUsed)
+         {
             //Don't do any of this in dev mode.
             if (Config.IsDevMode()) return;
 
@@ -265,7 +213,7 @@ namespace Admo
 
 
 
-        private static void RestartBrowser()
+        private  void RestartBrowser()
         {
             var currentTime = GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _restartTime;
@@ -306,7 +254,7 @@ namespace Admo
             }                      
         }
 
-        public static void SetBrowserTimeNow()
+        public void SetBrowserTimeNow()
         {
             _browserTime = GetCurrentTimeInSeconds();
         }
