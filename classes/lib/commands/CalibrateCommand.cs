@@ -37,10 +37,10 @@ namespace Admo.classes.lib.commands
             Application_Handler.fov_left = trueLeft - (falseLeft * scalingFactor);
             Application_Handler.fov_top = trueTop - (falseTop * scalingFactor);
 
-            Logger.Info("calibration values changed");
-            Logger.Info("fov_top: " + Application_Handler.fov_top);
-            Logger.Info("fov_left: " + Application_Handler.fov_left);
-            Logger.Info("fov_width: " + Application_Handler.fov_width);
+            Logger.Info("Calibration values changed");
+            Logger.Info(Config.Keys.FovCropTop + ": " + Application_Handler.fov_top);
+            Logger.Info(Config.Keys.FovCropLeft + ": " + Application_Handler.fov_left);
+            Logger.Info(Config.Keys.FovCropWidth + ": " + Application_Handler.fov_width);
         }
     }
 }
