@@ -22,15 +22,15 @@ namespace Admo.classes
             public const string KinectElevation = "kinect_elevation";
             public const string PubnubSubscribeKey = "pubnub_subscribe_key";
             public const string ScreenshotInterval = "screenshot_interval";
-            public const string FOVcropTop = "fov_crop_top";
-            public const string FOVcropLeft = "fov_crop_left";
-            public const string FOVcropWidth = "fov_crop_width";
+            public const string FovCropTop = "fov_crop_top";
+            public const string FovCropLeft = "fov_crop_left";
+            public const string FovCropWidth = "fov_crop_width";
             public const string CalibrationActive = "calibration_active";
         }
 
         private static Pubnub pubnub;
-        public const double CheckingInterval = 5 * 60; //Once every 5mins
-        private const double ScreenshotInterval = 30 * 60; //Once every 30mins
+        public const int CheckingInterval = 5 * 60; //Once every 5mins
+        private const int ScreenshotInterval = 30 * 60; //Once every 30mins
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         //variable dictating whether facetracking is activated
@@ -144,11 +144,11 @@ namespace Admo.classes
             return Path.Combine(appData, "Admo");
         }
 
-        public static double GetScreenshotInterval()
+        public static int GetScreenshotInterval()
         {
             var val = ReadConfigOption(Keys.ScreenshotInterval, ScreenshotInterval.ToString());
             var result = ScreenshotInterval;
-            double.TryParse(val, out result);
+            int.TryParse(val, out result);
             return result;
         }
 

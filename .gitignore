@@ -33,3 +33,5 @@ StyleCopViolations.xml
 *.suo
 *.orig
 *.trx
+*.vsp
+*.psess

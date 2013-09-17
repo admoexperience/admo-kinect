@@ -13,24 +13,24 @@ namespace Admo
 
         public static int[, ,] depth_array = new int[2, 640, 480]; //(480,640)
         public static int depth_size = 50;
+       
         public static int[] ProcessHands(short[] rawDepthData)
         {
+            if (rawDepthData == null) throw new ArgumentNullException("rawDepthData");
 
-            int detection_range = 100;
+            const int detectionRange = 100;
             
-            int min_depth_index_x = 0;
-            int min_depth_index_y = 0;
+            int minDepthIndexX = 0;
+            int minDepthIndexY = 0;
             
             int min_depth_index = 0;
-            int min_depth = 4000;            
-            int depth_x = 0;
-            int depth_y = 0;              
+            int minDepth = 4000;
 
             //check for primary hand
             for (int depthIndex = 0; depthIndex < rawDepthData.Length; depthIndex++)
             {
-                depth_x = (int)(depthIndex % 640);
-                depth_y = (int)(depthIndex / 640);
+                int depth_x = (int)(depthIndex % 640);
+                int depth_y = (int)(depthIndex / 640);
                 //get the player
                 depth_array[1, depth_x, depth_y] = rawDepthData[depthIndex] & 7;
                 
@@ -39,27 +39,27 @@ namespace Admo
                     //gets the depth value
                     depth_array[0, depth_x, depth_y] = rawDepthData[depthIndex] >> 3;
 
-                    if ((min_depth > depth_array[0, depth_x, depth_y]) && (depth_array[0, depth_x, depth_y] != -1))
+                    if ((minDepth > depth_array[0, depth_x, depth_y]) && (depth_array[0, depth_x, depth_y] != -1))
                     {
                         //set the minimum depth and the index at which it occures
-                        min_depth = depth_array[0, depth_x, depth_y];
+                        minDepth = depth_array[0, depth_x, depth_y];
                         min_depth_index = depthIndex;
 
                         //sets x and y coordinates of minimum depth point
-                        min_depth_index_x = depth_x;
-                        min_depth_index_y = depth_y;
+                        minDepthIndexX = depth_x;
+                        minDepthIndexY = depth_y;
                     }
                 }
             }
 
-            if (min_depth < 410)
+            if (minDepth < 410)
             {
-                min_depth = 400;
+                minDepth = 400;
             }           
 
-            int dx = depth_size = 90000/min_depth;
-            int crop_index_x = min_depth_index_x - dx / 2;
-            int crop_index_y = min_depth_index_y - dx / 2;
+            int dx = depth_size = 90000/minDepth;
+            int crop_index_x = minDepthIndexX - dx / 2;
+            int crop_index_y = minDepthIndexY - dx / 2;
 
             if (crop_index_x < 0)
             {
@@ -80,32 +80,32 @@ namespace Admo
             }
 
             
-            int total_x = 0;
-            int total_y = 0;
-            int total_count = 0;
-            int total_depth = 0;
+            int totalX = 0;
+            int totalY = 0;
+            int totalCount = 0;
+            int totalDepth = 0;
 
 
             for (int ty = crop_index_y; ty < (crop_index_y+dx); ty++)
             {
                 for (int tx = crop_index_x; tx < (crop_index_x + dx); tx++)
                 {
-                    if (((depth_array[0, tx, ty] - min_depth) < detection_range) && (depth_array[1, tx, ty] > 0))
+                    if (((depth_array[0, tx, ty] - minDepth) < detectionRange) && (depth_array[1, tx, ty] > 0))
                     {
-                        total_x = total_x + tx;
-                        total_y = total_y + ty;
-                        total_depth = total_depth + depth_array[0, tx, ty];
-                        total_count++;
+                        totalX = totalX + tx;
+                        totalY = totalY + ty;
+                        totalDepth = totalDepth + depth_array[0, tx, ty];
+                        totalCount++;
                     }
                 }
             }
 
             
-            int min_depth_index_x2 = total_x / total_count;
-            int min_depth_index_y2 = total_y / total_count;
-            int min_depth2 = total_depth / total_count;
+            int minDepthIndexX2 = totalX / totalCount;
+            int minDepthIndexY2 = totalY / totalCount;
+            int minDepth2 = totalDepth / totalCount;
 
-            int[] send = { min_depth_index_x2, min_depth_index_y2, min_depth2, min_depth_index_x, min_depth_index_y, min_depth};
+            int[] send = { minDepthIndexX2, minDepthIndexY2, minDepth2, minDepthIndexX, minDepthIndexY, minDepth};
             
             return send;
         }

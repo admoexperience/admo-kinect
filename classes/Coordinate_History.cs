@@ -137,6 +137,8 @@ namespace Admo
                     float sum_read_length = read_length * (read_length + 1) / 2;
 
                     //looping through the x queue
+                    //Considering replacing with exponentially waited moving average less artifacts less memory requirments
+                    //Later move to kalman filter integrate the multiple sensors
                     foreach (float xa in x_filter)
                     {
                         loop_count_x++;                        
@@ -166,6 +168,7 @@ namespace Admo
                         }
 
                         //get the values used for the moving average filter
+                       
                         if (loop_count_y > (queue_length - read_length))
                         {
                             total_y = total_y + ya * ((float)(loop_count_y - (queue_length - read_length))) / sum_read_length;
