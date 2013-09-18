@@ -353,7 +353,7 @@ namespace Admo
 
                         //swipe gesture detection
                         _gestureDetectionRight.GestureHandler(coordinates,BodyPart.RightHand);
-                        _gestureDetectionLeft.GestureHandler(coordinates,BodyPart.RightHand);
+                        _gestureDetectionLeft.GestureHandler(coordinates, BodyPart.LeftHand);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);

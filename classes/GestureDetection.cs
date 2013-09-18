@@ -45,7 +45,7 @@ namespace Admo.classes
                 handX = BodyCoordinates.LeftHandX;
                 handY = BodyCoordinates.LeftHandY;
             }
-            else if (hand == BodyPart.LeftHand)
+            else if (hand == BodyPart.RightHand)
             {
                 handX = BodyCoordinates.RightHandX;
                 handY = BodyCoordinates.RightHandY;
