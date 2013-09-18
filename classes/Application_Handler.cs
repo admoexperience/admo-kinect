@@ -398,9 +398,9 @@ namespace Admo
         {
             //read calibration values from CMS if calibration app has not been set to run
             //use legacy calibration values if there is no calibration values in the CMS
-            var tempTop = Config.ReadConfigOption(Config.Keys.FOVcropTop, "56");
-            var tempLeft = Config.ReadConfigOption(Config.Keys.FOVcropLeft, "52");
-            var tempWidth = Config.ReadConfigOption(Config.Keys.FOVcropWidth, "547");
+            var tempTop = Config.ReadConfigOption(Config.Keys.FovCropTop, "56");
+            var tempLeft = Config.ReadConfigOption(Config.Keys.FovCropLeft, "52");
+            var tempWidth = Config.ReadConfigOption(Config.Keys.FovCropWidth, "547");
 
             //refer to document Calibration Method
             //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx

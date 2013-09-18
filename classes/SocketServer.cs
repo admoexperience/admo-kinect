@@ -105,7 +105,7 @@ namespace Admo
                 dynamic obj = JsonConvert.DeserializeObject(message);
                 if (obj.type == "alive")
                 {
-                    LifeCycle.SetBrowserTimeNow();
+                    MainWindow.LifeCycle.SetBrowserTimeNow();
                    // SendRawData("host-"+ Config.GetHostName());
                 }else if (obj.type == "config")
                 {
