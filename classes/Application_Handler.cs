@@ -144,6 +144,8 @@ namespace Admo
         public static double timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
 
+
+
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
         {

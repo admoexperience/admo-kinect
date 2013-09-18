@@ -129,7 +129,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\Application_Handler.cs" />
+    <Compile Include="classes\Body.cs" />
+    <Compile Include="classes\BodyCoordinates.cs" />
     <Compile Include="classes\DataContainer.cs" />
+    <Compile Include="classes\GestureDetection.cs" />
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />

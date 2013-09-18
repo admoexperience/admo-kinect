@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -9,10 +8,8 @@ using Admo.classes;
 using Admo.classes.lib;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
-using Microsoft.Kinect.Toolkit.Controls;
 using Microsoft.Kinect.Toolkit.FaceTracking;
 using NLog;
-using Timer = System.Timers.Timer;
 
 namespace Admo
 {
@@ -36,9 +33,7 @@ namespace Admo
         //drawing variables
         private int _faceX = 700;
         private int _faceY = 1000;
-       
-
-
+        
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary>
@@ -61,6 +56,8 @@ namespace Admo
         private DepthImageFormat _depthImageFormat = DepthImageFormat.Undefined;
 
         public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
+        private static GestureDetection _gestureDetectionRight = new GestureDetection();
+        private static GestureDetection _gestureDetectionLeft = new GestureDetection();
 
         public MainWindow()
         {
@@ -166,6 +163,8 @@ namespace Admo
                     args.NewSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(SensorAllFramesReady);
                    
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+
+
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
@@ -331,9 +330,14 @@ namespace Admo
                     }
                     else
                     {
-
+                        
+                       
                         //get joint coordinates
                         float[] coordinates = KinectLib.GetCoordinates(first);
+
+                        //swipe gesture detection
+                        _gestureDetectionRight.GestureHandler(coordinates,BodyPart.RightHand);
+                        _gestureDetectionLeft.GestureHandler(coordinates, BodyPart.LeftHand);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
