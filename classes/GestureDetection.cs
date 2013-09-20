@@ -113,8 +113,6 @@ namespace Admo.classes
 
                     if ((Math.Abs(swipeDiff) > SwipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) && (MovedFromPreviousArea))
                     {
-                            //TODO this shouldn't be here else every time some one uses the app it is going to push to papertrail
-                            Logger.Debug("Swipe!");
                             if (swipeDiff < 0)
                             {
                                 OnGestureDetected("SwipeToRight");
