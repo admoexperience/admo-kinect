@@ -328,16 +328,9 @@ namespace Admo.classes
                 Log.Warn("Unable to update the cacheconfig file",e);
             }
 
-            try
-            {
-                SocketServer.SendUpdatedConfig();
-                //Hack for checking config changes. this SHOULD be done via an interface so lots of classes can read callbacks.
-                if (OptionChanged != null) OptionChanged();
-            }
-            catch (Exception e)
-            {
-                Log.Warn("Unable to do config callbacks", e);
-            }
+            SocketServer.SendUpdatedConfig();
+
+            if (OptionChanged != null) OptionChanged();
         }
 
         public static async void TakeScreenshot()

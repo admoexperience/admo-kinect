@@ -95,7 +95,14 @@ namespace Admo.classes.lib
                     //Update the checkpath to the reference for the symbolic link
                     var newLink = JunctionPoint.GetTarget(checkPath);
                     Logger.Debug("Found symbolic link " + checkPath + "==> " + newLink);
-                    AddDestWatcher(newLink);
+                    if (Directory.Exists(newLink))
+                    {
+                        AddDestWatcher(newLink);
+                    }
+                    else
+                    {
+                        Logger.Warn("["+newLink+"] Doesn't exsist not adding it to the watch list");
+                    }
                 }
                 else
                 {
