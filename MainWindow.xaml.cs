@@ -70,12 +70,15 @@ namespace Admo
             KinectElevationAngle = Config.GetElevationAngle();
             if (_currentKinectSensor != null) _currentKinectSensor.ElevationAngle = KinectElevationAngle;
 
-            if (!Boolean.Parse(Config.ReadConfigOption(Config.Keys.CalibrationActive))) return;
-            //set calibration values to zero in preparation for calibration
-            Application_Handler.fov_top = 0;
-            Application_Handler.fov_left = 0;
-            Application_Handler.fov_width = 640;
-            Application_Handler.fov_height = 480;
+            var cal = Config.ReadConfigOption(Config.Keys.CalibrationActive);
+            if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
+            {
+                //set calibration values to zero in preparation for calibration
+                Application_Handler.fov_top = 0;
+                Application_Handler.fov_left = 0;
+                Application_Handler.fov_width = 640;
+                Application_Handler.fov_height = 480;
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
