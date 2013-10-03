@@ -420,8 +420,8 @@ namespace Admo
                                     _faceX = (int)(100 * faceTrackFrame.Rotation.X);
 
                                     //gets the x,y-coordinate of where the user is looking at the screen
-                                    _faceX = Convert.ToInt32((-700 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.X * Math.PI / 180)) + (coordinates[6] * 1000));
-                                    _faceY = Convert.ToInt32((-1000 * coordinates[19] * Math.Tan(faceTrackFrame.Rotation.Y * Math.PI / 180)) + (coordinates[6] * 1000));
+                                    _faceX = Convert.ToInt32((-700 * headPos.Z * Math.Tan(faceTrackFrame.Rotation.X * Math.PI / 180)) + (headPos.X * 1000));
+                                    _faceY = Convert.ToInt32((-1000 * headPos.Z * Math.Tan(faceTrackFrame.Rotation.Y * Math.PI / 180)) + (headPos.X * 1000));
 
                                     //set limits
                                     if (_faceX > 700)
@@ -482,7 +482,7 @@ namespace Admo
                      
 
         }
-
+        
         void DisplayVideo(ColorImageFrame colorFrame)
         {
             //color frame handlers
@@ -612,7 +612,7 @@ namespace Admo
                 CameraPosition(realEllipse, depth_hand);
 
 
-            depth_rectangle.Width = depth_rectangle.Height = Image_Processing.depth_size;
+            depth_rectangle.Width = depth_rectangle.Height = Image_Processing.DepthSize;
 
             Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
             Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
