@@ -83,7 +83,7 @@ namespace Admo
         {
             double count = 0;
             float[] array = new float[2];
-            float[,] speed_points = new float[2, SpeedpointsLength];
+            float[,] speedPoints = new float[2, SpeedpointsLength];
 
             try
             {
@@ -140,7 +140,7 @@ namespace Admo
                         //get the values used to calculate the speed ratio
                         if (loopCountX > (QueueLength - SpeedpointsLength))
                         {
-                            speed_points[0, (loopCountX - (1 + QueueLength - SpeedpointsLength))] = xa;
+                            speedPoints[0, (loopCountX - (1 + QueueLength - SpeedpointsLength))] = xa;
                         }
 
                         //get the values used for the moving average filter
@@ -158,7 +158,7 @@ namespace Admo
                         //get the values used to calculate the speed ratio
                         if (loopCountY > (QueueLength - SpeedpointsLength))
                         {
-                            speed_points[1, (loopCountY - (1+QueueLength - SpeedpointsLength))] = ya;
+                            speedPoints[1, (loopCountY - (1+QueueLength - SpeedpointsLength))] = ya;
                         }
 
                         //get the values used for the moving average filter
@@ -177,7 +177,7 @@ namespace Admo
                     array[1] = yAverage;
 
                     //calculate the speed of the hand using coordinate history
-                    Calculate_SpeedRatio(speed_points);
+                    Calculate_SpeedRatio(speedPoints);
                 }
                 //if there are excessive noise, use skeletal tracking values
                 else
@@ -194,7 +194,7 @@ namespace Admo
         public static double MaxSpeed = 80;
         public static double MaxReadLength = 7;
 
-        public static void Calculate_SpeedRatio(float[,] speed_points)
+        public static void Calculate_SpeedRatio(float[,] speedPoints)
         {
             float[,] coordinates = new float[2, (SpeedpointsLength-1)];
             float sumX = 0;
@@ -202,10 +202,10 @@ namespace Admo
 
             for (int t = 0; t < (SpeedpointsLength-1); t++)
             {
-                coordinates[0, t] = speed_points[0, (t+1)] - speed_points[0, t];
+                coordinates[0, t] = speedPoints[0, (t+1)] - speedPoints[0, t];
                 sumX = sumX + coordinates[0, t];
 
-                coordinates[1, t] = speed_points[1, (t+1)] - speed_points[1, t];
+                coordinates[1, t] = speedPoints[1, (t+1)] - speedPoints[1, t];
                 sumY = sumY + coordinates[1, t];
             }
 
