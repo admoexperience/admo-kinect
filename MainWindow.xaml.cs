@@ -532,9 +532,9 @@ namespace Admo
                 ColorImagePoint depthHand2 = cm.MapDepthPointToColorPoint(DepthImageFormat.Resolution640x480Fps30, newHand2, ColorImageFormat.RgbResolution640x480Fps30);
 
                 //get depth coordinates of head and hands relative to the body
-                double relativeZHead = Application_Handler.RelativeCoordinates(coord[7], coord[19]);
-                double relativeZLefthand = Application_Handler.RelativeCoordinates(coord[1], coord[14]);
-                double relativeZRighthand = Application_Handler.RelativeCoordinates(coord[3], coord[15]);
+                double relativeZHead = Application_Handler.RelativeCoordinates(first.Joints[JointType.Head].Position.X, first.Joints[JointType.Head].Position.Z);
+                double relativeZLefthand = Application_Handler.RelativeCoordinates(first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Z);
+                double relativeZRighthand = Application_Handler.RelativeCoordinates(first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Z);
                 //Console.WriteLine(relative_z_righthand + " .. " + coord[15] + " ....... " + relative_z_head + " .. " + coord[19]);
 
                 int handSelection = Application_Handler.Select_Hand(relativeZHead, relativeZRighthand, relativeZLefthand);
