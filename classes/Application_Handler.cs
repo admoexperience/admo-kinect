@@ -44,7 +44,6 @@ namespace Admo
             //get the raw data from kinect with the depth for every pixel
 
             short[] rawDepthData = new short[depthFrame.PixelDataLength];
-            int[,] array = new int[depthFrame.Height,depthFrame.Width]; //(480,640)
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - timeLostUser;
@@ -64,9 +63,6 @@ namespace Admo
                  depthIndex < rawDepthData.Length && colorIndex < pixels.Length;
                  depthIndex++, colorIndex += 4)
             {
-                //get the player (requires skeleton tracking enabled for values)
-                int player = rawDepthData[depthIndex] & DepthImageFrame.PlayerIndexBitmask;
-
                 //gets the depth value
                 int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
 
@@ -79,12 +75,8 @@ namespace Admo
                 }
             }
 
-            int mode = 1;
             var kinectState = new KinectState();
             kinectState.Phase = 1;
-            String video_coord = "0^0^0^0^0^0^0^0^0";
-
-            
 
             if ((x_coord > 50) && (x_coord < 590) && (y_coord < 250))
             {
@@ -100,16 +92,10 @@ namespace Admo
                 x_coord = (int)(array_xy[0] + xMiddle);
                 y_coord = (int)(array_xy[1] + yMiddle);
 
-                
-                String head = Convert.ToString(x_coord) + "^" + Convert.ToString(y_coord);
-                String depth_head = Convert.ToString(z_coord);
-                video_coord = head + "^" + depth_head + "^0^0^0^0^0^0";
                 kinectState.SetHead(x_coord, y_coord, z_coord, 0, 0);
                 kinectState.Phase = 2;
-                mode = 2;
             }
 
-            stickman = Convert.ToString(mode) + "-" + video_coord;
 
             //checks whether the user was standing in the middle of the fov when tracking of said user was lost
             //if this is the case then in all likelyhood someone walk inbetween the kinect and the user
@@ -121,7 +107,7 @@ namespace Admo
                 first_detection = false;
 
                 lostUser = true;
-                timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+                TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
             }
             else
             {
@@ -144,27 +130,26 @@ namespace Admo
         public static bool lostUser = false;
         public static KinectState previousKinectState = new KinectState();
         public static double timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
-        public static double timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+        public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
 
 
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
         {
-            int[] coord = new int[24];
-            int right_hand_z = (int) (coordinates[15]*1000);
-            int left_hand_z = (int) (coordinates[14]*1000);
-            int head_z = (int) (coordinates[19]*1000);
+            int rightHandZ = (int) (coordinates[15]*1000);
+            int leftHandZ = (int) (coordinates[14]*1000);
+            int headZ = (int) (coordinates[19]*1000);
             //no need to get z coordinate of elbows - wil pass them when code is made better
-            int leftElbowZ = left_hand_z;
-            int rightElbowZ = right_hand_z;
+            int leftElbowZ = leftHandZ;
+            int rightElbowZ = rightHandZ;
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
-            double timeDelta = timeNow - timeFoundUser;
-            double timeWait = 2.5;
+            double timeDelta = timeNow - TimeFoundUser;
+            const double timeWait = 2.5;
 
-            int kinectFovHeight = 480;
-            int kinectFovWidth = 640;
+            const int kinectFovHeight = 480;
+            const int kinectFovWidth = 640;
 
             //adjust skeletal coordinates for kinect and webcam fov difference
             for (int t = 0; t < 10; t = t + 2)
@@ -195,9 +180,9 @@ namespace Admo
 
             var kinectState = new KinectState {Phase = mode};
 
-            kinectState.SetHead(stick_coord[0], stick_coord[1], head_z, SkeletalCoordinates[6], SkeletalCoordinates[7]);
-            kinectState.SetLeftHand(stick_coord[2], stick_coord[3], left_hand_z, SkeletalCoordinates[0], SkeletalCoordinates[1]);
-            kinectState.SetRightHand(stick_coord[4], stick_coord[5], right_hand_z, SkeletalCoordinates[2], SkeletalCoordinates[3]);
+            kinectState.SetHead(stick_coord[0], stick_coord[1], headZ, SkeletalCoordinates[6], SkeletalCoordinates[7]);
+            kinectState.SetLeftHand(stick_coord[2], stick_coord[3], leftHandZ, SkeletalCoordinates[0], SkeletalCoordinates[1]);
+            kinectState.SetRightHand(stick_coord[4], stick_coord[5], rightHandZ, SkeletalCoordinates[2], SkeletalCoordinates[3]);
             kinectState.SetLeftElbow(stick_coord[6], stick_coord[7], leftElbowZ, SkeletalCoordinates[20], SkeletalCoordinates[21]);
             kinectState.SetRightElbow(stick_coord[8], stick_coord[9], rightElbowZ, SkeletalCoordinates[22], SkeletalCoordinates[23]);
 
@@ -238,7 +223,7 @@ namespace Admo
         {
             int mode = 1;
 
-            double time_now = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+            double timeNow = Convert.ToDouble(DateTime.Now.Ticks)/10000;
 
             //if user is detected and is in middle of screen
             if ((((coordinates[6] < 0.7) && (coordinates[6] > -0.7)))) // | (detected == true))
@@ -251,10 +236,10 @@ namespace Admo
                 }
                 else
                 {
-                    double time_delta = time_now - time_start_hud;
+                    double timeDelta = timeNow - time_start_hud;
 
                     //time the user must stand in the centre in order for the process to start
-                    if (time_delta > 500)
+                    if (timeDelta > 500)
                     {
                         //skeleton lock  
                         if (locked_skeleton == false)
@@ -286,37 +271,37 @@ namespace Admo
         public static double RelativeCoordinates(double length_y, double length_z)
         {
             //anglular variables
-            double angle_kinect = MainWindow.KinectElevationAngle;
-            double angle_zero;
-            double angle_y;
-            double angle_k;
+            double angleKinect = MainWindow.KinectElevationAngle;
+            double angleZero;
+            double angleY;
+            double angleK;
             //distance variables
-            double length_relative_z = 1;
+            double lengthRelativeZ = 1;
 
             if (length_y < 0)
             {
                 length_y = length_y*(-1);
 
-                angle_zero = ((90 + angle_kinect)*Math.PI)/180;
+                angleZero = ((90 + angleKinect)*Math.PI)/180;
 
-                angle_k = Math.Asin(length_y*Math.Sin(angle_zero)/length_z);
+                angleK = Math.Asin(length_y*Math.Sin(angleZero)/length_z);
 
-                angle_y = Math.PI - angle_zero - angle_k;
+                angleY = Math.PI - angleZero - angleK;
 
-                length_relative_z = (length_z*Math.Sin(angle_y)/Math.Sin(angle_zero));
+                lengthRelativeZ = (length_z*Math.Sin(angleY)/Math.Sin(angleZero));
             }
             else if (length_y >= 0)
             {
-                angle_zero = ((90 - angle_kinect)*Math.PI)/180;
+                angleZero = ((90 - angleKinect)*Math.PI)/180;
 
-                angle_k = Math.Asin(length_y*Math.Sin(angle_zero)/length_z);
+                angleK = Math.Asin(length_y*Math.Sin(angleZero)/length_z);
 
-                angle_y = Math.PI - angle_zero - angle_k;
+                angleY = Math.PI - angleZero - angleK;
 
-                length_relative_z = (length_z*Math.Sin(angle_y)/Math.Sin(angle_zero));
+                lengthRelativeZ = (length_z*Math.Sin(angleY)/Math.Sin(angleZero));
             }
 
-            return length_relative_z;
+            return lengthRelativeZ;
         }
 
         public static int Select_Hand(double relative_z_head, double relative_z_righthand, double relative_z_lefthand)
@@ -331,8 +316,8 @@ namespace Admo
             return selection;
         }
 
-        public static double moving_sum_x = 0;
-        public static double moving_sum_y = 0;
+        public static double MovingSumX = 0;
+        public static double MovingSumY = 0;
 
         public static void Filter()
         {
@@ -340,23 +325,22 @@ namespace Admo
 
         public static void ChangeAngle(KinectSensor kinect)
         {
-            int elevation_angle = 0;
-
             if (locked_skeleton == true)
             {
                 //for short person
+                int elevationAngle = 0;
                 if (stick_coord[1] > 200)
                 {
-                    elevation_angle = kinect.ElevationAngle;
-                    Log.Debug("going down : " + elevation_angle);
-                    kinect.ElevationAngle = elevation_angle - 5;
+                    elevationAngle = kinect.ElevationAngle;
+                    Log.Debug("going down : " + elevationAngle);
+                    kinect.ElevationAngle = elevationAngle - 5;
                 }
                     //for tall person
                 else if (stick_coord[1] < 50)
                 {
-                    elevation_angle = kinect.ElevationAngle;
-                    Log.Debug("going up : " + elevation_angle);
-                    kinect.ElevationAngle = elevation_angle + 5;
+                    elevationAngle = kinect.ElevationAngle;
+                    Log.Debug("going up : " + elevationAngle);
+                    kinect.ElevationAngle = elevationAngle + 5;
                 }
             }
         }
@@ -364,36 +348,36 @@ namespace Admo
         //Decides whether to use skeletal tracking for hands or use depth analysis
         public static int ChooseHand(float[] coordinates, int depth)
         {
-            int real_hand = 0;
+            int realHand = 0;
 
-            double min_depth = Convert.ToDouble(depth)/1000;
+            double minDepth = Convert.ToDouble(depth)/1000;
 
-            if (((coordinates[19] - 0.1) > min_depth) &&
+            if (((coordinates[19] - 0.1) > minDepth) &&
                 ((coordinates[19] > coordinates[14]) | (coordinates[19] > coordinates[15])))
             {
                 //left hand closer than right hand
                 if (coordinates[14] < coordinates[15])
                 {
-                    real_hand = 1;
+                    realHand = 1;
                 }
                 else
                 {
-                    real_hand = 1;
+                    realHand = 1;
                 }
             }
             else
             {
                 if (coordinates[14] < coordinates[15])
                 {
-                    real_hand = 3;
+                    realHand = 3;
                 }
                 else
                 {
-                    real_hand = 4;
+                    realHand = 4;
                 }
             }
 
-            return real_hand;
+            return realHand;
         }
 
         public static void ConfigureCalibrationByConfig()
