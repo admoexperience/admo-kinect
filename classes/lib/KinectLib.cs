@@ -83,7 +83,7 @@ namespace Admo.classes.lib
             {
 
                 //check if any skeletons has been locked on in t-1        
-                if (Application_Handler.locked_skeleton == true)
+                if (Application_Handler.LockedSkeleton == true)
                 {
                     for (int i = 0; i < skeletons.Length; i++)
                     {
@@ -97,7 +97,7 @@ namespace Admo.classes.lib
                             }
                             else
                             {
-                                Application_Handler.locked_skeleton = false;
+                                Application_Handler.LockedSkeleton = false;
 
                             }
                         }
@@ -130,9 +130,9 @@ namespace Admo.classes.lib
 
             //if there is no other users in die fov and the locked skeleton moves out of the field of view
             //stop stopwatch 
-            if ((skeleton == null) && (Application_Handler.locked_skeleton == true))
+            if ((skeleton == null) && (Application_Handler.LockedSkeleton == true))
             {
-                Application_Handler.locked_skeleton = false;
+                Application_Handler.LockedSkeleton = false;
             }
 
             return skeleton;

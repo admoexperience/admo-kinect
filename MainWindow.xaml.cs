@@ -90,10 +90,10 @@ namespace Admo
             if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
             {
                 //set calibration values to zero in preparation for calibration
-                Application_Handler.fov_top = 0;
-                Application_Handler.fov_left = 0;
-                Application_Handler.fov_width = 640;
-                Application_Handler.fov_height = 480;
+                Application_Handler.FovTop = 0;
+                Application_Handler.FovLeft = 0;
+                Application_Handler.FovWidth = 640;
+                Application_Handler.FovHeight = 480;
             }
 
             
@@ -345,7 +345,7 @@ namespace Admo
                         Application_Handler.FindPlayer(depthFrame);
 
                         //set detection variable
-                        Application_Handler.detected = false;
+                        Application_Handler.Detected = false;
 
                         return;
                     }
@@ -541,8 +541,8 @@ namespace Admo
 
                 if (hand_selection == 1)
                 {
-                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.stick_coord[4] = rightColorPoint.X;
-                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.stick_coord[5] = rightColorPoint.Y;
+                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = rightColorPoint.X;
+                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = rightColorPoint.Y;
                     Coordinate_History.x_filter.Clear();
                     Coordinate_History.y_filter.Clear();
                     Coordinate_History.previous_x = rightColorPoint.X;
@@ -552,22 +552,22 @@ namespace Admo
                 {
                     Coordinate_History.old_x = rightColorPoint.X;
                     Coordinate_History.old_y = rightColorPoint.Y;
-                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.stick_coord[4] = depth_hand.X;
-                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.stick_coord[5] = depth_hand.Y;
-                    Coordinate_History.FilterCoordinates(Application_Handler.stick_coord[4], Application_Handler.stick_coord[5]);
+                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = depth_hand.X;
+                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = depth_hand.Y;
+                    Coordinate_History.FilterCoordinates(Application_Handler.StickCoord[4], Application_Handler.StickCoord[5]);
                 }
 
-                Application_Handler.UncalibratedCoordinates[0] = Application_Handler.stick_coord[0] = headColorPoint.X;
-                Application_Handler.UncalibratedCoordinates[1] = Application_Handler.stick_coord[1] = headColorPoint.Y;
+                Application_Handler.UncalibratedCoordinates[0] = Application_Handler.StickCoord[0] = headColorPoint.X;
+                Application_Handler.UncalibratedCoordinates[1] = Application_Handler.StickCoord[1] = headColorPoint.Y;
 
-                Application_Handler.UncalibratedCoordinates[2] = Application_Handler.stick_coord[2] = leftColorPoint.X;
-                Application_Handler.UncalibratedCoordinates[3] = Application_Handler.stick_coord[3] = leftColorPoint.Y;
+                Application_Handler.UncalibratedCoordinates[2] = Application_Handler.StickCoord[2] = leftColorPoint.X;
+                Application_Handler.UncalibratedCoordinates[3] = Application_Handler.StickCoord[3] = leftColorPoint.Y;
 
                 //elbows don't need to be passed to uncalibrated coordinate set
-                Application_Handler.stick_coord[6] = leftElbowColorPoint.X;
-                Application_Handler.stick_coord[7] = leftElbowColorPoint.Y;
-                Application_Handler.stick_coord[8] = rightElbowColorPoint.X;
-                Application_Handler.stick_coord[9] = rightElbowColorPoint.Y;
+                Application_Handler.StickCoord[6] = leftElbowColorPoint.X;
+                Application_Handler.StickCoord[7] = leftElbowColorPoint.Y;
+                Application_Handler.StickCoord[8] = rightElbowColorPoint.X;
+                Application_Handler.StickCoord[9] = rightElbowColorPoint.Y;
 
                 //only show video HUD when running in dev mode
                 if (Config.IsDevMode())
@@ -617,11 +617,11 @@ namespace Admo
             Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
             Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
 
-            crop_rectangle.Width = Application_Handler.fov_width;
-            crop_rectangle.Height = Application_Handler.fov_height;
+            crop_rectangle.Width = Application_Handler.FovWidth;
+            crop_rectangle.Height = Application_Handler.FovHeight;
 
-            Canvas.SetTop(crop_rectangle, Application_Handler.fov_top);
-            Canvas.SetLeft(crop_rectangle, Application_Handler.fov_left);
+            Canvas.SetTop(crop_rectangle, Application_Handler.FovTop);
+            Canvas.SetLeft(crop_rectangle, Application_Handler.FovLeft);
             
         }
 
