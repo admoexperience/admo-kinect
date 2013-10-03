@@ -88,9 +88,11 @@ namespace Admo
 
             if ((x_coord > 50) && (x_coord < 590) && (y_coord < 250))
             {
-                //array_xy[] provides the x and y coordinates of the first pixel detected in the depthmap between 450mm and 3000mm, in this case the users head
-                //because the closest pixel search in the depthmap starts at the top and left margins, the first pixel (array_xy) would be at the top left corner of the user's head
-                //to get the centre of the user's head, we must add a dynamic variable (which change depending on how far away the user is) to the x and y coordinates
+                /*array_xy[] provides the x and y coordinates of the first pixel detected in the depthmap between 450mm and 3000mm, 
+                in this case the users head because the closest pixel search in the depthmap starts at the top and left margins, 
+                the first pixel (array_xy) would be at the top left corner of the user's head to get the centre of the user's head,
+                * we must add a dynamic variable (which change depending on how far away the user is) to the x and y coordinates */
+
                 double xMiddle = 35000 / z_coord;
                 double yMiddle = 80000 / z_coord;
 

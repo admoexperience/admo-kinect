@@ -59,6 +59,8 @@ namespace Admo
         private static GestureDetection _gestureDetectionRight = new GestureDetection();
         private static GestureDetection _gestureDetectionLeft = new GestureDetection();
 
+        private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds(); 
+
         public MainWindow()
         {
             InitializeComponent();
@@ -67,8 +69,22 @@ namespace Admo
 
         public void OnConfigChange()
         {
+
+           
             KinectElevationAngle = Config.GetElevationAngle();
-            if (_currentKinectSensor != null) _currentKinectSensor.ElevationAngle = KinectElevationAngle;
+
+         if (_currentKinectSensor != null && _currentKinectSensor.IsRunning)
+         {
+             //Required because kinect angle can only be changed once per second
+             //Ignore resharper
+
+             if (_currentKinectSensor.ElevationAngle != KinectElevationAngle && (_angleChangeTime - LifeCycle.GetCurrentTimeInSeconds()) > 1)
+             {
+                 _angleChangeTime = LifeCycle.GetCurrentTimeInSeconds();
+                 _currentKinectSensor.ElevationAngle = KinectElevationAngle;
+           
+             }
+         }
 
             var cal = Config.ReadConfigOption(Config.Keys.CalibrationActive);
             if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
@@ -79,6 +95,8 @@ namespace Admo
                 Application_Handler.fov_width = 640;
                 Application_Handler.fov_height = 480;
             }
+
+            
         }
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
@@ -339,8 +357,8 @@ namespace Admo
                         float[] coordinates = KinectLib.GetCoordinates(first);
 
                         //swipe gesture detection
-                        _gestureDetectionRight.GestureHandler(coordinates,BodyPart.RightHand);
-                        _gestureDetectionLeft.GestureHandler(coordinates, BodyPart.LeftHand);
+                        _gestureDetectionRight.GestureHandler(first.Joints,JointType.HandRight);
+                        _gestureDetectionLeft.GestureHandler(first.Joints, JointType.HandLeft);
 
                         //Map the skeletal coordinates to the video map
                         MapSkeletonToVideo(first, depthFrame, coordinates);
@@ -351,8 +369,10 @@ namespace Admo
                         //Managing data send to Node                 
                         Application_Handler.Manage_Skeletal_Data(coordinates, first);
                  
-                        
-                        if ((coordinates[19] > 0.9)&&(Config.RunningFacetracking))
+                        //Head position run 19
+                        // 0.9 magic number representing some heuristic of if the face is in view
+                        var headPos = first.Joints[JointType.Head].Position;
+                        if ((headPos.Z > 0.9)&&(Config.RunningFacetracking))
                         {
                             if (_oldFirst == null)
                             {
@@ -504,7 +524,7 @@ namespace Admo
                 new_hand.X = depth_coord[0];
                 new_hand.Y = depth_coord[1];
                 new_hand.Depth = depth_coord[2];
-                DepthImagePoint new_hand2 = new DepthImagePoint();
+                var new_hand2 = new DepthImagePoint();
                 new_hand2.X = depth_coord[3];
                 new_hand2.Y = depth_coord[4];
                 new_hand2.Depth = depth_coord[5];
@@ -622,5 +642,7 @@ namespace Admo
             Log.Info("Shutting down server");
             _closing = true; 
         }
+
+        public long lastHitTime { get; set; }
     }
 }

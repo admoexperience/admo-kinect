@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
+using Microsoft.Kinect;
 
 namespace Admo.classes
 {
@@ -19,37 +20,25 @@ namespace Admo.classes
         
 
         public static int QueueLength = 20; // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
-        public Queue<float[]> CoordinateHistory = new Queue<float[]>(QueueLength);
+        public Queue<JointCollection> CoordinateHistory = new Queue<JointCollection>(QueueLength);
 
         public double TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
         public double SwipeWaitTime = 1.2;
         public bool SwipeReady = true;
 
-        public float[] StartCoordinates = new float[24];
-        public float[] EndCoordinates = new float[24];
+        public JointCollection StartCoordinates;
+        public JointCollection EndCoordinates;
         public float SwipeEndX = 0;
         public float SwipePreviousX = -999;
         public double PreviousMove = 0.2;
         public bool MovedFromPreviousArea = false;
 
         //manage gestures
-        public void GestureHandler(float[] coordinates, BodyPart hand)
+        public void GestureHandler(JointCollection coordinates, JointType hand)
         {
  
             var count = 0;
-            var handX = BodyCoordinates.LeftHandX;
-            var handY = BodyCoordinates.LeftHandY;
-
-            if (hand == BodyPart.LeftHand)
-            {
-                handX = BodyCoordinates.LeftHandX;
-                handY = BodyCoordinates.LeftHandY;
-            }
-            else if (hand == BodyPart.RightHand)
-            {
-                handX = BodyCoordinates.RightHandX;
-                handY = BodyCoordinates.RightHandY;
-            }
+          
 
             SwipeTimeout();
 
@@ -74,19 +63,20 @@ namespace Admo.classes
                 CoordinateHistory.Enqueue(coordinates);
 
                 EndCoordinates = coordinates;
-                SwipeEndX = coordinates[handX];
+                SwipeEndX = coordinates[hand].Position.X;
 
                 int timeLoop = 0;
 
-                foreach (float[] coord in CoordinateHistory.Reverse())
+                foreach (JointCollection coord in CoordinateHistory.Reverse())
                 {
                     timeLoop++;
                     StartCoordinates = coord;
-                    double swipeDiff = (StartCoordinates[handX] - EndCoordinates[handX]);
+                    double swipeDiff = (StartCoordinates[hand].Position.X - EndCoordinates[hand].Position.X);
 
                     //checks to see if user is swiping in deltaY relative center to shoulderY
-                    double swipeDeltaY = Math.Abs(coord[handY] - coordinates[handY]);
-                    double swipeHeadY = Math.Abs(coord[handY] - coord[BodyCoordinates.HeadY]);
+                    double swipeDeltaY = Math.Abs(coord[hand].Position.Y - coordinates[hand].Position.Y);
+                    double swipeHeadY = Math.Abs(coord[hand].Position.Y - coord[JointType.Head].Position.Y);
+
                     if ((swipeDeltaY > SwipeDeltaY) || (swipeHeadY > SwipeHeight))
                     {
                         SwipeInDeltaY = false;
@@ -123,7 +113,7 @@ namespace Admo.classes
                             }
 
                             MovedFromPreviousArea = false;
-                            SwipePreviousX = coordinates[handX];
+                            SwipePreviousX = coordinates[hand].Position.X;
                             TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
 
                             break;

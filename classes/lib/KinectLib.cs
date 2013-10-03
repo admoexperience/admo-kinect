@@ -29,6 +29,8 @@ namespace Admo.classes.lib
 
         public static float[] GetCoordinates(Skeleton first)
         {
+            JointCollection mySkelJoints = first.Joints;
+            var handX = mySkelJoints[JointType.HandLeft].Position.X;
             //get joint coordinates
             var coordinates = new float[24];
             var leftHand = first.Joints[JointType.HandLeft];
