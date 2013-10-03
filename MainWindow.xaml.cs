@@ -543,15 +543,15 @@ namespace Admo
                 {
                     Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = rightColorPoint.X;
                     Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = rightColorPoint.Y;
-                    Coordinate_History.x_filter.Clear();
-                    Coordinate_History.y_filter.Clear();
-                    Coordinate_History.previous_x = rightColorPoint.X;
-                    Coordinate_History.previous_y = rightColorPoint.Y;
+                    Coordinate_History.XFilter.Clear();
+                    Coordinate_History.YFilter.Clear();
+                    Coordinate_History.PreviousX = rightColorPoint.X;
+                    Coordinate_History.PreviousY = rightColorPoint.Y;
                 }
                 else
                 {
-                    Coordinate_History.old_x = rightColorPoint.X;
-                    Coordinate_History.old_y = rightColorPoint.Y;
+                    Coordinate_History.OldX = rightColorPoint.X;
+                    Coordinate_History.OldY = rightColorPoint.Y;
                     Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = depth_hand.X;
                     Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = depth_hand.Y;
                     Coordinate_History.FilterCoordinates(Application_Handler.StickCoord[4], Application_Handler.StickCoord[5]);
