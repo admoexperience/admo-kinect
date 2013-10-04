@@ -310,32 +310,6 @@ namespace Admo
         public static double MovingSumX = 0;
         public static double MovingSumY = 0;
 
-        public static void Filter()
-        {
-        }
-
-        public static void ChangeAngle(KinectSensor kinect)
-        {
-            if (LockedSkeleton)
-            {
-                //for short person
-                int elevationAngle = 0;
-                if (StickCoord[1] > 200)
-                {
-                    elevationAngle = kinect.ElevationAngle;
-                    Log.Debug("going down : " + elevationAngle);
-                    kinect.ElevationAngle = elevationAngle - 5;
-                }
-                    //for tall person
-                else if (StickCoord[1] < 50)
-                {
-                    elevationAngle = kinect.ElevationAngle;
-                    Log.Debug("going up : " + elevationAngle);
-                    kinect.ElevationAngle = elevationAngle + 5;
-                }
-            }
-        }
-
         //Decides whether to use skeletal tracking for hands or use depth analysis
         public static int ChooseHand(float[] coordinates, int depth)
         {

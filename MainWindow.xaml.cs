@@ -157,7 +157,7 @@ namespace Admo
                 {
                     // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
                     // E.g.: sensor might be abruptly unplugged.
-                    Log.Info("E.g.: sensor might be abruptly unplugged");
+                    Log.Error("Unable to disable sensor stream");
                 }
             }       
             else //if (args.NewSensor != null)
