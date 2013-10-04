@@ -8,7 +8,6 @@ using Admo.classes;
 using Admo.classes.lib;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
-using Microsoft.Kinect.Toolkit.FaceTracking;
 using NLog;
 
 namespace Admo
@@ -37,7 +36,6 @@ namespace Admo
         private WriteableBitmap _colorBitmap;
 
         //face tracking variables
-        private FaceTracker _faceTracker;
 
         /// <summary>
         /// Intermediate storage for the color data received from the camera

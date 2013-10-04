@@ -258,55 +258,6 @@ namespace Admo
             return mode;
         }
 
-        //get the coordinates relative to a standing upright person
-        public static double RelativeCoordinates(double lengthY, double lengthZ)
-        {
-            //anglular variables
-            double angleKinect = MainWindow.KinectElevationAngle;
-            double angleZero;
-            double angleY;
-            double angleK;
-            //distance variables
-            double lengthRelativeZ = 1;
-
-            if (lengthY < 0)
-            {
-                lengthY = lengthY*(-1);
-
-                angleZero = ((90 + angleKinect)*Math.PI)/180;
-
-                angleK = Math.Asin(lengthY*Math.Sin(angleZero)/lengthZ);
-
-                angleY = Math.PI - angleZero - angleK;
-
-                lengthRelativeZ = (lengthZ*Math.Sin(angleY)/Math.Sin(angleZero));
-            }
-            else if (lengthY >= 0)
-            {
-                angleZero = ((90 - angleKinect)*Math.PI)/180;
-
-                angleK = Math.Asin(lengthY*Math.Sin(angleZero)/lengthZ);
-
-                angleY = Math.PI - angleZero - angleK;
-
-                lengthRelativeZ = (lengthZ*Math.Sin(angleY)/Math.Sin(angleZero));
-            }
-
-            return lengthRelativeZ;
-        }
-
-        public static int Select_Hand(double relativeZHead, double relativeZRighthand, double relativeZLefthand)
-        {
-            int selection = 1;
-
-            if ((relativeZRighthand < (relativeZHead - 0.2)) && (relativeZRighthand < relativeZLefthand))
-            {
-                selection = 2;
-            }
-
-            return selection;
-        }
-
         public static double MovingSumX = 0;
         public static double MovingSumY = 0;
 
