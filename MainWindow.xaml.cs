@@ -304,7 +304,7 @@ namespace Admo
 					_gestureDetectionLeft.GestureHandler(first.Joints, JointType.HandLeft);
 
 					//Map the skeletal coordinates to the video map
-					MapSkeletonToVideo(first, depthFrame, coordinates);
+					MapSkeletonToVideo(first, depthFrame);
 
 					//Managing data send to Node                 
 					Application_Handler.Manage_Skeletal_Data(first);
@@ -346,14 +346,14 @@ namespace Admo
         }
 
         //overlaying IR camera and RGB camera video feeds
-        void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth, float[] coord)
+        void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth)
         {
             
-                if (depth == null || _sensorChooser.Kinect == null)
+                if ( _sensorChooser.Kinect == null)
                 {
                     return;
                 }
-                depth.CopyPixelDataTo(DepthImage);
+ 
          
 
                 CoordinateMapper cm = new CoordinateMapper(_currentKinectSensor);
@@ -364,43 +364,14 @@ namespace Admo
                 ColorImagePoint leftElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);    
                 ColorImagePoint rightElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
 
-                int[] depthCoord = Image_Processing.ProcessHands(DepthImage);
-                DepthImagePoint newHand = new DepthImagePoint();
-                newHand.X = depthCoord[0];
-                newHand.Y = depthCoord[1];
-                newHand.Depth = depthCoord[2];
-                var newHand2 = new DepthImagePoint();
-                newHand2.X = depthCoord[3];
-                newHand2.Y = depthCoord[4];
-                newHand2.Depth = depthCoord[5];
-                ColorImagePoint depthHand = cm.MapDepthPointToColorPoint(DepthImageFormat.Resolution640x480Fps30, newHand, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint depthHand2 = cm.MapDepthPointToColorPoint(DepthImageFormat.Resolution640x480Fps30, newHand2, ColorImageFormat.RgbResolution640x480Fps30);
-
                 //get depth coordinates of head and hands relative to the body
-                double relativeZHead = Application_Handler.RelativeCoordinates(first.Joints[JointType.Head].Position.X, first.Joints[JointType.Head].Position.Z);
-                double relativeZLefthand = Application_Handler.RelativeCoordinates(first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Z);
-                double relativeZRighthand = Application_Handler.RelativeCoordinates(first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Z);
-                //Console.WriteLine(relative_z_righthand + " .. " + coord[15] + " ....... " + relative_z_head + " .. " + coord[19]);
-
-                int handSelection = Application_Handler.Select_Hand(relativeZHead, relativeZRighthand, relativeZLefthand);
-
-                if (handSelection == 1)
-                {
-                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = rightColorPoint.X;
-                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = rightColorPoint.Y;
-                    Coordinate_History.XFilter.Clear();
-                    Coordinate_History.YFilter.Clear();
-                    Coordinate_History.PreviousX = rightColorPoint.X;
-                    Coordinate_History.PreviousY = rightColorPoint.Y;
-                }
-                else
-                {
-                    Coordinate_History.OldX = rightColorPoint.X;
-                    Coordinate_History.OldY = rightColorPoint.Y;
-                    Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = depthHand.X;
-                    Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = depthHand.Y;
-                    Coordinate_History.FilterCoordinates(Application_Handler.StickCoord[4], Application_Handler.StickCoord[5]);
-                }
+               
+                Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = rightColorPoint.X;
+                Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = rightColorPoint.Y;
+                Coordinate_History.XFilter.Clear();
+                Coordinate_History.YFilter.Clear();
+                Coordinate_History.PreviousX = rightColorPoint.X;
+                Coordinate_History.PreviousY = rightColorPoint.Y;
 
                 Application_Handler.UncalibratedCoordinates[0] = Application_Handler.StickCoord[0] = headColorPoint.X;
                 Application_Handler.UncalibratedCoordinates[1] = Application_Handler.StickCoord[1] = headColorPoint.Y;
@@ -417,14 +388,12 @@ namespace Admo
                 //only show video HUD when running in dev mode
                 if (Config.IsDevMode())
                 {
-                    Animations(first, headColorPoint, leftColorPoint, rightColorPoint, depthHand, depthHand2, coord, depthCoord, handSelection);
-                }
-            
-
+                    Animations(first, headColorPoint, leftColorPoint, rightColorPoint);
+                }    
         }
 
         //delete if in production
-        public void Animations(Skeleton first, ColorImagePoint headColorPoint, ColorImagePoint leftColorPoint, ColorImagePoint rightColorPoint, ColorImagePoint depth_hand, ColorImagePoint depth_hand2, float[] coord, int[] depth_coord, int hand_selection)
+        public void Animations(Skeleton first, ColorImagePoint headColorPoint, ColorImagePoint leftColorPoint, ColorImagePoint rightColorPoint)
         {
             var leftHand = first.Joints[JointType.HandLeft];
             var rightHand = first.Joints[JointType.HandRight];
@@ -450,17 +419,10 @@ namespace Admo
             CameraPosition(leftEllipse, leftColorPoint);
             CameraPosition(rightEllipse, rightColorPoint);
 
-            CameraPosition(depthEllipse, depth_hand);
-            CameraPosition(depth2Ellipse, depth_hand2);
-
-            if (hand_selection == 2)
-                CameraPosition(realEllipse, depth_hand);
-
-
             depth_rectangle.Width = depth_rectangle.Height = Image_Processing.DepthSize;
 
-            Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
-            Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
+            //Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
+            //Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
 
             crop_rectangle.Width = Application_Handler.FovWidth;
             crop_rectangle.Height = Application_Handler.FovHeight;
@@ -478,7 +440,6 @@ namespace Admo
             Canvas.SetLeft(element, point.X  - element.Width / 2);
             Canvas.SetTop(element, point.Y  - element.Height / 2);
         }
-
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
