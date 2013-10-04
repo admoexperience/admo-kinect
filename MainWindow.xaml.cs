@@ -295,10 +295,15 @@ namespace Admo
 				else
 				{
 					//swipe gesture detection
-					_gestureDetectionRight.GestureHandler(new HandHead(first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Y,
+					var gestureRight=_gestureDetectionRight.GestureHandler(new HandHead(first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Y,
                                         first.Joints[JointType.Head].Position.X));
-                    _gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Y,
+                    if (gestureRight.Length!=0)
+                        SocketServer.SendGestureEvent(gestureRight);
+
+                    var gestureLeft=_gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Y,
                                         first.Joints[JointType.Head].Position.X));
+                    if (gestureLeft.Length != 0)
+                        SocketServer.SendGestureEvent(gestureLeft);
 
 					//Map the skeletal coordinates to the video map
 					MapSkeletonToVideo(first);

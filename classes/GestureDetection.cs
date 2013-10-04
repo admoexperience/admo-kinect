@@ -43,7 +43,7 @@ namespace Admo.classes
         public bool MovedFromPreviousArea = false;
 
         //manage gestures
-        public void GestureHandler(HandHead mycoords)
+        public string GestureHandler(HandHead mycoords)
         {
  
             var count = 0;
@@ -51,7 +51,7 @@ namespace Admo.classes
             SwipeTimeout();
 
             count = CoordHist.Count();
-            
+
 
             if (count < QueueLength) //wait until queue is full
             {
@@ -62,9 +62,9 @@ namespace Admo.classes
                 CoordHist.Dequeue();
 
                 CoordHist.Enqueue(mycoords);
-   
 
-                var endCoordinates =mycoords;
+
+                var endCoordinates = mycoords;
                 SwipeEndX = mycoords.HandX;
 
                 int timeLoop = 0;
@@ -78,7 +78,7 @@ namespace Admo.classes
                     //checks to see if user is swiping in deltaY relative center to shoulderY
                     double swipeDeltaY = Math.Abs(coord.HandY - endCoordinates.HandY);
                     double swipeHeadY = Math.Abs(coord.HandY - coord.HeadY);
-                   
+
                     if ((swipeDeltaY > SwipeDeltaY) || (swipeHeadY > SwipeHeight))
                     {
                         SwipeInDeltaY = false;
@@ -102,35 +102,27 @@ namespace Admo.classes
                         PreviousMove = SwipeDistanceInMeters = 0.2;
                     }
 
-
-                    if ((Math.Abs(swipeDiff) > SwipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) && (MovedFromPreviousArea))
+                    if ((Math.Abs(swipeDiff) > SwipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) &&
+                        (MovedFromPreviousArea))
                     {
-                            if (swipeDiff < 0)
-                            {
-                                OnGestureDetected("SwipeToRight");
-                            }
-                            else
-                            {
-                                OnGestureDetected("SwipeToLeft");
-                            }
 
-                            MovedFromPreviousArea = false;
-                            SwipePreviousX = mycoords.HandX;
-                            TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
+                        MovedFromPreviousArea = false;
+                        SwipePreviousX = mycoords.HandX;
+                        TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
 
-                            break;
+                        if (swipeDiff < 0)
+                        {
+                            return "SwipeToRight";
+                        }
+                        return "SwipeToLeft";
+
                     }
-                    
-                    
+
                 }
 
             }
-        }
 
-        //handles swipe gesture event
-        public void OnGestureDetected(string gesture)
-        {
-            SocketServer.SendGestureEvent(gesture);
+            return "";
         }
 
         private  void SwipeTimeout()
@@ -138,14 +130,7 @@ namespace Admo.classes
             var currentTime = LifeCycle.GetCurrentTimeInSeconds();
             var timeSinceSwipe = currentTime - TimeSwipeCompleted;
 
-            if (timeSinceSwipe < SwipeWaitTime)
-            {
-                SwipeReady = false;
-            }
-            else
-            {
-                SwipeReady = true;
-            }
+            SwipeReady = !(timeSinceSwipe < SwipeWaitTime);
         }
 
         
