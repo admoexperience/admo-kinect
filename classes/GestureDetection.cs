@@ -24,8 +24,8 @@ namespace Admo.classes
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public double SwipeDistanceInMeters = 0.3;
-        public const double SwipeDeltaY = 0.05;
-        public const double SwipeHeight = 0.5;
+        public const double SwipeDeltaY = 0.075;
+        public const double SwipeHeight = 0.6;
         public bool SwipeInDeltaY = false;
         public const double SwipeTimeInFrames = 10; // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
 
