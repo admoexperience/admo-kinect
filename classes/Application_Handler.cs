@@ -169,11 +169,11 @@ namespace Admo
 
             var kinectState = new KinectState {Phase = mode};
 
-            kinectState.SetHead(StickCoord[0], StickCoord[1], headZ, SkeletalCoordinates[6], SkeletalCoordinates[7]);
-            kinectState.SetLeftHand(StickCoord[2], StickCoord[3], leftHandZ, SkeletalCoordinates[0], SkeletalCoordinates[1]);
-            kinectState.SetRightHand(StickCoord[4], StickCoord[5], rightHandZ, SkeletalCoordinates[2], SkeletalCoordinates[3]);
-            kinectState.SetLeftElbow(StickCoord[6], StickCoord[7], leftElbowZ, SkeletalCoordinates[20], SkeletalCoordinates[21]);
-            kinectState.SetRightElbow(StickCoord[8], StickCoord[9], rightElbowZ, SkeletalCoordinates[22], SkeletalCoordinates[23]);
+            kinectState.SetHead(StickCoord[0], StickCoord[1], headZ, first.Joints[JointType.Head].Position.X, first.Joints[JointType.Head].Position.Y);
+            kinectState.SetLeftHand(StickCoord[2], StickCoord[3], leftHandZ, first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Y);
+            kinectState.SetRightHand(StickCoord[4], StickCoord[5], rightHandZ, first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Y);
+            kinectState.SetLeftElbow(StickCoord[6], StickCoord[7], leftElbowZ, first.Joints[JointType.ElbowLeft].Position.X, first.Joints[JointType.ElbowLeft].Position.Y);
+            kinectState.SetRightElbow(StickCoord[8], StickCoord[9], rightElbowZ, first.Joints[JointType.ElbowRight].Position.X, first.Joints[JointType.ElbowRight].Position.Y);
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;

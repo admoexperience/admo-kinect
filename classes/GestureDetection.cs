@@ -6,6 +6,18 @@ using Microsoft.Kinect;
 
 namespace Admo.classes
 {
+    public class HandHead
+    {
+        public HandHead(float a, float b, float c)
+        {
+            HandX = a;
+            HandY = b;
+            HeadY = c;
+        }
+        public float HandX = 0;
+        public float HandY = 0;
+        public float HeadY = 0;
+    }
     class GestureDetection
     {
 
@@ -17,66 +29,56 @@ namespace Admo.classes
         public bool SwipeInDeltaY = false;
         public const double SwipeTimeInFrames = 10; // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
 
-        
-
         public static int QueueLength = 20; // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
-        public Queue<JointCollection> CoordinateHistory = new Queue<JointCollection>(QueueLength);
+
+        public Queue<HandHead> CoordHist=new Queue<HandHead>(QueueLength); 
 
         public double TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
         public double SwipeWaitTime = 1.2;
         public bool SwipeReady = true;
 
-        public JointCollection StartCoordinates;
-        public JointCollection EndCoordinates;
         public float SwipeEndX = 0;
         public float SwipePreviousX = -999;
         public double PreviousMove = 0.2;
         public bool MovedFromPreviousArea = false;
 
         //manage gestures
-        public void GestureHandler(JointCollection coordinates, JointType hand)
+        public void GestureHandler(HandHead mycoords)
         {
  
             var count = 0;
           
-
             SwipeTimeout();
 
-            try
-            {
-                
-                count = CoordinateHistory.Count();
-            }
-            catch (Exception)
-            {
-                //TODO: Fix this, catch with empty block is BAD
-                //FAIL hard and fail fast this should never cause an error in theory
-            }
+            count = CoordHist.Count();
+            
 
             if (count < QueueLength) //wait until queue is full
             {
-                CoordinateHistory.Enqueue(coordinates);
+                CoordHist.Enqueue(mycoords);
             }
             else
             {
-                var oldCoordinates = CoordinateHistory.Dequeue();
-                CoordinateHistory.Enqueue(coordinates);
+                CoordHist.Dequeue();
 
-                EndCoordinates = coordinates;
-                SwipeEndX = coordinates[hand].Position.X;
+                CoordHist.Enqueue(mycoords);
+   
+
+                var endCoordinates =mycoords;
+                SwipeEndX = mycoords.HandX;
 
                 int timeLoop = 0;
 
-                foreach (JointCollection coord in CoordinateHistory.Reverse())
+                foreach (HandHead coord in CoordHist.Reverse())
                 {
                     timeLoop++;
-                    StartCoordinates = coord;
-                    double swipeDiff = (StartCoordinates[hand].Position.X - EndCoordinates[hand].Position.X);
+
+                    double swipeDiff = (coord.HandX - endCoordinates.HandX);
 
                     //checks to see if user is swiping in deltaY relative center to shoulderY
-                    double swipeDeltaY = Math.Abs(coord[hand].Position.Y - coordinates[hand].Position.Y);
-                    double swipeHeadY = Math.Abs(coord[hand].Position.Y - coord[JointType.Head].Position.Y);
-
+                    double swipeDeltaY = Math.Abs(coord.HandY - endCoordinates.HandY);
+                    double swipeHeadY = Math.Abs(coord.HandY - coord.HeadY);
+                   
                     if ((swipeDeltaY > SwipeDeltaY) || (swipeHeadY > SwipeHeight))
                     {
                         SwipeInDeltaY = false;
@@ -113,7 +115,7 @@ namespace Admo.classes
                             }
 
                             MovedFromPreviousArea = false;
-                            SwipePreviousX = coordinates[hand].Position.X;
+                            SwipePreviousX = mycoords.HandX;
                             TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
 
                             break;
@@ -146,6 +148,6 @@ namespace Admo.classes
             }
         }
 
-
+        
     }
 }
