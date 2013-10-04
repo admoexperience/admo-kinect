@@ -316,7 +316,7 @@ namespace Admo
 					MapSkeletonToVideo(first, depthFrame, coordinates);
 
 					//Managing data send to Node                 
-					Application_Handler.Manage_Skeletal_Data(coordinates, first);
+					Application_Handler.Manage_Skeletal_Data(first);
 										
 				}
 

@@ -124,11 +124,11 @@ namespace Admo
 
 
         //generate string from joint coordinates to send to node server to draw stickman
-        public static void Manage_Skeletal_Data(float[] coordinates, Skeleton first)
+        public static void Manage_Skeletal_Data(Skeleton first)
         {
-            int rightHandZ = (int) (coordinates[15]*1000);
-            int leftHandZ = (int) (coordinates[14]*1000);
-            int headZ = (int) (coordinates[19]*1000);
+            int rightHandZ = (int) (first.Joints[JointType.HandRight].Position.Z*1000);
+            int leftHandZ = (int)(first.Joints[JointType.HandLeft].Position.Z * 1000);
+            int headZ = (int)(first.Joints[JointType.Head].Position.Z * 1000);
             //no need to get z coordinate of elbows - wil pass them when code is made better
             int leftElbowZ = leftHandZ;
             int rightElbowZ = rightHandZ;
@@ -165,7 +165,7 @@ namespace Admo
                 }
             }
 
-            int mode = Stages(coordinates, first);
+            int mode = Stages(first);
 
             var kinectState = new KinectState {Phase = mode};
 
@@ -177,7 +177,8 @@ namespace Admo
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;
-            if ((coordinates[6] < deltaMiddle) && (coordinates[6] > -deltaMiddle))
+            var headX = first.Joints[JointType.Head].Position.X;
+            if ((headX < deltaMiddle) && (headX > -deltaMiddle))
             {
                 StandinMiddle = true;
                 //remember the kinectState(t-1)
@@ -194,7 +195,7 @@ namespace Admo
             if (LostUser)
             {
                 kinectState = PreviousKinectState;
-                if ((coordinates[6] < deltaMiddle) && (coordinates[6] > -deltaMiddle))
+                if ((headX < deltaMiddle) && (headX > -deltaMiddle))
                 {
                     LostUser = false;
                 }
@@ -208,14 +209,15 @@ namespace Admo
             SocketServer.SendKinectData(kinectState);
         }
 
-        public static int Stages(float[] coordinates, Skeleton first)
+        public static int Stages( Skeleton first)
         {
             int mode = 1;
 
             double timeNow = Convert.ToDouble(DateTime.Now.Ticks)/10000;
 
             //if user is detected and is in middle of screen
-            if ((((coordinates[6] < 0.7) && (coordinates[6] > -0.7)))) // | (detected == true))
+            var headX = first.Joints[JointType.HandRight].Position.X;
+            if ((((headX < 0.7) && (headX > -0.7)))) // | (detected == true))
             {
                 //when user is initialy registred
                 if (FirstDetection)
