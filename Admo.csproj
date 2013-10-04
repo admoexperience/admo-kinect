@@ -129,16 +129,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\Application_Handler.cs" />
-    <Compile Include="classes\Body.cs" />
-    <Compile Include="classes\BodyCoordinates.cs" />
     <Compile Include="classes\DataContainer.cs" />
     <Compile Include="classes\GestureDetection.cs" />
+    <Compile Include="classes\KeyboardDriver.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
     <Compile Include="classes\Coordinate_History.cs" />
-    <Compile Include="classes\Cursor_Handler.cs" />
-    <Compile Include="classes\Image_Processing.cs" />
-    <Compile Include="classes\KeyboardDriver.cs" />
     <Compile Include="classes\lib\CmsApi.cs" />
     <Compile Include="classes\lib\CommandFactory.cs" />
     <Compile Include="classes\lib\commands\BaseCommand.cs" />
@@ -155,7 +153,9 @@
     <Compile Include="classes\lib\tasks\CheckInTask.cs" />
     <Compile Include="classes\lib\tasks\ScreenshotTask.cs" />
     <Compile Include="classes\LifeCycle.cs" />
-    <Compile Include="classes\MouseDriver.cs" />
+    <Compile Include="classes\MouseDriver.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

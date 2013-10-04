@@ -296,15 +296,12 @@ namespace Admo
 				}
 				else
 				{
-                    //get joint coordinates
-					float[] coordinates = KinectLib.GetCoordinates(first);
-
 					//swipe gesture detection
 					_gestureDetectionRight.GestureHandler(first.Joints,JointType.HandRight);
 					_gestureDetectionLeft.GestureHandler(first.Joints, JointType.HandLeft);
 
 					//Map the skeletal coordinates to the video map
-					MapSkeletonToVideo(first, depthFrame);
+					MapSkeletonToVideo(first);
 
 					//Managing data send to Node                 
 					Application_Handler.Manage_Skeletal_Data(first);
@@ -343,10 +340,11 @@ namespace Admo
                     this._colorBitmap.PixelWidth * sizeof(int),
                     0);
             }
+            colorFrame.Dispose();
         }
 
         //overlaying IR camera and RGB camera video feeds
-        void MapSkeletonToVideo(Skeleton first, DepthImageFrame depth)
+        void MapSkeletonToVideo(Skeleton first)
         {
             
                 if ( _sensorChooser.Kinect == null)
@@ -354,8 +352,6 @@ namespace Admo
                     return;
                 }
  
-         
-
                 CoordinateMapper cm = new CoordinateMapper(_currentKinectSensor);
                 //Map a skeletal point to a point on the color image 
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
@@ -418,11 +414,6 @@ namespace Admo
             CameraPosition(head_ellipse, headColorPoint);
             CameraPosition(leftEllipse, leftColorPoint);
             CameraPosition(rightEllipse, rightColorPoint);
-
-            depth_rectangle.Width = depth_rectangle.Height = Image_Processing.DepthSize;
-
-            //Canvas.SetTop(depth_rectangle, (depth_hand.Y - depth_rectangle.Height / 2));
-            //Canvas.SetLeft(depth_rectangle, (depth_hand.X - depth_rectangle.Width / 2));
 
             crop_rectangle.Width = Application_Handler.FovWidth;
             crop_rectangle.Height = Application_Handler.FovHeight;
