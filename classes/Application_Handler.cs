@@ -310,41 +310,6 @@ namespace Admo
         public static double MovingSumX = 0;
         public static double MovingSumY = 0;
 
-        //Decides whether to use skeletal tracking for hands or use depth analysis
-        public static int ChooseHand(float[] coordinates, int depth)
-        {
-            int realHand = 0;
-
-            double minDepth = Convert.ToDouble(depth)/1000;
-
-            if (((coordinates[19] - 0.1) > minDepth) &&
-                ((coordinates[19] > coordinates[14]) | (coordinates[19] > coordinates[15])))
-            {
-                //left hand closer than right hand
-                if (coordinates[14] < coordinates[15])
-                {
-                    realHand = 1;
-                }
-                else
-                {
-                    realHand = 1;
-                }
-            }
-            else
-            {
-                if (coordinates[14] < coordinates[15])
-                {
-                    realHand = 3;
-                }
-                else
-                {
-                    realHand = 4;
-                }
-            }
-
-            return realHand;
-        }
-
         public static void ConfigureCalibrationByConfig()
         {
             //read calibration values from CMS if calibration app has not been set to run
