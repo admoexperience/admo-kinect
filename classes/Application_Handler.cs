@@ -17,16 +17,9 @@ namespace Admo
         public static double FovLeft = 0;
         public static double FovHeight = 640;
         public static double FovWidth = 480;
-
+        
         //Skeletal coordinates in meters
         public static float[] SkeletalCoordinates = new float[24];
-
-        //manage gestures
-        public static void ManageGestures(float[] coordinates)
-        {
-
-        }
-
 
         //Find a possible person in the depth image
         public static void FindPlayer(DepthImageFrame depthFrame)
@@ -61,6 +54,7 @@ namespace Admo
                 //gets the depth value
                 int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
 
+                // Distance user is required to stand
                 if ((depth > 400) && (depth < 2500))
                 {
                     yCoord = depthIndex/(depthFrame.Width);

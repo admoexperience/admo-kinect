@@ -25,15 +25,12 @@ namespace Admo
         private bool _closing = false;
         const int SkeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[SkeletonCount];
-        Skeleton _oldFirst;
         private KinectSensor _currentKinectSensor;
         private String _kinectType;
         public static int KinectElevationAngle = 0;  //used in application handler
    
         //drawing variables
-        private int _faceX = 700;
-        private int _faceY = 1000;
-        
+
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary>
@@ -49,12 +46,8 @@ namespace Admo
         public short[] DepthImage;
 
         //variable indicating whether user is looking at the screen
-        private bool LookingAtScreen = false; //currently not used but keeping cause it might used
         public static readonly LifeCycle LifeCycle=new LifeCycle();
    
-        private ColorImageFormat _colorImageFormat = ColorImageFormat.Undefined;
-        private DepthImageFormat _depthImageFormat = DepthImageFormat.Undefined;
-
         public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
         private static GestureDetection _gestureDetectionRight = new GestureDetection();
         private static GestureDetection _gestureDetectionLeft = new GestureDetection();
@@ -70,7 +63,6 @@ namespace Admo
         public void OnConfigChange()
         {
 
-           
             KinectElevationAngle = Config.GetElevationAngle();
 
          if (_currentKinectSensor != null && _currentKinectSensor.IsRunning)
@@ -158,8 +150,6 @@ namespace Admo
                 try
                 {
                     Log.Warn("old sensor active");
-                    //args.OldSensor.DepthStream.Range = DepthRange.Default;
-                    //args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
                     args.OldSensor.DepthStream.Disable();
                     args.OldSensor.SkeletonStream.Disable();
                 }
@@ -258,18 +248,6 @@ namespace Admo
            
         }
 
-        public void Dispose()
-        {
-            DestroyFaceTracker();
-        }
-
-        private void DestroyFaceTracker()
-        {
-            if (_faceTracker == null) return;
-            _faceTracker.Dispose();
-            _faceTracker = null;
-        }
-
         void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             if (_closing) return;
@@ -292,24 +270,6 @@ namespace Admo
                         return;
                     }
 
-                    if (Config.RunningFacetracking)
-                    {
-                        // Check for changes in any of the data this function is receiving
-                        // and reset things appropriately.
-                        if (this._depthImageFormat != depthFrame.Format)
-                        {
-                            this.DestroyFaceTracker();
-                            //this.depthImage = null;
-                            this._depthImageFormat = depthFrame.Format;
-                        }
-
-                        if (this._colorImageFormat != colorFrame.Format)
-                        {
-                            this.DestroyFaceTracker();
-                            //this.colorImage = null;
-                            this._colorImageFormat = colorFrame.Format;
-                        }
-                    }
                 }
                 else
                 {
@@ -324,143 +284,43 @@ namespace Admo
 
                 //LifeCycle.LifeLoop();
 
-                if ((colorFrame != null)&&((Config.RunningFacetracking)|| Config.IsDevMode()))
+                if ((colorFrame != null)&&(Config.IsDevMode()))
                 {
                     DisplayVideo(colorFrame);
                 }
 
+			    //Get a skeleton
+			   
+				//get closest skeleton
+				skeletonFrameData.CopySkeletonDataTo(allSkeletons);
+				Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
-                //Get a skeleton
-                if (skeletonFrameData != null)
-                {
-                    //get closest skeleton
-                    skeletonFrameData.CopySkeletonDataTo(allSkeletons);
-                    Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
+				//check whether there is a user/skeleton
+				if (first == null)
+				{
+					//check whether there is a user in fov who's skeleton has not yet been registered
+					Application_Handler.FindPlayer(depthFrame);
+					//set detection variable
+					Application_Handler.Detected = false;			
+				}
+				else
+				{
+                    //get joint coordinates
+					float[] coordinates = KinectLib.GetCoordinates(first);
 
-                    //check whether there is a user/skeleton
-                    if (first == null)
-                    {
+					//swipe gesture detection
+					_gestureDetectionRight.GestureHandler(first.Joints,JointType.HandRight);
+					_gestureDetectionLeft.GestureHandler(first.Joints, JointType.HandLeft);
 
-                        //check whether there is a user in fov who's skeleton has not yet been registered
-                        Application_Handler.FindPlayer(depthFrame);
+					//Map the skeletal coordinates to the video map
+					MapSkeletonToVideo(first, depthFrame, coordinates);
 
-                        //set detection variable
-                        Application_Handler.Detected = false;
+					//Managing data send to Node                 
+					Application_Handler.Manage_Skeletal_Data(coordinates, first);
+										
+				}
 
-                        return;
-                    }
-                    else
-                    {
-                        
-                       
-                        //get joint coordinates
-                        float[] coordinates = KinectLib.GetCoordinates(first);
-
-                        //swipe gesture detection
-                        _gestureDetectionRight.GestureHandler(first.Joints,JointType.HandRight);
-                        _gestureDetectionLeft.GestureHandler(first.Joints, JointType.HandLeft);
-
-                        //Map the skeletal coordinates to the video map
-                        MapSkeletonToVideo(first, depthFrame, coordinates);
-
-                        //Handles gestures - eg Swipe gesture
-                        Application_Handler.ManageGestures(coordinates);
-
-                        //Managing data send to Node                 
-                        Application_Handler.Manage_Skeletal_Data(coordinates, first);
-                 
-                        //Head position run 19
-                        // 0.9 magic number representing some heuristic of if the face is in view
-                        var headPos = first.Joints[JointType.Head].Position;
-                        if ((headPos.Z > 0.9)&&(Config.RunningFacetracking))
-                        {
-                            if (_oldFirst == null)
-                            {
-                                _oldFirst = first;
-                                Log.Debug("first skeleton lock");
-                            }
-                            else if ((_oldFirst != first))
-                            {
-                                Console.WriteLine("locked skeleton changed");
-                                _oldFirst = first;
-                                if ((this._faceTracker != null))
-                                {
-                                    this._faceTracker.ResetTracking();
-                                }
-                            }
-
-                            if (this._faceTracker == null)
-                            {
-                                try
-                                {
-                                    this._faceTracker = new FaceTracker(_currentKinectSensor);
-                                    Console.WriteLine("initiate new FaceTracker");
-                                }
-                                catch (InvalidOperationException)
-                                {
-                                    // During some shutdown scenarios the FaceTracker
-                                    // is unable to be instantiated.  Catch that exception
-                                    // and don't track a face.                            
-                                    this._faceTracker = null;
-                                }
-                            }
-
-                            if (this._faceTracker != null)
-                            {
-                                FaceTrackFrame faceTrackFrame = this._faceTracker.Track(
-                                    _colorImageFormat,
-                                    this._colorImage,
-                                    _depthImageFormat,
-                                    this.DepthImage,
-                                    first);
-
-
-                                if (faceTrackFrame.TrackSuccessful)
-                                {                                    
-                                    _faceX = (int)(100 * faceTrackFrame.Rotation.X);
-
-                                    //gets the x,y-coordinate of where the user is looking at the screen
-                                    _faceX = Convert.ToInt32((-700 * headPos.Z * Math.Tan(faceTrackFrame.Rotation.X * Math.PI / 180)) + (headPos.X * 1000));
-                                    _faceY = Convert.ToInt32((-1000 * headPos.Z * Math.Tan(faceTrackFrame.Rotation.Y * Math.PI / 180)) + (headPos.X * 1000));
-
-                                    //set limits
-                                    if (_faceX > 700)
-                                        _faceX = 700;
-                                    else if (_faceX < -700)
-                                        _faceX = -700;
-
-                                    if (_faceY > 1000)
-                                        _faceY = 1000;
-                                    else if (_faceY < -1000)
-                                        _faceY = -1000;
-
-                                    //set variable indicating whether user is looking at the screen (where the screen 2000mmx1700mm)
-                                    if ((_faceY < 1000) && (_faceY > -1000))
-                                        LookingAtScreen = true;
-                                    else
-                                        LookingAtScreen = false;
-
-                                    //display ellipse indicating where useris looking
-                                    if (Config.IsDevMode())
-                                    {
-                                        Canvas.SetTop(faceEllipse, ((240 - _faceX / 10) - faceEllipse.Height / 2));
-                                        Canvas.SetLeft(faceEllipse, ((320 + _faceY/2) - faceEllipse.Width / 2));
-                                    }
-
-                                    //set x,y-coordinates relative to screen size canvas
-                                    _faceX = _faceX + 700;
-                                    _faceY = _faceY + 1000;
-
-
-                                    
-                                }
-                            }
-
-                        }
-                        
-                    }
-
-                }
+               
             }
             finally
             {
@@ -480,7 +340,6 @@ namespace Admo
                 }
             }
                      
-
         }
         
         void DisplayVideo(ColorImageFrame colorFrame)
@@ -510,6 +369,7 @@ namespace Admo
                     return;
                 }
                 depth.CopyPixelDataTo(DepthImage);
+         
 
                 CoordinateMapper cm = new CoordinateMapper(_currentKinectSensor);
                 //Map a skeletal point to a point on the color image 
