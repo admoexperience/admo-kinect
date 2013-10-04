@@ -165,7 +165,6 @@ namespace Admo
                 try
                 {
 
-
                     //set depthstream and skeletal tracking options
                     args.NewSensor.DepthStream.Range = DepthRange.Default;
                     args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
@@ -214,7 +213,6 @@ namespace Admo
                     catch (System.IO.IOException ioe)
                     {
                         Log.Error(ioe);
-                        //this.sensorChooser.AppConflictOccurred();
                     }
 
                     //check whether we are using Kinect for Windows or Xbox Kinect
@@ -252,41 +250,34 @@ namespace Admo
         {
             if (_closing) return;
 
-            ColorImageFrame colorFrame = null;
+            
             DepthImageFrame depthFrame = null;
             SkeletonFrame skeletonFrameData = null;
 
             try
             {
+                depthFrame = e.OpenDepthImageFrame();
+                skeletonFrameData = e.OpenSkeletonFrame();
 
-                if (Config.IsDevMode()|| Config.RunningFacetracking)
+                if (Config.IsDevMode())
                 {
-                    colorFrame = e.OpenColorImageFrame();
-                    depthFrame = e.OpenDepthImageFrame();
-                    skeletonFrameData = e.OpenSkeletonFrame();
-
-                    if (colorFrame == null || depthFrame == null || skeletonFrameData == null)
+                    var colorFrame = e.OpenColorImageFrame();
+                   
+                    if (colorFrame == null)
                     {
                         return;
                     }
-
-                }
-                else
-                {
-                    depthFrame = e.OpenDepthImageFrame();
-                    skeletonFrameData = e.OpenSkeletonFrame();
-
-                    if (depthFrame == null || skeletonFrameData == null)
+                    else
                     {
-                        return;
+                        DisplayVideo(colorFrame);
                     }
+
                 }
+               
 
-                //LifeCycle.LifeLoop();
-
-                if ((colorFrame != null)&&(Config.IsDevMode()))
+                if (depthFrame == null || skeletonFrameData == null)
                 {
-                    DisplayVideo(colorFrame);
+                    return;
                 }
 
 			    //Get a skeleton
@@ -319,16 +310,10 @@ namespace Admo
 					Application_Handler.Manage_Skeletal_Data(first);
 										
 				}
-
                
             }
             finally
             {
-                if (colorFrame != null)
-                {
-                    colorFrame.Dispose();
-                }
-
                 if (depthFrame != null)
                 {
                     depthFrame.Dispose();
