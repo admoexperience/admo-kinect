@@ -9,18 +9,16 @@ namespace Admo
     {
         private static Logger Log = LogManager.GetCurrentClassLogger();
 
-   //     public static string toggle = "gestures";
-     //   public static string Stickman = " ";
-
         //variables for changing the fov when using a webcam instead of the kinect rgb camera
-        public static double FovTop = 0;
-        public static double FovLeft = 0;
-        public static double FovHeight = 640;
-        public static double FovWidth = 480;
+
+        public static float FovHeight = 640;
+        public static float FovWidth = 480;
+        const int KinectFovHeight = 480;
+        const int KinectFovWidth = 640;
+        public static float FovLeft = 0;
+        public static float FovTop = 0;
         
         //Skeletal coordinates in meters
-        public static float[] SkeletalCoordinates = new float[24];
-
         //Find a possible person in the depth image
         public static void FindPlayer(DepthImageFrame depthFrame)
         {
@@ -109,7 +107,7 @@ namespace Admo
         }
 
 
-        public static int[] StickCoord = new int[10];
+      //  public static int[] StickCoord = new int[10];
         public static int[] UncalibratedCoordinates = new int[6];
         public static double TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool Detected = false;
@@ -121,59 +119,32 @@ namespace Admo
         public static double TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
 
-
-
         //generate string from joint coordinates to send to node server to draw stickman
-        public static void Manage_Skeletal_Data(Skeleton first)
+        public static void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
-            int rightHandZ = (int) (first.Joints[JointType.HandRight].Position.Z*1000);
-            int leftHandZ = (int)(first.Joints[JointType.HandLeft].Position.Z * 1000);
-            int headZ = (int)(first.Joints[JointType.Head].Position.Z * 1000);
-            //no need to get z coordinate of elbows - wil pass them when code is made better
-            int leftElbowZ = leftHandZ;
-            int rightElbowZ = rightHandZ;
+            int mode = Stages(first);
+            var kinectState = new KinectState { Phase = mode };
+
+ 
+            //Map a skeletal point to a point on the color image 
+            
+            //Map a skeletal point to a point on the color image 
+            ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
+
+            //Sadly nescesary evil before more major refactor
+            UncalibratedCoordinates[2] = leftColorPoint.X;
+            UncalibratedCoordinates[4] = rightColorPoint.X;
+            UncalibratedCoordinates[3] = leftColorPoint.Y;
+
+            kinectState.RightHand = ScaleCoordinates(first.Joints[JointType.HandRight].Position, rightColorPoint);
+            kinectState.LeftHand = ScaleCoordinates(first.Joints[JointType.HandLeft].Position, leftColorPoint);
+            kinectState.Head = ScaleCoordinates(first.Joints[JointType.Head].Position, headColorPoint);
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - TimeFoundUser;
             const double timeWait = 2.5;
-
-            const int kinectFovHeight = 480;
-            const int kinectFovWidth = 640;
-
-            //adjust skeletal coordinates for kinect and webcam fov difference
-            for (int t = 0; t < 10; t = t + 2)
-            {
-                StickCoord[t] = (int)((StickCoord[t] - FovLeft) * (kinectFovWidth / FovWidth));
-                StickCoord[t + 1] = (int)((StickCoord[t + 1] - FovTop) * (kinectFovHeight / FovHeight));
-
-                if (StickCoord[t] < 0)
-                {
-                    StickCoord[t] = 0;
-                }
-                else if (StickCoord[t] > kinectFovWidth)
-                {
-                    StickCoord[t] = kinectFovWidth;
-                }
-
-                if (StickCoord[t + 1] < 0)
-                {
-                    StickCoord[t + 1] = 0;
-                }
-                else if (StickCoord[t + 1] > kinectFovHeight)
-                {
-                    StickCoord[t + 1] = kinectFovHeight;
-                }
-            }
-
-            int mode = Stages(first);
-
-            var kinectState = new KinectState {Phase = mode};
-
-            kinectState.SetHead(StickCoord[0], StickCoord[1], headZ, first.Joints[JointType.Head].Position.X, first.Joints[JointType.Head].Position.Y);
-            kinectState.SetLeftHand(StickCoord[2], StickCoord[3], leftHandZ, first.Joints[JointType.HandLeft].Position.X, first.Joints[JointType.HandLeft].Position.Y);
-            kinectState.SetRightHand(StickCoord[4], StickCoord[5], rightHandZ, first.Joints[JointType.HandRight].Position.X, first.Joints[JointType.HandRight].Position.Y);
-            kinectState.SetLeftElbow(StickCoord[6], StickCoord[7], leftElbowZ, first.Joints[JointType.ElbowLeft].Position.X, first.Joints[JointType.ElbowLeft].Position.Y);
-            kinectState.SetRightElbow(StickCoord[8], StickCoord[9], rightElbowZ, first.Joints[JointType.ElbowRight].Position.X, first.Joints[JointType.ElbowRight].Position.Y);
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;
@@ -209,6 +180,39 @@ namespace Admo
             SocketServer.SendKinectData(kinectState);
         }
 
+        public static Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
+        {
+
+            var admoPos = new Position();
+
+            admoPos.X = (int)((colorImagePoint.X - FovLeft) * (KinectFovWidth / FovWidth));
+            admoPos.Y = (int)((colorImagePoint.Y - FovTop) * (KinectFovHeight / FovHeight));
+            admoPos.Z = (int)(pos.Z * 1000);
+
+            if (admoPos.X < 0)
+            {
+                admoPos.X = 0;
+            }
+            else if (admoPos.X > KinectFovWidth)
+            {
+                admoPos.X = KinectFovWidth;
+            }
+
+            if (admoPos.Y < 0)
+            {
+                admoPos.Y = 0;
+            }
+            else if (admoPos.Y > KinectFovHeight)
+            {
+                admoPos.Y = KinectFovHeight;
+            }
+            admoPos.Xmm = pos.X;
+            admoPos.Ymm = pos.Y;
+
+            return admoPos;
+
+        }
+
         public static int Stages( Skeleton first)
         {
             int mode = 1;
@@ -217,7 +221,7 @@ namespace Admo
 
             //if user is detected and is in middle of screen
             var headX = first.Joints[JointType.HandRight].Position.X;
-            if ((((headX < 0.7) && (headX > -0.7)))) // | (detected == true))
+            if (Math.Abs(headX)<0.7) // | (detected == true))
             {
                 //when user is initialy registred
                 if (FirstDetection)
@@ -258,8 +262,11 @@ namespace Admo
             return mode;
         }
 
-        public static double MovingSumX = 0;
-        public static double MovingSumY = 0;
+        public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
+        {
+            return current*alpha + filter + (1 - alpha);
+        }
+
 
         public static void ConfigureCalibrationByConfig()
         {
@@ -276,5 +283,8 @@ namespace Admo
             FovWidth = Convert.ToInt32(tempWidth);
             FovHeight = FovWidth * 3 / 4;
         }
+
+       
+
     }
 }

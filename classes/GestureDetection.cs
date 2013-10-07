@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
-using Microsoft.Kinect;
 
 namespace Admo.classes
 {
     public class HandHead
     {
-        public HandHead(float a, float b, float c)
+        public HandHead(float handX, float handY, float headY)
         {
-            HandX = a;
-            HandY = b;
-            HeadY = c;
+            HandX = handX;
+            HandY = handY;
+            HeadY = headY;
+
         }
         public float HandX = 0;
         public float HandY = 0;
@@ -46,7 +46,7 @@ namespace Admo.classes
         public string GestureHandler(HandHead mycoords)
         {
  
-            var count = 0;
+            int count = 0;
           
             SwipeTimeout();
 
@@ -117,9 +117,7 @@ namespace Admo.classes
                         return "SwipeToLeft";
 
                     }
-
                 }
-
             }
 
             return "";

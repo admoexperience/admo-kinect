@@ -47,8 +47,8 @@ namespace Admo
         public static readonly LifeCycle LifeCycle=new LifeCycle();
    
         public static KinectLib KinectLib = new KinectLib(); //used in application handler as static
-        private static GestureDetection _gestureDetectionRight = new GestureDetection();
-        private static GestureDetection _gestureDetectionLeft = new GestureDetection();
+        private GestureDetection _gestureDetectionRight = new GestureDetection();
+        private GestureDetection _gestureDetectionLeft = new GestureDetection();
 
         private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds(); 
 
@@ -310,7 +310,7 @@ namespace Admo
 
 
 					//Managing data send to Node                 
-					Application_Handler.Manage_Skeletal_Data(first);
+					Application_Handler.Manage_Skeletal_Data(first,new CoordinateMapper(_currentKinectSensor));
 										
 				}
                
@@ -363,29 +363,9 @@ namespace Admo
                 ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
                 ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);    
-                ColorImagePoint rightElbowColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.ElbowRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-
                 //get depth coordinates of head and hands relative to the body
                
-                Application_Handler.UncalibratedCoordinates[4] = Application_Handler.StickCoord[4] = rightColorPoint.X;
-                Application_Handler.UncalibratedCoordinates[5] = Application_Handler.StickCoord[5] = rightColorPoint.Y;
-                Coordinate_History.XFilter.Clear();
-                Coordinate_History.YFilter.Clear();
-                Coordinate_History.PreviousX = rightColorPoint.X;
-                Coordinate_History.PreviousY = rightColorPoint.Y;
-
-                Application_Handler.UncalibratedCoordinates[0] = Application_Handler.StickCoord[0] = headColorPoint.X;
-                Application_Handler.UncalibratedCoordinates[1] = Application_Handler.StickCoord[1] = headColorPoint.Y;
-
-                Application_Handler.UncalibratedCoordinates[2] = Application_Handler.StickCoord[2] = leftColorPoint.X;
-                Application_Handler.UncalibratedCoordinates[3] = Application_Handler.StickCoord[3] = leftColorPoint.Y;
-
-                //elbows don't need to be passed to uncalibrated coordinate set
-                Application_Handler.StickCoord[6] = leftElbowColorPoint.X;
-                Application_Handler.StickCoord[7] = leftElbowColorPoint.Y;
-                Application_Handler.StickCoord[8] = rightElbowColorPoint.X;
-                Application_Handler.StickCoord[9] = rightElbowColorPoint.Y;
+               
 
                 //only show video HUD when running in dev mode
                 if (Config.IsDevMode())
@@ -428,6 +408,7 @@ namespace Admo
             Canvas.SetLeft(crop_rectangle, Application_Handler.FovLeft);
             
         }
+
 
         //set element position on canvas
         private void CameraPosition(FrameworkElement element, ColorImagePoint point)

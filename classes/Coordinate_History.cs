@@ -187,8 +187,8 @@ namespace Admo
                 }
             }
 
-            Application_Handler.StickCoord[4] = Convert.ToInt32(array[0]);
-            Application_Handler.StickCoord[5] = Convert.ToInt32(array[1]);
+            //Application_Handler.StickCoord[4] = Convert.ToInt32(array[0]);
+            //Application_Handler.StickCoord[5] = Convert.ToInt32(array[1]);
         }
 
         public static double MaxSpeed = 80;
