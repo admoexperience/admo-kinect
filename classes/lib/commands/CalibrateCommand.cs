@@ -14,20 +14,20 @@ namespace Admo.classes.lib.commands
         {
             //get the distance the user's hands is appart
             //the user should be hovering his hands over the circles on the HUD at this stage
-            float trueWidth = Application_Handler.UncalibratedCoordinates[4] -
-                            Application_Handler.UncalibratedCoordinates[2];
+            float trueWidth = TheHacks.UncalibratedCoordinates[4] -
+                            TheHacks.UncalibratedCoordinates[2];
 
             //the circles on the calibration app HUD is 340px appart meusared in Kinect coordinates
             float falseWidth = 340;
             float scalingFactor = trueWidth / falseWidth;
 
             //this is the uncalibrated value of the left hand relative to the left margin
-            float trueLeft = Application_Handler.UncalibratedCoordinates[2];
+            float trueLeft = TheHacks.UncalibratedCoordinates[2];
             //this value is set in the calibration app to position the calibration circles from the left margin
             float falseLeft = 150;
 
             //this is the uncalibrated value of the left hand relative to the top margin
-            float trueTop = Application_Handler.UncalibratedCoordinates[3];
+            float trueTop = TheHacks.UncalibratedCoordinates[3];
             //this value is set in the calibration app to position the calibration circles from the top margin
             float falseTop = 200;
 

@@ -108,7 +108,7 @@ namespace Admo
 
 
       //  public static int[] StickCoord = new int[10];
-        public static int[] UncalibratedCoordinates = new int[6];
+      //  public static int[] UncalibratedCoordinates = new int[6];
         public static double TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool Detected = false;
         public static bool FirstDetection = true;
@@ -118,13 +118,13 @@ namespace Admo
         public static KinectState PreviousKinectState = new KinectState();
         public static double TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+        public static double FilterConstant;
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
             int mode = Stages(first);
             var kinectState = new KinectState { Phase = mode };
-
  
             //Map a skeletal point to a point on the color image 
             
@@ -134,9 +134,9 @@ namespace Admo
             ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
-            UncalibratedCoordinates[2] = leftColorPoint.X;
-            UncalibratedCoordinates[4] = rightColorPoint.X;
-            UncalibratedCoordinates[3] = leftColorPoint.Y;
+            TheHacks.UncalibratedCoordinates[2] = leftColorPoint.X;
+            TheHacks.UncalibratedCoordinates[4] = rightColorPoint.X;
+            TheHacks.UncalibratedCoordinates[3] = leftColorPoint.Y;
 
             kinectState.RightHand = ScaleCoordinates(first.Joints[JointType.HandRight].Position, rightColorPoint);
             kinectState.LeftHand = ScaleCoordinates(first.Joints[JointType.HandLeft].Position, leftColorPoint);
