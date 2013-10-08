@@ -51,8 +51,8 @@ namespace Admo
         private GestureDetection _gestureDetectionRight = new GestureDetection();
         private GestureDetection _gestureDetectionLeft = new GestureDetection();
 
-        private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds(); 
-
+        private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds();
+        private WebServer _webServer;
         public MainWindow()
         {
             InitializeComponent();
@@ -96,6 +96,7 @@ namespace Admo
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
+            _webServer = new WebServer();
 
             _application=new ApplicationHandler();
 
@@ -180,18 +181,18 @@ namespace Admo
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
                         args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                        this._colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
+                        _colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
                     }                       
                        
                     //setup short containing depth data
-                    this.DepthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
+                    DepthImage = new short[args.NewSensor.DepthStream.FramePixelDataLength];
                     // This is the bitmap we'll display on-screen
-                    this._colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+                    _colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth, args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                     
                     if (Config.IsDevMode())
                     {                       
                         // Set the image we display to point to the bitmap where we'll put the image data
-                        this.Image.Source = this._colorBitmap;
+                        Image.Source = _colorBitmap;
                     }
                     else
                     {
@@ -200,8 +201,8 @@ namespace Admo
                         bi3.BeginInit();
                         bi3.UriSource = new Uri("images/background.png", UriKind.Relative);
                         bi3.EndInit();
-                        this.Image.Stretch = Stretch.Uniform;
-                        this.Image.Source = bi3;
+                        Image.Stretch = Stretch.Uniform;
+                        Image.Source = bi3;
                     }
                     
                     _currentKinectSensor = args.NewSensor;
@@ -279,9 +280,9 @@ namespace Admo
 				if (first == null)
 				{
 					//check whether there is a user in fov who's skeleton has not yet been registered
-					ApplicationHandler.FindPlayer(depthFrame);
+                    _application.FindPlayer(depthFrame);
 					//set detection variable
-					ApplicationHandler.Detected = false;			
+                    _application.Detected = false;			
 				}
 				else
 				{

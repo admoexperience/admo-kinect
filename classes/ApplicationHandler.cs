@@ -15,10 +15,9 @@ namespace Admo
         const int KinectFovHeight = 480;
         const int KinectFovWidth = 640;
         
-        
         //Skeletal coordinates in meters
         //Find a possible person in the depth image
-        public static void FindPlayer(DepthImageFrame depthFrame)
+        public void FindPlayer(DepthImageFrame depthFrame)
         {
             if (depthFrame == null)
             {
@@ -30,7 +29,7 @@ namespace Admo
             short[] rawDepthData = new short[depthFrame.PixelDataLength];
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
-            double timeDelta = timeNow - TimeLostUser;
+            double timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
 
             depthFrame.CopyPixelDataTo(rawDepthData);
@@ -84,36 +83,36 @@ namespace Admo
             //checks whether the user was standing in the middle of the fov when tracking of said user was lost
             //if this is the case then in all likelyhood someone walk inbetween the kinect and the user
             
-            if ((StandinMiddle) && (PreviousKinectState != null) && (timeDelta < timeWait))
+            if ((_standinMiddle) && (_previousKinectState != null) && (timeDelta < timeWait))
             {
                 //since the user is still in the fov, although not visible by the kinect, use the kinectState of when the user was last visible until the user is visible again
-                kinectState = PreviousKinectState;
-                FirstDetection = false;
+                kinectState = _previousKinectState;
+                _firstDetection = false;
 
-                LostUser = true;
-                TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+                _lostUser = true;
+                _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
             }
             else
             {
-                FirstDetection = true;
-                LostUser = false;
+                _firstDetection = true;
+                _lostUser = false;
             }
 
             SocketServer.SendKinectData(kinectState);
         }
 
-        public static double TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
-        public static bool Detected = false;
-        public static bool FirstDetection = true;
+        private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+        public bool Detected = false;
+        private bool _firstDetection = true;
 
-        public static bool StandinMiddle = false;
-        public static bool LostUser = false;
-        public static KinectState PreviousKinectState = new KinectState();
-        public static double TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
-        public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
-        public static InternKinectState FilteredKinectState; 
+        private bool _standinMiddle = false;
+        private bool _lostUser = false;
+        private KinectState _previousKinectState = new KinectState();
+        private double _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
+        private double _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+        private  InternKinectState _filteredKinectState; 
         //Value between 0 and 1 indicating the degree of filtering
-        public const float filterConst = (float)0.7;
+        private const float FilterConst = (float)0.7;
 
         //generate string from joint coordinates to send to node server to draw stickman
         public void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
@@ -128,13 +127,13 @@ namespace Admo
                 HandLeft = first.Joints[JointType.HandLeft].Position
             };    
 
-            if (FilteredKinectState == null)
-                FilteredKinectState = currState;
+            if (_filteredKinectState == null)
+                _filteredKinectState = currState;
             
             //Applies filter to the state of Kinect
-            currState = FilterState(currState, FilteredKinectState);
+            currState = FilterState(currState, _filteredKinectState);
 
-            FilteredKinectState = currState;
+            _filteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
             ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head, ColorImageFormat.RgbResolution640x480Fps30);
             ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft, ColorImageFormat.RgbResolution640x480Fps30);
@@ -150,7 +149,7 @@ namespace Admo
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
-            double timeDelta = timeNow - TimeFoundUser;
+            double timeDelta = timeNow - _timeFoundUser;
             const double timeWait = 2.5;
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
@@ -158,28 +157,28 @@ namespace Admo
             var headX = first.Joints[JointType.Head].Position.X;
             if ((headX < deltaMiddle) && (headX > -deltaMiddle))
             {
-                StandinMiddle = true;
+                _standinMiddle = true;
                 //remember the kinectState(t-1)
-                PreviousKinectState = kinectState;
-                TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
+                _previousKinectState = kinectState;
+                _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
             }
             else
             {
-                StandinMiddle = false;
+                _standinMiddle = false;
             }
             
             //he was lost but now he is found
             
-            if (LostUser)
+            if (_lostUser)
             {
-                kinectState = PreviousKinectState;
+                kinectState = _previousKinectState;
                 if ((headX < deltaMiddle) && (headX > -deltaMiddle))
                 {
-                    LostUser = false;
+                    _lostUser = false;
                 }
                 else if (timeDelta > timeWait)
                 {
-                    LostUser = false;
+                    _lostUser = false;
                 }
 
             }
@@ -231,14 +230,14 @@ namespace Admo
             if (Math.Abs(headX)<0.7) // | (detected == true))
             {
                 //when user is initialy registred
-                if (FirstDetection)
+                if (_firstDetection)
                 {
-                    FirstDetection = false;
-                    TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+                    _firstDetection = false;
+                    _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
                 }
                 else
                 {
-                    double timeDelta = timeNow - TimeStartHud;
+                    double timeDelta = timeNow - _timeStartHud;
 
                     //time the user must stand in the centre in order for the process to start
                     if (timeDelta > 500)
@@ -262,7 +261,7 @@ namespace Admo
             else //if user is detected and not in the middle of the screen
             {
                 mode = 2;
-                FirstDetection = true;
+                _firstDetection = true;
                 TheHacks.LockedSkeleton = false;
             }
 
@@ -285,9 +284,9 @@ namespace Admo
 
         public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint)
         {
-            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
-            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, filterConst);
-            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, filterConst);
+            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, FilterConst);
+            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, FilterConst);
+            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, FilterConst);
             return currPoint;
 
         }

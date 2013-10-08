@@ -109,6 +109,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
+    <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
     <Compile Include="classes\TheHacks.cs" />
     <Compile Include="classes\DataContainer.cs" />
