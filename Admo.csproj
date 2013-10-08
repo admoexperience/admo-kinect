@@ -118,7 +118,6 @@
     </Compile>
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
-    <Compile Include="classes\Coordinate_History.cs" />
     <Compile Include="classes\lib\CmsApi.cs" />
     <Compile Include="classes\lib\CommandFactory.cs" />
     <Compile Include="classes\lib\commands\BaseCommand.cs" />

@@ -60,8 +60,7 @@ namespace Admo
                 }
             }
 
-            var kinectState = new KinectState();
-            kinectState.Phase = 1;
+            var kinectState = new KinectState {Phase = 1};
 
             if ((xCoord > 50) && (xCoord < 590) && (yCoord < 250))
             {
@@ -73,9 +72,9 @@ namespace Admo
                 double xMiddle = 35000 / zCoord;
                 double yMiddle = 80000 / zCoord;
 
-                float[] arrayXy = Coordinate_History.Filter_Depth(xCoord, yCoord);
-                xCoord = (int)(arrayXy[0] + xMiddle);
-                yCoord = (int)(arrayXy[1] + yMiddle);
+               
+                xCoord = (int)(xCoord + xMiddle);
+                yCoord = (int)(yCoord + yMiddle);
 
                 kinectState.SetHead(xCoord, yCoord, zCoord, 0, 0);
                 kinectState.Phase = 2;
@@ -101,7 +100,6 @@ namespace Admo
             }
 
             SocketServer.SendKinectData(kinectState);
-            
         }
 
         public static double TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
