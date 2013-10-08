@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Admo.classes;
 using Microsoft.Kinect;
 using NLog;
@@ -11,12 +12,9 @@ namespace Admo
 
         //variables for changing the fov when using a webcam instead of the kinect rgb camera
 
-        public static float FovHeight = 640;
-        public static float FovWidth = 480;
         const int KinectFovHeight = 480;
         const int KinectFovWidth = 640;
-        public static float FovLeft = 0;
-        public static float FovTop = 0;
+        
         
         //Skeletal coordinates in meters
         //Find a possible person in the depth image
@@ -106,41 +104,51 @@ namespace Admo
             
         }
 
-
-      //  public static int[] StickCoord = new int[10];
-      //  public static int[] UncalibratedCoordinates = new int[6];
         public static double TimeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
         public static bool Detected = false;
         public static bool FirstDetection = true;
-        public static bool LockedSkeleton = false;
+
         public static bool StandinMiddle = false;
         public static bool LostUser = false;
         public static KinectState PreviousKinectState = new KinectState();
         public static double TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
-        public static double FilterConstant;
+        public static InternKinectState FilteredKinectState;       
+        public const float filterConst = (float)0.5;
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
             int mode = Stages(first);
             var kinectState = new KinectState { Phase = mode };
- 
-            //Map a skeletal point to a point on the color image 
+
+            var currState = new InternKinectState
+            {
+                Head = first.Joints[JointType.Head].Position,
+                HandRight = first.Joints[JointType.HandRight].Position,
+                HandLeft = first.Joints[JointType.HandLeft].Position
+            };    
+
+            if (FilteredKinectState == null)
+                FilteredKinectState = currState;
             
+            //Applies filter to the state of Kinect
+            currState = FilterState(currState, FilteredKinectState);
+
+            FilteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
-            ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(first.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight, ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
             TheHacks.UncalibratedCoordinates[2] = leftColorPoint.X;
             TheHacks.UncalibratedCoordinates[4] = rightColorPoint.X;
             TheHacks.UncalibratedCoordinates[3] = leftColorPoint.Y;
 
-            kinectState.RightHand = ScaleCoordinates(first.Joints[JointType.HandRight].Position, rightColorPoint);
-            kinectState.LeftHand = ScaleCoordinates(first.Joints[JointType.HandLeft].Position, leftColorPoint);
-            kinectState.Head = ScaleCoordinates(first.Joints[JointType.Head].Position, headColorPoint);
+            kinectState.RightHand = ScaleCoordinates(currState.HandRight, rightColorPoint);
+            kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
+            kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - TimeFoundUser;
@@ -160,7 +168,7 @@ namespace Admo
             {
                 StandinMiddle = false;
             }
-
+            
             //he was lost but now he is found
             
             if (LostUser)
@@ -183,11 +191,12 @@ namespace Admo
         public static Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
         {
 
-            var admoPos = new Position();
-
-            admoPos.X = (int)((colorImagePoint.X - FovLeft) * (KinectFovWidth / FovWidth));
-            admoPos.Y = (int)((colorImagePoint.Y - FovTop) * (KinectFovHeight / FovHeight));
-            admoPos.Z = (int)(pos.Z * 1000);
+            var admoPos = new Position
+                {
+                    X = (int) ((colorImagePoint.X - TheHacks.FovLeft)*(KinectFovWidth/TheHacks.FovWidth)),
+                    Y = (int) ((colorImagePoint.Y - TheHacks.FovTop)*(KinectFovHeight/TheHacks.FovHeight)),
+                    Z = (int) (pos.Z*1000)
+                };
 
             if (admoPos.X < 0)
             {
@@ -237,11 +246,11 @@ namespace Admo
                     if (timeDelta > 500)
                     {
                         //skeleton lock  
-                        if (LockedSkeleton == false)
+                        if (TheHacks.LockedSkeleton == false)
                         {
                             MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
                             MainWindow.KinectLib.LockedSkeleton = first;
-                            LockedSkeleton = true;
+                            TheHacks.LockedSkeleton = true;
                         }
 
                         mode = 3;
@@ -256,7 +265,7 @@ namespace Admo
             {
                 mode = 2;
                 FirstDetection = true;
-                LockedSkeleton = false;
+                TheHacks.LockedSkeleton = false;
             }
 
             return mode;
@@ -264,9 +273,26 @@ namespace Admo
 
         public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
         {
-            return current*alpha + filter + (1 - alpha);
+            return current*alpha + filter*(1 - alpha);
         }
 
+        public static InternKinectState FilterState(InternKinectState currState,InternKinectState filteredState)
+        {
+            currState.HandLeft=FilterPoint(currState.HandLeft, filteredState.HandLeft);
+            currState.HandRight = FilterPoint(currState.HandLeft, filteredState.HandLeft);
+            currState.Head = FilterPoint(currState.HandLeft, filteredState.HandLeft);
+
+            return currState;
+        }
+
+        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint)
+        {
+            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
+            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, filterConst);
+            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, filterConst);
+            return currPoint;
+
+        }
 
         public static void ConfigureCalibrationByConfig()
         {
@@ -278,13 +304,12 @@ namespace Admo
 
             //refer to document Calibration Method
             //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
-            FovTop = Convert.ToInt32(tempTop);
-            FovLeft = Convert.ToInt32(tempLeft);
-            FovWidth = Convert.ToInt32(tempWidth);
-            FovHeight = FovWidth * 3 / 4;
+            TheHacks.FovTop = Convert.ToInt32(tempTop);
+            TheHacks.FovLeft = Convert.ToInt32(tempLeft);
+            TheHacks.FovWidth = Convert.ToInt32(tempWidth);
+            TheHacks.FovHeight = TheHacks.FovWidth * 3 / 4;
+
         }
-
        
-
     }
 }

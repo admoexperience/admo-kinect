@@ -31,16 +31,16 @@ namespace Admo.classes.lib.commands
             //this value is set in the calibration app to position the calibration circles from the top margin
             float falseTop = 200;
 
-            Application_Handler.FovWidth = 640 * scalingFactor;
-            Application_Handler.FovHeight = 480 * scalingFactor;
+            TheHacks.FovWidth = 640 * scalingFactor;
+            TheHacks.FovHeight = 480 * scalingFactor;
 
-            Application_Handler.FovLeft = trueLeft - (falseLeft * scalingFactor);
-            Application_Handler.FovTop = trueTop - (falseTop * scalingFactor);
+            TheHacks.FovLeft = trueLeft - (falseLeft * scalingFactor);
+            TheHacks.FovTop = trueTop - (falseTop * scalingFactor);
 
             Logger.Info("Calibration values changed");
-            Logger.Info(Config.Keys.FovCropTop + ": " + Application_Handler.FovTop);
-            Logger.Info(Config.Keys.FovCropLeft + ": " + Application_Handler.FovLeft);
-            Logger.Info(Config.Keys.FovCropWidth + ": " + Application_Handler.FovWidth);
+            Logger.Info(Config.Keys.FovCropTop + ": " + TheHacks.FovTop);
+            Logger.Info(Config.Keys.FovCropLeft + ": " + TheHacks.FovLeft);
+            Logger.Info(Config.Keys.FovCropWidth + ": " + TheHacks.FovWidth);
         }
     }
 }

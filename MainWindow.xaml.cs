@@ -80,10 +80,10 @@ namespace Admo
             if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
             {
                 //set calibration values to zero in preparation for calibration
-                Application_Handler.FovTop = 0;
-                Application_Handler.FovLeft = 0;
-                Application_Handler.FovWidth = 640;
-                Application_Handler.FovHeight = 480;
+                TheHacks.FovTop = 0;
+                TheHacks.FovLeft = 0;
+                TheHacks.FovWidth = 640;
+                TheHacks.FovHeight = 480;
             }
 
             
@@ -401,11 +401,11 @@ namespace Admo
             CameraPosition(leftEllipse, leftColorPoint);
             CameraPosition(rightEllipse, rightColorPoint);
 
-            crop_rectangle.Width = Application_Handler.FovWidth;
-            crop_rectangle.Height = Application_Handler.FovHeight;
+            crop_rectangle.Width = TheHacks.FovWidth;
+            crop_rectangle.Height = TheHacks.FovHeight;
 
-            Canvas.SetTop(crop_rectangle, Application_Handler.FovTop);
-            Canvas.SetLeft(crop_rectangle, Application_Handler.FovLeft);
+            Canvas.SetTop(crop_rectangle, TheHacks.FovTop);
+            Canvas.SetLeft(crop_rectangle, TheHacks.FovLeft);
             
         }
 
