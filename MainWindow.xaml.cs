@@ -169,7 +169,7 @@ namespace Admo
                     args.NewSensor.SkeletonStream.Enable(parameters);
 
                     args.NewSensor.AllFramesReady += SensorAllFramesReady;
-                   
+
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
 
 
@@ -213,20 +213,9 @@ namespace Admo
                         Log.Error(ioe);
                     }
 
-                    //check whether we are using Kinect for Windows or Xbox Kinect
-                    try
-                    {
                         args.NewSensor.DepthStream.Range = DepthRange.Near;
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
-                        _kinectType = "kinect for windows";
-                        Log.Info("Using " + _kinectType);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        _kinectType = "xbox kinect";
-                        Console.WriteLine(_kinectType);
-                        Log.Info("Using " + _kinectType);
-                    } 
+                 
                 }
                 catch (InvalidOperationException)
                 {
@@ -244,7 +233,7 @@ namespace Admo
            
         }
 
-        void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
+        private void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             if (_closing) return;
 
@@ -271,7 +260,6 @@ namespace Admo
                     }
 
                 }
-               
 
                 if (depthFrame == null || skeletonFrameData == null)
                 {
