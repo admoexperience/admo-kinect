@@ -113,8 +113,9 @@ namespace Admo
         public static KinectState PreviousKinectState = new KinectState();
         public static double TimeLostUser = LifeCycle.GetCurrentTimeInSeconds();
         public static double TimeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
-        public static InternKinectState FilteredKinectState;       
-        public const float filterConst = (float)0.5;
+        public static InternKinectState FilteredKinectState; 
+        //Value between 0 and 1 indicating the degree of filtering
+        public const float filterConst = (float)0.7;
 
         //generate string from joint coordinates to send to node server to draw stickman
         public static void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
@@ -219,7 +220,6 @@ namespace Admo
             admoPos.Ymm = pos.Y;
 
             return admoPos;
-
         }
 
         public static int Stages( Skeleton first)
@@ -279,8 +279,8 @@ namespace Admo
         public static InternKinectState FilterState(InternKinectState currState,InternKinectState filteredState)
         {
             currState.HandLeft=FilterPoint(currState.HandLeft, filteredState.HandLeft);
-            currState.HandRight = FilterPoint(currState.HandLeft, filteredState.HandLeft);
-            currState.Head = FilterPoint(currState.HandLeft, filteredState.HandLeft);
+            currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight);
+            currState.Head = FilterPoint(currState.Head, filteredState.Head);
 
             return currState;
         }
