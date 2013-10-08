@@ -6,7 +6,7 @@ using NLog;
 
 namespace Admo
 {
-    internal class Application_Handler
+    internal class ApplicationHandler
     {
         private static Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -116,7 +116,7 @@ namespace Admo
         public const float filterConst = (float)0.7;
 
         //generate string from joint coordinates to send to node server to draw stickman
-        public static void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
+        public void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
             int mode = Stages(first);
             var kinectState = new KinectState { Phase = mode };
@@ -187,7 +187,7 @@ namespace Admo
             SocketServer.SendKinectData(kinectState);
         }
 
-        public static Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
+        private Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
         {
 
             var admoPos = new Position
@@ -220,7 +220,7 @@ namespace Admo
             return admoPos;
         }
 
-        public static int Stages( Skeleton first)
+        public int Stages( Skeleton first)
         {
             int mode = 1;
 

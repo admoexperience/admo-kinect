@@ -108,7 +108,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="classes\Application_Handler.cs" />
+    <Compile Include="classes\ApplicationHandler.cs" />
     <Compile Include="classes\InternKinectState.cs" />
     <Compile Include="classes\TheHacks.cs" />
     <Compile Include="classes\DataContainer.cs" />
