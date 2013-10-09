@@ -118,7 +118,18 @@ namespace Admo
         //generate string from joint coordinates to send to node server to draw stickman
         public void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
-            int mode = Stages(first);
+            int mode = Stages(first.Joints[JointType.Head].Position.X);
+
+            if (mode == 3)
+            {
+                if (TheHacks.LockedSkeleton == false)
+                {
+                    MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
+                    MainWindow.KinectLib.LockedSkeleton = first;
+                    TheHacks.LockedSkeleton = true;
+                }    
+            }
+
             var kinectState = new KinectState { Phase = mode };
 
             var currState = new InternKinectState
@@ -223,14 +234,13 @@ namespace Admo
             return admoPos;
         }
 
-        public int Stages( Skeleton first)
+        public int Stages(float headX)
         {
             int mode = 1;
 
             double timeNow = Convert.ToDouble(DateTime.Now.Ticks)/10000;
 
             //if user is detected and is in middle of screen
-            var headX = first.Joints[JointType.HandRight].Position.X;
             if (Math.Abs(headX)<0.7) // | (detected == true))
             {
                 //when user is initialy registred
@@ -247,13 +257,7 @@ namespace Admo
                     if (timeDelta > 500)
                     {
                         //skeleton lock  
-                        if (TheHacks.LockedSkeleton == false)
-                        {
-                            MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
-                            MainWindow.KinectLib.LockedSkeleton = first;
-                            TheHacks.LockedSkeleton = true;
-                        }
-
+                       
                         mode = 3;
                     }
                     else
