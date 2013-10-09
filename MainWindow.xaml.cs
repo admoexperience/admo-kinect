@@ -96,7 +96,7 @@ namespace Admo
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
 
-            Application_Handler.ConfigureCalibrationByConfig();
+            ApplicationHandler.ConfigureCalibrationByConfig();
   
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
@@ -276,9 +276,9 @@ namespace Admo
 				if (first == null)
 				{
 					//check whether there is a user in fov who's skeleton has not yet been registered
-					Application_Handler.FindPlayer(depthFrame);
+					ApplicationHandler.FindPlayer(depthFrame);
 					//set detection variable
-					Application_Handler.Detected = false;			
+					ApplicationHandler.Detected = false;			
 				}
 				else
 				{
@@ -298,7 +298,7 @@ namespace Admo
 
 
 					//Managing data send to Node                 
-					Application_Handler.Manage_Skeletal_Data(first,new CoordinateMapper(_currentKinectSensor));
+					ApplicationHandler.Manage_Skeletal_Data(first,new CoordinateMapper(_currentKinectSensor));
 										
 				}
                

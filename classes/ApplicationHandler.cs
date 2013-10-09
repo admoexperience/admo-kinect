@@ -6,7 +6,7 @@ using NLog;
 
 namespace Admo
 {
-    internal class Application_Handler
+    internal class ApplicationHandler
     {
         private static Logger Log = LogManager.GetCurrentClassLogger();
 
