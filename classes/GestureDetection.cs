@@ -31,9 +31,9 @@ namespace Admo.classes
 
         public static int QueueLength = 20; // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
 
-        public Queue<HandHead> CoordHist=new Queue<HandHead>(QueueLength); 
+        public Queue<HandHead> CoordHist=new Queue<HandHead>(QueueLength);
 
-        public double TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
+        public double TimeSwipeCompleted = Utils.GetCurrentTimeInSeconds();
         public double SwipeWaitTime = 1.2;
         public bool SwipeReady = true;
 
@@ -108,7 +108,7 @@ namespace Admo.classes
 
                         MovedFromPreviousArea = false;
                         SwipePreviousX = mycoords.HandX;
-                        TimeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
+                        TimeSwipeCompleted = Utils.GetCurrentTimeInSeconds();
 
                         if (swipeDiff < 0)
                         {
@@ -125,7 +125,7 @@ namespace Admo.classes
 
         private  void SwipeTimeout()
         {
-            var currentTime = LifeCycle.GetCurrentTimeInSeconds();
+            var currentTime = Utils.GetCurrentTimeInSeconds();
             var timeSinceSwipe = currentTime - TimeSwipeCompleted;
 
             SwipeReady = !(timeSinceSwipe < SwipeWaitTime);

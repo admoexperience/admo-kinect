@@ -29,7 +29,7 @@ namespace Admo
 
             short[] rawDepthData = new short[depthFrame.PixelDataLength];
 
-            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
+            double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
 
@@ -91,7 +91,7 @@ namespace Admo
                 _firstDetection = false;
 
                 _lostUser = true;
-                _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+                _timeFoundUser = Utils.GetCurrentTimeInSeconds();
             }
             else
             {
@@ -109,8 +109,8 @@ namespace Admo
         private bool _standinMiddle = false;
         private bool _lostUser = false;
         private KinectState _previousKinectState = new KinectState();
-        private double _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
-        private double _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+        private double _timeLostUser = Utils.GetCurrentTimeInSeconds();
+        private double _timeFoundUser = Utils.GetCurrentTimeInSeconds();
         private InternKinectState _filteredKinectState; 
         //Value between 0 and 1 indicating the degree of filtering
         public const float FilterConst = (float)0.7;
@@ -152,7 +152,7 @@ namespace Admo
             kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
 
-            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
+            double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeFoundUser;
             const double timeWait = 2.5;
 
@@ -164,7 +164,7 @@ namespace Admo
                 _standinMiddle = true;
                 //remember the kinectState(t-1)
                 _previousKinectState = kinectState;
-                _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
+                _timeLostUser = Utils.GetCurrentTimeInSeconds();
             }
             else
             {

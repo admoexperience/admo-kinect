@@ -50,8 +50,8 @@ namespace Admo
         private GestureDetection _gestureDetectionRight = new GestureDetection();
         private GestureDetection _gestureDetectionLeft = new GestureDetection();
 
-        private ApplicationHandler _applicationHandler; 
-        private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds(); 
+        private ApplicationHandler _applicationHandler;
+        private double _angleChangeTime = Utils.GetCurrentTimeInSeconds(); 
 
         public MainWindow()
         {
@@ -69,9 +69,9 @@ namespace Admo
              //Required because kinect angle can only be changed once per second
              //Ignore resharper
 
-             if (_currentKinectSensor.ElevationAngle != KinectElevationAngle && (_angleChangeTime - LifeCycle.GetCurrentTimeInSeconds()) > 1)
+             if (_currentKinectSensor.ElevationAngle != KinectElevationAngle && (_angleChangeTime - Utils.GetCurrentTimeInSeconds()) > 1)
              {
-                 _angleChangeTime = LifeCycle.GetCurrentTimeInSeconds();
+                 _angleChangeTime = Utils.GetCurrentTimeInSeconds();
                  _currentKinectSensor.ElevationAngle = KinectElevationAngle;
            
              }
@@ -296,7 +296,6 @@ namespace Admo
 
 					//Map the skeletal coordinates to the video map
 					MapSkeletonToVideo(first);
-
 
 					//Managing data send to Node                 
                     _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
