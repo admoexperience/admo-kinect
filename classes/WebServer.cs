@@ -5,25 +5,23 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-
-using c = System.Console;
+using NLog;
+//using c = System.Console;
 
 
 namespace Admo
 {
     public class WebServer
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private static String _address;
         private static Thread _listenThread;
         private static HttpListener _listener;
 
         public WebServer()
         {
-            c.WriteLine("[{0:HH:mm}] Initializing", DateTime.Now);
-
-            // the address we want to listen on
-            _address = "http://127.0.0.1:80/";
+            _address = "http://10.20.0.70:80/";
 
             // setup thread
             _listenThread = new Thread(Worker);
@@ -37,53 +35,52 @@ namespace Admo
             // Gogogo
             _listenThread.Start(null);
 
-            // prevent the console window from closing
-            while (true) c.ReadKey(true);
-        }
+    }
 
         private static void Worker(object state)
         {
             // start listening
-            _listener.Start();
-
-            c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
-
-            // request -> response loop
-            while (true)
+            try
             {
-                HttpListenerContext context = _listener.GetContext();
-                HttpListenerRequest request = context.Request;
-                
-                c.WriteLine(
-                    "[{0:HH:mm}] Request received from {1}",
-                    DateTime.Now,
-                    request.LocalEndPoint.Address
-                );
+                _listener.Start();
 
-                /* respond to the request.
-                 * in this case it'll show "Server appears to be working".
-                 * regardless of what file/path was requested.
-                 */
-                using (HttpListenerResponse response = context.Response)
+                // request -> response loop
+                while (true)
                 {
-                    string html = "<b>Server appears to be working Well!</b>";
-                    byte[] data = Encoding.UTF8.GetBytes(html);
+                    HttpListenerContext context = _listener.GetContext();
+                    HttpListenerRequest request = context.Request;
 
-                    response.ContentType = "text/html";
-                    response.ContentLength64 = data.Length;
-
-                    using (Stream output = response.OutputStream)
+                    /* respond to the request.
+                     * in this case it'll show "Server appears to be working".
+                     * regardless of what file/path was requested.
+                     */
+                    using (HttpListenerResponse response = context.Response)
                     {
-                        output.Write(data, 0, data.Length);
-                    }
-                }
+                        string html = "<b>Server appears to be working!</b>";
+                        byte[] data = Encoding.UTF8.GetBytes(html);
 
-                c.WriteLine(
-                    "[{0:HH:mm}] Handled request for {1}",
-                    DateTime.Now,
-                    request.LocalEndPoint.Address
-                );
+                        response.ContentType = "text/html";
+                        response.ContentLength64 = data.Length;
+
+                        using (Stream output = response.OutputStream)
+                        {
+                            output.Write(data, 0, data.Length);
+                        }
+                    }
+
+
+                }
             }
+            catch (Exception e)
+            {
+                
+                Logger.Error(e);
+            }
+          
+
+            //c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
+
+            
         }
     }
 }  

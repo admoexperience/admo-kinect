@@ -113,23 +113,27 @@ namespace Admo
         private  InternKinectState _filteredKinectState; 
         //Value between 0 and 1 indicating the degree of filtering
         private const float FilterConst = (float)0.7;
-
+        private bool _isFirstExecute = true;
         //generate string from joint coordinates to send to node server to draw stickman
         public void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
         {
             int mode = Stages(first);
             var kinectState = new KinectState { Phase = mode };
 
+
             var currState = new InternKinectState
             {
                 Head = first.Joints[JointType.Head].Position,
                 HandRight = first.Joints[JointType.HandRight].Position,
                 HandLeft = first.Joints[JointType.HandLeft].Position
-            };    
+            };
 
-            if (_filteredKinectState == null)
+            if (_isFirstExecute)
+            {
                 _filteredKinectState = currState;
-            
+                _isFirstExecute = false;
+            }
+
             //Applies filter to the state of Kinect
             currState = FilterState(currState, _filteredKinectState);
 
@@ -186,7 +190,7 @@ namespace Admo
             SocketServer.SendKinectData(kinectState);
         }
 
-        private Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
+        private static Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
         {
 
             var admoPos = new Position
