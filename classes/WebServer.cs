@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using NLog;
-//using c = System.Console;
+using System.Diagnostics;
 
 
 namespace Admo
@@ -21,8 +21,9 @@ namespace Admo
 
         public WebServer()
         {
-            _address = "http://10.20.0.70:80/";
+            _address = "https://10.20.0.70:80/";
 
+           // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
             _listenThread = new Thread(Worker);
             _listenThread.IsBackground = true;
@@ -75,6 +76,7 @@ namespace Admo
             {
                 
                 Logger.Error(e);
+                Logger.Info("Unable to setup installer");
             }
           
 

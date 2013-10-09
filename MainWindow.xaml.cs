@@ -25,7 +25,6 @@ namespace Admo
         const int SkeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[SkeletonCount];
         private KinectSensor _currentKinectSensor;
-        private String _kinectType;
         public static int KinectElevationAngle = 0;  //used in application handler
 
         private ApplicationHandler _application;
@@ -138,11 +137,11 @@ namespace Admo
             //Kinect filter parameters
             var parameters = new TransformSmoothParameters
             {
-                Smoothing = 0.5f,
-                Correction = 0.0f,
-                Prediction = 0.0f,
-                JitterRadius = 0.02f,        
-                MaxDeviationRadius = 0.04f   
+                Smoothing = 0.7f,
+                Correction = 0.3f,
+                Prediction = 1.0f,
+                JitterRadius = 1.0f,
+                MaxDeviationRadius = 1.0f
             };
 
             bool error = false;
@@ -332,10 +331,10 @@ namespace Admo
             if (Config.IsDevMode())
             {
                 // Write the pixel data into our bitmap
-                this._colorBitmap.WritePixels(
-                    new Int32Rect(0, 0, this._colorBitmap.PixelWidth, this._colorBitmap.PixelHeight),
-                    this._colorImage,
-                    this._colorBitmap.PixelWidth * sizeof(int),
+                _colorBitmap.WritePixels(
+                    new Int32Rect(0, 0, _colorBitmap.PixelWidth, _colorBitmap.PixelHeight),
+                    _colorImage,
+                    _colorBitmap.PixelWidth * sizeof(int),
                     0);
             }
             colorFrame.Dispose();
@@ -373,20 +372,20 @@ namespace Admo
             var rightHand = first.Joints[JointType.HandRight];
             if (leftHand.TrackingState == JointTrackingState.Tracked)
             {
-                leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                leftEllipse.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
             }
             else
             {
-                leftEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
+                leftEllipse.Fill = new SolidColorBrush(Color.FromRgb(0, 0, 255));
             }
 
             if (rightHand.TrackingState == JointTrackingState.Tracked)
             {
-                rightEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                rightEllipse.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
             }
             else
             {
-                rightEllipse.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255));
+                rightEllipse.Fill = new SolidColorBrush(Color.FromRgb(0, 0, 255));
             }
             //Set location
             CameraPosition(head_ellipse, headColorPoint);
