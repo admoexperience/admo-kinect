@@ -50,6 +50,7 @@ namespace Admo
         private GestureDetection _gestureDetectionRight = new GestureDetection();
         private GestureDetection _gestureDetectionLeft = new GestureDetection();
 
+        private ApplicationHandler _applicationHandler; 
         private double _angleChangeTime=LifeCycle.GetCurrentTimeInSeconds(); 
 
         public MainWindow()
@@ -95,7 +96,7 @@ namespace Admo
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
-
+            _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
   
             //start and stop old kinect sensor kinect sensor
@@ -276,9 +277,9 @@ namespace Admo
 				if (first == null)
 				{
 					//check whether there is a user in fov who's skeleton has not yet been registered
-					ApplicationHandler.FindPlayer(depthFrame);
+                    _applicationHandler.FindPlayer(depthFrame);
 					//set detection variable
-					ApplicationHandler.Detected = false;			
+                    _applicationHandler.Detected = false;			
 				}
 				else
 				{
@@ -298,7 +299,7 @@ namespace Admo
 
 
 					//Managing data send to Node                 
-					ApplicationHandler.Manage_Skeletal_Data(first,new CoordinateMapper(_currentKinectSensor));
+                    _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
 										
 				}
                
