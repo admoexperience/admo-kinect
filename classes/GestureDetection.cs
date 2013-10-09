@@ -5,7 +5,7 @@ using NLog;
 
 namespace Admo.classes
 {
-    public class HandHead
+    public struct HandHead
     {
         public HandHead(float handX, float handY, float headY)
         {
@@ -14,9 +14,9 @@ namespace Admo.classes
             HeadY = headY;
 
         }
-        public float HandX = 0;
-        public float HandY = 0;
-        public float HeadY = 0;
+        public float HandX;
+        public float HandY;
+        public float HeadY;
     }
     class GestureDetection
     {

@@ -2,7 +2,7 @@
 
 namespace Admo.classes
 {
-    class InternKinectState
+    struct InternKinectState
     {
         public SkeletonPoint Head;
         public SkeletonPoint HandRight;
