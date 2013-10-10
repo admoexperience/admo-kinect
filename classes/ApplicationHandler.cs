@@ -145,7 +145,7 @@ namespace Admo
             }
 
             //Applies filter to the state of Kinect
-            currState = FilterState(currState, _filteredKinectState);
+            currState = FilterState(currState, _filteredKinectState,FilterConst);
 
             _filteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
@@ -282,20 +282,20 @@ namespace Admo
             return current*alpha + filter*(1 - alpha);
         }
 
-        public static InternKinectState FilterState(InternKinectState currState, InternKinectState filteredState)
+        public static InternKinectState FilterState(InternKinectState currState, InternKinectState filteredState, float filterConst)
         {
-            currState.HandLeft = FilterPoint(currState.HandLeft, filteredState.HandLeft);
-            currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight);
-            currState.Head = FilterPoint(currState.Head, filteredState.Head);
+            currState.HandLeft = FilterPoint(currState.HandLeft, filteredState.HandLeft, filterConst);
+            currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight, filterConst);
+            currState.Head = FilterPoint(currState.Head, filteredState.Head, filterConst);
 
             return currState;
         }
 
-        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint)
+        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint,float filterConst)
         {
-            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, FilterConst);
-            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, FilterConst);
-            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, FilterConst);
+            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
+            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, filterConst);
+            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, filterConst);
             return currPoint;
         }
 
