@@ -81,9 +81,15 @@ namespace AdmoTests
 
 
         }
+        [TestMethod]
         public void FindPlayer()
         {
-       
+
+            var myAppHandler = new ApplicationHandler();
+            var myState = myAppHandler.FindPlayer(
+                new short[307200], 480, 640);
+            var defaultState = new KinectState();
+            Assert.AreEqual(myState.Head.X,defaultState.Head.X);
 
         }
     }

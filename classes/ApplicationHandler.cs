@@ -17,7 +17,7 @@ namespace Admo
 
         //Skeletal coordinates in meters
         //Find a possible person in the depth image
-        public void FindPlayer(short[] rawDepthData, int height, int width)
+        public KinectState FindPlayer(short[] rawDepthData, int height, int width)
         {
 
             //get the raw data from kinect with the depth for every pixel
@@ -90,7 +90,8 @@ namespace Admo
                 _lostUser = false;
             }
 
-            SocketServer.SendKinectData(kinectState);
+            return kinectState;
+            
         }
 
         private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;

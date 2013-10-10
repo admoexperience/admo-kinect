@@ -273,8 +273,11 @@ namespace Admo
 
                     depthFrame.CopyPixelDataTo(rawDepthData);
                     //check whether there is a user in fov who's skeleton has not yet been registered
-                    _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height,depthFrame.Width);
+                    
+                     var kinectState= _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height,depthFrame.Width);
+                    SocketServer.SendKinectData(kinectState);
                     //set detection variable
+                    
                     _applicationHandler.Detected = false;
                 }
                 else
