@@ -5,7 +5,7 @@ using NLog;
 
 namespace Admo
 {
-    internal class ApplicationHandler
+    public class ApplicationHandler
     {
         private static Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -278,6 +278,7 @@ namespace Admo
 
         public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
         {
+            
             return current*alpha + filter*(1 - alpha);
         }
 
