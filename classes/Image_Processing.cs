@@ -12,7 +12,7 @@ namespace Admo
     {
 
         public static int[, ,] depth_array = new int[2, 640, 480]; //(480,640)
-        public static int depth_size = 50;
+        public static int DepthSize = 50;
        
         public static int[] ProcessHands(short[] rawDepthData)
         {
@@ -22,32 +22,30 @@ namespace Admo
             
             int minDepthIndexX = 0;
             int minDepthIndexY = 0;
-            
-            int min_depth_index = 0;
+
             int minDepth = 4000;
 
             //check for primary hand
             for (int depthIndex = 0; depthIndex < rawDepthData.Length; depthIndex++)
             {
-                int depth_x = (int)(depthIndex % 640);
-                int depth_y = (int)(depthIndex / 640);
+                int depthX = (int)(depthIndex % 640);
+                int depthY = (int)(depthIndex / 640);
                 //get the player
-                depth_array[1, depth_x, depth_y] = rawDepthData[depthIndex] & 7;
+                depth_array[1, depthX, depthY] = rawDepthData[depthIndex] & 7;
                 
-                if (depth_array[1, depth_x, depth_y] > 0)
+                if (depth_array[1, depthX, depthY] > 0)
                 {
                     //gets the depth value
-                    depth_array[0, depth_x, depth_y] = rawDepthData[depthIndex] >> 3;
+                    depth_array[0, depthX, depthY] = rawDepthData[depthIndex] >> 3;
 
-                    if ((minDepth > depth_array[0, depth_x, depth_y]) && (depth_array[0, depth_x, depth_y] != -1))
+                    if ((minDepth > depth_array[0, depthX, depthY]) && (depth_array[0, depthX, depthY] != -1))
                     {
                         //set the minimum depth and the index at which it occures
-                        minDepth = depth_array[0, depth_x, depth_y];
-                        min_depth_index = depthIndex;
+                        minDepth = depth_array[0, depthX, depthY];
 
                         //sets x and y coordinates of minimum depth point
-                        minDepthIndexX = depth_x;
-                        minDepthIndexY = depth_y;
+                        minDepthIndexX = depthX;
+                        minDepthIndexY = depthY;
                     }
                 }
             }
@@ -57,26 +55,26 @@ namespace Admo
                 minDepth = 400;
             }           
 
-            int dx = depth_size = 90000/minDepth;
-            int crop_index_x = minDepthIndexX - dx / 2;
-            int crop_index_y = minDepthIndexY - dx / 2;
+            int dx = DepthSize = 90000/minDepth;
+            int cropIndexX = minDepthIndexX - dx / 2;
+            int cropIndexY = minDepthIndexY - dx / 2;
 
-            if (crop_index_x < 0)
+            if (cropIndexX < 0)
             {
-                crop_index_x = 0;
+                cropIndexX = 0;
             }
-            else if (crop_index_x > (640-dx))
+            else if (cropIndexX > (640-dx))
             {
-                crop_index_x = 640 - dx;
+                cropIndexX = 640 - dx;
             }
 
-            if (crop_index_y < 0)
+            if (cropIndexY < 0)
             {
-                crop_index_y = 0;
+                cropIndexY = 0;
             }
-            else if (crop_index_y > (480 - dx))
+            else if (cropIndexY > (480 - dx))
             {
-                crop_index_y = 480 - dx;
+                cropIndexY = 480 - dx;
             }
 
             
@@ -86,9 +84,9 @@ namespace Admo
             int totalDepth = 0;
 
 
-            for (int ty = crop_index_y; ty < (crop_index_y+dx); ty++)
+            for (int ty = cropIndexY; ty < (cropIndexY+dx); ty++)
             {
-                for (int tx = crop_index_x; tx < (crop_index_x + dx); tx++)
+                for (int tx = cropIndexX; tx < (cropIndexX + dx); tx++)
                 {
                     if (((depth_array[0, tx, ty] - minDepth) < detectionRange) && (depth_array[1, tx, ty] > 0))
                     {

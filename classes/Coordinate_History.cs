@@ -4,8 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Admo
 {
@@ -13,18 +12,16 @@ namespace Admo
     {       
 
         //filter x:y coordinates send to Traveller App
-        public static Queue<float> x_filter_depth = new Queue<float>(3);
-        public static Queue<float> y_filter_depth = new Queue<float>(3);
+        public static Queue<float> XFilterDepth = new Queue<float>(3);
+        public static Queue<float> YFilterDepth = new Queue<float>(3);
         public static float[] Filter_Depth(int x, int y)
-        {            
-            float x_average = 0;
-            float y_average = 0;
+        {
             double count = 0;
             float[] array = new float[2];
 
             try
             {
-                count = x_filter_depth.Count();
+                count = XFilterDepth.Count();
             }
             catch (Exception e)
             {
@@ -32,196 +29,193 @@ namespace Admo
 
             if (count < 3) //wait until queue is full
             {
-                x_filter_depth.Enqueue(x);
-                y_filter_depth.Enqueue(y);
+                XFilterDepth.Enqueue(x);
+                YFilterDepth.Enqueue(y);
 
                 array[0] = 0;
                 array[1] = 0;
             }
             else
             {
-                x_filter_depth.Dequeue();
-                y_filter_depth.Dequeue();
+                XFilterDepth.Dequeue();
+                YFilterDepth.Dequeue();
 
-                x_filter_depth.Enqueue(x);
-                y_filter_depth.Enqueue(y);
+                XFilterDepth.Enqueue(x);
+                YFilterDepth.Enqueue(y);
 
-                float total_x = 0;
-                float total_y = 0;
+                float totalX = 0;
+                float totalY = 0;
 
-                foreach (float xa in x_filter_depth)
+                foreach (float xa in XFilterDepth)
                 {
-                    total_x = total_x + xa;
+                    totalX = totalX + xa;
                 }
 
-                foreach (float ya in y_filter_depth)
+                foreach (float ya in YFilterDepth)
                 {
-                    total_y = total_y + ya;
+                    totalY = totalY + ya;
                 }
 
-                x_average = total_x / 3;
-                y_average = total_y/3;
+                float xAverage = totalX / 3;
+                float yAverage = totalY/3;
 
-                array[0] = x_average;
-                array[1] = y_average;
+                array[0] = xAverage;
+                array[1] = yAverage;
             }
 
             return array;
         }
 
         //filter x:y coordinates
-        public static int queue_length = 10;
-        public static int speedpoints_length = 3;
-        public static Queue<float> x_filter = new Queue<float>(queue_length);
-        public static Queue<float> y_filter = new Queue<float>(queue_length);
-        public static Queue<double> queue_test = new Queue<double>(queue_length);
+        public static int QueueLength = 10;
+        public static int SpeedpointsLength = 3;
+        public static Queue<float> XFilter = new Queue<float>(QueueLength);
+        public static Queue<float> YFilter = new Queue<float>(QueueLength);
+        public static Queue<double> QueueTest = new Queue<double>(QueueLength);
         
-        public static int speed_ratio = 0;
-        public static int read_length = 7;
-        public static int old_x = 0;
-        public static int old_y = 0;
-        public static float previous_x = 0;
-        public static float previous_y = 0;
+        public static int SpeedRatio = 0;
+        public static int ReadLength = 7;
+        public static int OldX = 0;
+        public static int OldY = 0;
+        public static float PreviousX = 0;
+        public static float PreviousY = 0;
         public static void FilterCoordinates(int x, int y)
         {
-
-            float x_average = 0;
-            float y_average = 0;
             double count = 0;
             float[] array = new float[2];
-            float[,] speed_points = new float[2, speedpoints_length];
+            float[,] speedPoints = new float[2, SpeedpointsLength];
 
             try
             {
-                count = x_filter.Count();
+                count = XFilter.Count();
             }
             catch (Exception e)
             {
             }
 
-            if (count < queue_length) //wait until queue is full
+            if (count < QueueLength) //wait until queue is full
             {
-                x_filter.Enqueue(x);
-                y_filter.Enqueue(y);
+                XFilter.Enqueue(x);
+                YFilter.Enqueue(y);
 
-                array[0] = old_x;
-                array[1] = old_y;
+                array[0] = OldX;
+                array[1] = OldY;
 
-                previous_x = (x + old_x)/2;
-                previous_y = (y + old_x)/2;
+                PreviousX = (x + OldX)/2;
+                PreviousY = (y + OldX)/2;
             }
             else
             {
 
-                float temp_x = Math.Abs(x - previous_x);
-                float temp_y = Math.Abs(y - previous_y);
+                float tempX = Math.Abs(x - PreviousX);
+                float tempY = Math.Abs(y - PreviousY);
                 //check whether there is excessive noise
-                if ((temp_x < 100) && (temp_y < 100))
+                if ((tempX < 100) && (tempY < 100))
                 {
-                    previous_x = x;
-                    previous_y = y;
+                    PreviousX = x;
+                    PreviousY = y;
 
-                    x_filter.Dequeue();
-                    y_filter.Dequeue();
+                    XFilter.Dequeue();
+                    YFilter.Dequeue();
 
-                    x_filter.Enqueue(x);
-                    y_filter.Enqueue(y);
+                    XFilter.Enqueue(x);
+                    YFilter.Enqueue(y);
 
-                    float total_x = 0;
-                    float total_y = 0;
+                    float totalX = 0;
+                    float totalY = 0;
 
                     //to keep track of loop iterations
-                    int loop_count_x = 0;
-                    int loop_count_y = 0;
+                    int loopCountX = 0;
+                    int loopCountY = 0;
 
-                    float sum_read_length = read_length * (read_length + 1) / 2;
+                    float sumReadLength = ReadLength * (ReadLength + 1) / 2;
 
                     //looping through the x queue
                     //Considering replacing with exponentially waited moving average less artifacts less memory requirments
                     //Later move to kalman filter integrate the multiple sensors
-                    foreach (float xa in x_filter)
+                    foreach (float xa in XFilter)
                     {
-                        loop_count_x++;                        
+                        loopCountX++;                        
 
                         //get the values used to calculate the speed ratio
-                        if (loop_count_x > (queue_length - speedpoints_length))
+                        if (loopCountX > (QueueLength - SpeedpointsLength))
                         {
-                            speed_points[0, (loop_count_x - (1 + queue_length - speedpoints_length))] = xa;
+                            speedPoints[0, (loopCountX - (1 + QueueLength - SpeedpointsLength))] = xa;
                         }
 
                         //get the values used for the moving average filter
-                        if (loop_count_x > (queue_length - read_length))
+                        if (loopCountX > (QueueLength - ReadLength))
                         {
-                            total_x = total_x + xa * ((float)(loop_count_x - (queue_length - read_length))) / sum_read_length;
+                            totalX = totalX + xa * ((float)(loopCountX - (QueueLength - ReadLength))) / sumReadLength;
                         }   
                     }                    
 
                     //looping through the y_queue
-                    foreach (float ya in y_filter)
+                    foreach (float ya in YFilter)
                     {
-                        loop_count_y++;                        
+                        loopCountY++;                        
 
                         //get the values used to calculate the speed ratio
-                        if (loop_count_y > (queue_length - speedpoints_length))
+                        if (loopCountY > (QueueLength - SpeedpointsLength))
                         {
-                            speed_points[1, (loop_count_y - (1+queue_length - speedpoints_length))] = ya;
+                            speedPoints[1, (loopCountY - (1+QueueLength - SpeedpointsLength))] = ya;
                         }
 
                         //get the values used for the moving average filter
                        
-                        if (loop_count_y > (queue_length - read_length))
+                        if (loopCountY > (QueueLength - ReadLength))
                         {
-                            total_y = total_y + ya * ((float)(loop_count_y - (queue_length - read_length))) / sum_read_length;
+                            totalY = totalY + ya * ((float)(loopCountY - (QueueLength - ReadLength))) / sumReadLength;
                         } 
                     }
                     
-                    x_average = total_x;
-                    y_average = total_y;
+                    float xAverage = totalX;
+                    float yAverage = totalY;
                     //Console.WriteLine(total_x + "  .. " + read_length);
 
-                    array[0] = x_average;
-                    array[1] = y_average;
+                    array[0] = xAverage;
+                    array[1] = yAverage;
 
                     //calculate the speed of the hand using coordinate history
-                    Calculate_SpeedRatio(speed_points);
+                    Calculate_SpeedRatio(speedPoints);
                 }
                 //if there are excessive noise, use skeletal tracking values
                 else
                 {
-                    array[0] = old_x;
-                    array[1] = old_y;
+                    array[0] = OldX;
+                    array[1] = OldY;
                 }
             }
 
-            Application_Handler.stick_coord[4] = Convert.ToInt32(array[0]);
-            Application_Handler.stick_coord[5] = Convert.ToInt32(array[1]);
+            //Application_Handler.StickCoord[4] = Convert.ToInt32(array[0]);
+            //Application_Handler.StickCoord[5] = Convert.ToInt32(array[1]);
         }
 
-        public static double max_speed = 80;
-        public static double max_read_length = 7;
+        public static double MaxSpeed = 80;
+        public static double MaxReadLength = 7;
 
-        public static void Calculate_SpeedRatio(float[,] speed_points)
+        public static void Calculate_SpeedRatio(float[,] speedPoints)
         {
-            float[,] coordinates = new float[2, (speedpoints_length-1)];
-            float sum_x = 0;
-            float sum_y = 0;
+            float[,] coordinates = new float[2, (SpeedpointsLength-1)];
+            float sumX = 0;
+            float sumY = 0;
 
-            for (int t = 0; t < (speedpoints_length-1); t++)
+            for (int t = 0; t < (SpeedpointsLength-1); t++)
             {
-                coordinates[0, t] = speed_points[0, (t+1)] - speed_points[0, t];
-                sum_x = sum_x + coordinates[0, t];
+                coordinates[0, t] = speedPoints[0, (t+1)] - speedPoints[0, t];
+                sumX = sumX + coordinates[0, t];
 
-                coordinates[1, t] = speed_points[1, (t+1)] - speed_points[1, t];
-                sum_y = sum_y + coordinates[1, t];
+                coordinates[1, t] = speedPoints[1, (t+1)] - speedPoints[1, t];
+                sumY = sumY + coordinates[1, t];
             }
 
-            double speed = Math.Sqrt(sum_x * sum_x + sum_y * sum_y);
+            double speed = Math.Sqrt(sumX * sumX + sumY * sumY);
 
-            double m = (1 - max_read_length) / max_speed;
+            double m = (1 - MaxReadLength) / MaxSpeed;
 
-            read_length = (int)(Math.Round((m * speed + max_read_length),0));
-            if (read_length < 1)
-                read_length = 1;
+            ReadLength = (int)(Math.Round((m * speed + MaxReadLength),0));
+            if (ReadLength < 1)
+                ReadLength = 1;
 
             //Console.WriteLine(read_length);
             //Console.WriteLine("........... " + speed);
