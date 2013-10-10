@@ -37,7 +37,7 @@ namespace Admo.classes
         private readonly Queue<HandHead> CoordHist = new Queue<HandHead>(QueueLength);
 
         private double _timeSwipeCompleted = Utils.GetCurrentTimeInSeconds();
-        private const double SwipeWaitTime = 1.2;
+        private const double FramesWaitTime = 36;
         private bool _swipeReady = true;
 
         private float _swipeEndX = 0;
@@ -109,7 +109,7 @@ namespace Admo.classes
                     {
                         _movedFromPreviousArea = false;
                         _swipePreviousX = mycoords.HandX;
-                        _timeSwipeCompleted = Utils.GetCurrentTimeInSeconds();
+                        _timeSwipeCompleted = 0;
 
                         if (swipeDiff < 0)
                         {
@@ -117,6 +117,7 @@ namespace Admo.classes
                         }
                         return "SwipeToLeft";
                     }
+                    _timeSwipeCompleted++;
                 }
             }
 
@@ -125,10 +126,7 @@ namespace Admo.classes
 
         private void SwipeTimeout()
         {
-            double currentTime = Utils.GetCurrentTimeInSeconds();
-            double timeSinceSwipe = currentTime - _timeSwipeCompleted;
-
-            _swipeReady = !(timeSinceSwipe < SwipeWaitTime);
+            _swipeReady = !(_timeSwipeCompleted < FramesWaitTime);
         }
     }
 }
