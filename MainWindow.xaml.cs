@@ -306,7 +306,7 @@ namespace Admo
         {
             //swipe gesture detection
             string gestureRight =
-                _gestureDetectionRight.GestureHandler(new HandHead(
+                _gestureDetectionRight.DetectSwipe(new HandHead(
                                                           first.Joints[JointType.HandRight].Position.X,
                                                           first.Joints[JointType.HandRight].Position.Y,
                                                           first.Joints[JointType.Head].Position.X));
@@ -314,7 +314,7 @@ namespace Admo
                 SocketServer.SendGestureEvent(gestureRight);
 
             string gestureLeft =
-                _gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X,
+                _gestureDetectionLeft.DetectSwipe(new HandHead(first.Joints[JointType.HandLeft].Position.X,
                                                                   first.Joints[JointType.HandLeft].Position.Y,
                                                                   first.Joints[JointType.Head].Position.X));
             if (gestureLeft.Length != 0)
