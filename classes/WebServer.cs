@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using NLog;
-using System.Diagnostics;
 
-
-namespace Admo
+namespace Admo.classes
 {
     public class WebServer
     {
@@ -21,9 +17,9 @@ namespace Admo
 
         public WebServer()
         {
-            _address = "https://10.20.0.70:80/";
+            _address = "http://10.20.0.70:1080/";
 
-           // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
+            // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
             _listenThread = new Thread(Worker);
             _listenThread.IsBackground = true;
@@ -35,12 +31,12 @@ namespace Admo
 
             // Gogogo
             _listenThread.Start(null);
-
-    }
+        }
 
         private static void Worker(object state)
         {
             // start listening
+
             try
             {
                 _listener.Start();
@@ -68,21 +64,13 @@ namespace Admo
                             output.Write(data, 0, data.Length);
                         }
                     }
-
-
                 }
             }
-            catch (Exception e)
+            catch
             {
-                
-                Logger.Error(e);
-                Logger.Info("Unable to setup installer");
             }
-          
 
             //c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
-
-            
         }
     }
 }  
