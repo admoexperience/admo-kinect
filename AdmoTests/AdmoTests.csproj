@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="CommandFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAlgorithms.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Admo.csproj">

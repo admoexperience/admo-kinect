@@ -276,27 +276,10 @@ namespace Admo
                 }
                 else
                 {
-                    //swipe gesture detection
-                    string gestureRight =
-                        _gestureDetectionRight.GestureHandler(new HandHead(
-                                                                  first.Joints[JointType.HandRight].Position.X,
-                                                                  first.Joints[JointType.HandRight].Position.Y,
-                                                                  first.Joints[JointType.Head].Position.X));
-                    if (gestureRight.Length != 0)
-                        SocketServer.SendGestureEvent(gestureRight);
-
-                    string gestureLeft =
-                        _gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X,
-                                                                          first.Joints[JointType.HandLeft].Position.Y,
-                                                                          first.Joints[JointType.Head].Position.X));
-                    if (gestureLeft.Length != 0)
-                        SocketServer.SendGestureEvent(gestureLeft);
+                    GetDataForSocketServer(first);
 
                     //Map the skeletal coordinates to the video map
                     MapSkeletonToVideo(first);
-
-                    //Managing data send to Node                 
-                    _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
                 }
             }
             finally
@@ -311,6 +294,27 @@ namespace Admo
                     skeletonFrameData.Dispose();
                 }
             }
+        }
+
+        private void GetDataForSocketServer(Skeleton first)
+        {
+            //swipe gesture detection
+            string gestureRight =
+                _gestureDetectionRight.GestureHandler(new HandHead(
+                                                          first.Joints[JointType.HandRight].Position.X,
+                                                          first.Joints[JointType.HandRight].Position.Y,
+                                                          first.Joints[JointType.Head].Position.X));
+            if (gestureRight.Length != 0)
+                SocketServer.SendGestureEvent(gestureRight);
+
+            string gestureLeft =
+                _gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X,
+                                                                  first.Joints[JointType.HandLeft].Position.Y,
+                                                                  first.Joints[JointType.Head].Position.X));
+            if (gestureLeft.Length != 0)
+                SocketServer.SendGestureEvent(gestureLeft);
+            //Managing data send to Node                 
+            _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
         }
 
         private void DisplayVideo(ColorImageFrame colorFrame)
