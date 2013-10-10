@@ -92,5 +92,15 @@ namespace AdmoTests
             Assert.AreEqual(myState.Head.X,defaultState.Head.X);
 
         }
+        [TestMethod]
+        public void Stages()
+        {
+            var myAppHandler = new ApplicationHandler();
+            var stage2 = myAppHandler.GetStage((float)0.6);
+            var stage1 = myAppHandler.GetStage((float)0.8);
+
+            Assert.AreEqual(1,stage2);
+            Assert.AreEqual(2, stage1);
+        }
     }
 }

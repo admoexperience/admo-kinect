@@ -110,7 +110,7 @@ namespace Admo
         //generate string from joint coordinates to send to node server to draw stickman
         public void Manage_Skeletal_Data(Skeleton first, CoordinateMapper cm)
         {
-            int mode = Stages(first.Joints[JointType.Head].Position.X);
+            int mode = GetStage(first.Joints[JointType.Head].Position.X);
 
             if (mode == 3)
             {
@@ -227,7 +227,7 @@ namespace Admo
             return admoPos;
         }
 
-        public int Stages(float headX)
+        public int GetStage(float headX)
         {
             int mode = 1;
 
