@@ -269,8 +269,11 @@ namespace Admo
                 //check whether there is a user/skeleton
                 if (first == null)
                 {
+                    var rawDepthData = new short[depthFrame.PixelDataLength];
+
+                    depthFrame.CopyPixelDataTo(rawDepthData);
                     //check whether there is a user in fov who's skeleton has not yet been registered
-                    _applicationHandler.FindPlayer(depthFrame);
+                    _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height,depthFrame.Width);
                     //set detection variable
                     _applicationHandler.Detected = false;
                 }

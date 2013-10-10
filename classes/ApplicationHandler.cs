@@ -17,24 +17,16 @@ namespace Admo
 
         //Skeletal coordinates in meters
         //Find a possible person in the depth image
-        public void FindPlayer(DepthImageFrame depthFrame)
+        public void FindPlayer(short[] rawDepthData, int height, int width)
         {
-            if (depthFrame == null)
-            {
-                return;
-            }
 
             //get the raw data from kinect with the depth for every pixel
-
-            var rawDepthData = new short[depthFrame.PixelDataLength];
 
             double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
 
-            depthFrame.CopyPixelDataTo(rawDepthData);
-
-            var pixels = new byte[depthFrame.Height*depthFrame.Width*4];
+            var pixels = new byte[height*width*4];
 
             int xCoord = 0;
             int yCoord = 0;
@@ -52,8 +44,8 @@ namespace Admo
                 // Distance user is required to stand
                 if ((depth > 400) && (depth < 2500))
                 {
-                    yCoord = depthIndex/(depthFrame.Width);
-                    xCoord = depthIndex - yCoord*(depthFrame.Width);
+                    yCoord = depthIndex/(width);
+                    xCoord = depthIndex - yCoord*(width);
                     zCoord = depth;
                     break;
                 }

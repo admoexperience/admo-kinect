@@ -7,7 +7,7 @@ using Microsoft.Kinect;
 namespace AdmoTests
 {
     [TestClass]
-    public class TestAlgorithms
+    public class ApplicationHandlerTests
     {
         [TestMethod]
         public void ExponeitialMovingAverage()
@@ -19,7 +19,36 @@ namespace AdmoTests
         }
 
         [TestMethod]
-        public void TestScaling()
+        public void SkelePointFilter()
+        {
+            var point = new SkeletonPoint
+            {
+                X = (float)10,
+                Y = (float)10,
+                Z = (float)10
+            };
+
+            var fillpoint = new SkeletonPoint
+            {
+                X = (float)1,
+                Y = (float)1,
+                Z = (float)1
+            };
+
+            var newPoint = ApplicationHandler.FilterPoint(point, fillpoint, (float) 0.5);
+
+            var test = new SkeletonPoint
+            {
+                X = (float)5.5,
+                Y = (float)5.5,
+                Z = (float)5.5
+            };
+
+            Assert.AreEqual(test,newPoint);
+        }
+        
+        [TestMethod]
+        public void Scaling()
         {
 
             //test will break if default scaling parameters change
@@ -50,6 +79,11 @@ namespace AdmoTests
             Assert.AreEqual(newPos.Y, checkPos.Y);
             Assert.AreEqual(newPos.Z, checkPos.Z);
 
+
+        }
+        public void FindPlayer()
+        {
+       
 
         }
     }
