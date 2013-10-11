@@ -128,7 +128,10 @@ namespace Admo
                 {
                     Head = first.Joints[JointType.Head].Position,
                     HandRight = first.Joints[JointType.HandRight].Position,
-                    HandLeft = first.Joints[JointType.HandLeft].Position
+                    HandLeft = first.Joints[JointType.HandLeft].Position,
+                    ElbowRight=first.Joints[JointType.ElbowRight].Position,
+                    ElbowLeft=first.Joints[JointType.ElbowLeft].Position
+
                 };
 
             if (_isFirstExecute)
@@ -136,17 +139,20 @@ namespace Admo
                 _filteredKinectState = currState;
                 _isFirstExecute = false;
             }
-
             //Applies filter to the state of Kinect
             currState = FilterState(currState, _filteredKinectState,FilterConst);
 
             _filteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
-            ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head,
+            var headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head,
                                                                              ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft,
+            var leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft,
                                                                              ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight,
+            var rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight,
+                                                                              ColorImageFormat.RgbResolution640x480Fps30);
+            var ElbowLeft = cm.MapSkeletonPointToColorPoint(currState.ElbowLeft,
+                                                                             ColorImageFormat.RgbResolution640x480Fps30);
+            var ElbowRight = cm.MapSkeletonPointToColorPoint(currState.ElbowRight,
                                                                               ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
@@ -157,6 +163,8 @@ namespace Admo
             kinectState.RightHand = ScaleCoordinates(currState.HandRight, rightColorPoint);
             kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
+            kinectState.RightElbow = ScaleCoordinates(currState.ElbowRight, headColorPoint);
+            kinectState.LeftElbow = ScaleCoordinates(currState.ElbowLeft, headColorPoint);
 
             double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeFoundUser;
@@ -280,6 +288,9 @@ namespace Admo
             currState.HandLeft = FilterPoint(currState.HandLeft, filteredState.HandLeft, filterConst);
             currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight, filterConst);
             currState.Head = FilterPoint(currState.Head, filteredState.Head, filterConst);
+            currState.ElbowLeft = FilterPoint(currState.ElbowLeft, filteredState.ElbowLeft, filterConst);
+            currState.ElbowRight = FilterPoint(currState.ElbowRight, filteredState.ElbowRight, filterConst);
+
 
             return currState;
         }
