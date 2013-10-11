@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using NLog;
+using System.Web;
 
 namespace Admo.classes
 {
@@ -17,7 +18,7 @@ namespace Admo.classes
 
         public WebServer()
         {
-            _address = "http://10.20.0.70:1080/";
+            _address = "https://localhost:9000/";
 
             // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
@@ -37,13 +38,11 @@ namespace Admo.classes
         {
             // start listening
 
-            try
-            {
+
                 _listener.Start();
 
                 // request -> response loop
-                while (true)
-                {
+
                     HttpListenerContext context = _listener.GetContext();
                     HttpListenerRequest request = context.Request;
 
@@ -53,7 +52,7 @@ namespace Admo.classes
                      */
                     using (HttpListenerResponse response = context.Response)
                     {
-                        string html = "<b>Server appears to be working!</b>";
+                        string html = "<b>Server appears to be working in https!</b>";
                         byte[] data = Encoding.UTF8.GetBytes(html);
 
                         response.ContentType = "text/html";
@@ -64,11 +63,8 @@ namespace Admo.classes
                             output.Write(data, 0, data.Length);
                         }
                     }
-                }
-            }
-            catch
-            {
-            }
+                
+   
 
             //c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
         }
