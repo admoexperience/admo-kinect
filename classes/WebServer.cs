@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using NLog;
 
@@ -19,6 +20,7 @@ namespace Admo.classes
 
         public WebServer()
         {
+
             _address = "https://localhost:9000/";
 
             // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
@@ -36,7 +38,7 @@ namespace Admo.classes
         }
 
 
-        private void Worker(object state)
+        private static void Worker(object state)
         {
             // start listening
 
@@ -56,7 +58,7 @@ namespace Admo.classes
                 var myRequest = request.RawUrl;
                 if (request.RawUrl == "/")
                 {
-                    myRequest = "Index.html";
+                    myRequest = "index.html";
                 }
                 if (myRequest.StartsWith("/"))
                 {
@@ -101,7 +103,7 @@ namespace Admo.classes
         {
             _listener.Stop();
         }
-        public static string GetMimeType(string fileName)
+        private static string GetMimeType(string fileName)
         {
             //get file extension
             var s = Path.GetExtension(fileName);
@@ -117,7 +119,7 @@ namespace Admo.classes
             }
             return "unknown/unknown";
         }
-
+        
         private static readonly Dictionary<string, string> MimeTypesDictionary = new Dictionary<string, string>
             {
                 {"ai", "application/postscript"},
@@ -309,5 +311,6 @@ namespace Admo.classes
                 {"xyz", "chemical/x-xyz"},
                 {"zip", "application/zip"}
             };
+
     }
 }  
