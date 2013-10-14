@@ -262,7 +262,6 @@ namespace Admo.classes
             x.Add("hostname",ReadConfigOption(Keys.UnitName, GetHostName()));
             x.Add("apiKey", GetApiKey());
             x.Add("cmsUri", CmsApi.CmsUrl);
-            Log.Debug(x.ToString);
             return x;
         }
 
