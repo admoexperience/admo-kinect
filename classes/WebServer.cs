@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using NLog;
-using System.Web;
+
 
 namespace Admo.classes
 {
@@ -15,6 +14,7 @@ namespace Admo.classes
         private static String _address;
         private static Thread _listenThread;
         private static HttpListener _listener;
+        private const string _myPath = @"C:/smartroom/current/";
 
         public WebServer()
         {
@@ -34,7 +34,8 @@ namespace Admo.classes
             _listenThread.Start(null);
         }
 
-        private static void Worker(object state)
+        
+        private void Worker(object state)
         {
             // start listening
 
@@ -42,7 +43,8 @@ namespace Admo.classes
                 _listener.Start();
 
                 // request -> response loop
-
+                while (_listener.IsListening)
+                {
                     HttpListenerContext context = _listener.GetContext();
                     HttpListenerRequest request = context.Request;
 
@@ -50,23 +52,50 @@ namespace Admo.classes
                      * in this case it'll show "Server appears to be working".
                      * regardless of what file/path was requested.
                      */
-                    using (HttpListenerResponse response = context.Response)
+                    var myRequest = request.RawUrl;
+                    if(request.RawUrl=="/")
                     {
-                        string html = "<b>Server appears to be working in https!</b>";
-                        byte[] data = Encoding.UTF8.GetBytes(html);
+                        myRequest = "Index.html";
+                    }
+                    if (myRequest.StartsWith("/"))
+                    {
+                        myRequest=myRequest.Remove(0, 1);
+                    }
+                    var myPath2 = Path.Combine(_myPath, myRequest);
+                    try
+                    {
 
-                        response.ContentType = "text/html";
-                        response.ContentLength64 = data.Length;
-
-                        using (Stream output = response.OutputStream)
+                        using (HttpListenerResponse response = context.Response)
                         {
-                            output.Write(data, 0, data.Length);
+
+                            var file2Serve = File.ReadAllBytes(myPath2);
+
+                            //byte[] data = Encoding.UTF8.GetBytes(html);
+                            if (request.ContentType != null)
+                                response.ContentType = request.ContentType;
+
+                            response.ContentLength64 = file2Serve.Length;
+
+                            using (Stream output = response.OutputStream)
+                            {
+                                output.Write(file2Serve, 0, file2Serve.Length);
+                            }
                         }
                     }
-                
-   
+                    catch (Exception)
+                    {
+
+                        Logger.Debug("unable to process" + myPath2);
+                    }
+
+
+                } 
 
             //c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
+        }
+        public void Close()
+        {
+            _listener.Stop();
         }
     }
 }  
