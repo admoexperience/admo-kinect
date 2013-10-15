@@ -15,7 +15,7 @@ namespace AdmoCertificateManager
             {
                 var myCert = CertificateHandler.AdmoCert;
                 if (!myCert.HasPrivateKey)
-                    Console.WriteLine("Poes");
+                    Console.WriteLine("Thats a bit of a bother");
 
                 CertificateHandler.AddCertToStore();
                 var authloc = CertificateHandler.CheckIfInStore(CertificateHandler.CertStorAuth, myCert);
@@ -23,7 +23,7 @@ namespace AdmoCertificateManager
                 if (authloc && localloc)
                 {
                     Console.WriteLine("Certificate loaded");
-
+                    Thread.Sleep(1000);
                     Console.WriteLine(CertificateHandler.BindApp2Cert());
                     Thread.Sleep(1000);
                 }
