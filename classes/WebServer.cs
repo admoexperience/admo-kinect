@@ -25,20 +25,18 @@ namespace Admo.classes
 
             // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
-            _listenThread = new Thread(Worker);
-            _listenThread.IsBackground = true;
-            _listenThread.Priority = ThreadPriority.Normal;
+            _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
 
             // setup listener
             _listener = new HttpListener();
             _listener.Prefixes.Add(_address);
 
             // Gogogo
-            _listenThread.Start(null);
+            _listenThread.Start();
         }
 
 
-        private static void Worker(object state)
+        private static void Worker()
         {
             // start listening
 
