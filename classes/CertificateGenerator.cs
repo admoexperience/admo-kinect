@@ -29,7 +29,8 @@ namespace Admo.classes
         /// <returns>Certificate</returns>
         public static X509Certificate2 CreateSelfSigned(string distinguishedName, DateTime validFrom, DateTime validUntil, SecureString passphrase)
         {
-            var rawCert = File.ReadAllBytes("AdmoWebUiLocalhostCert.cer");
+            var rawCert = CertificateApi.CreateSelfSignCertificatePfx(distinguishedName, validFrom, validUntil,
+                                                                      passphrase);
             return new X509Certificate2(rawCert);
 
         }

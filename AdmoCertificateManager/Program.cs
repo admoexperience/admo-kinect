@@ -13,6 +13,7 @@ namespace AdmoCertificateManager
 
             if (args.Length == 0 )
             {
+                //CertificateHandler.CreateCert();
                 var myCert = CertificateHandler.AdmoCert;
                 if (!myCert.HasPrivateKey)
                     Console.WriteLine("Thats a bit of a bother");
@@ -24,12 +25,13 @@ namespace AdmoCertificateManager
                 {
                     Console.WriteLine("Certificate loaded");
                     Thread.Sleep(1000);
+                    Console.WriteLine(CertificateHandler.DeleteOldCerts());
                     Console.WriteLine(CertificateHandler.BindApp2Cert());
                     Thread.Sleep(1000);
                 }
                 else
                 {
-                    Console.WriteLine("Failed To load certificate" + authloc.ToString()+ localloc.ToString());
+                    Console.WriteLine("Failed To load certificate " + authloc.ToString()+ localloc.ToString());
                     Thread.Sleep(1000);
                 }
             }
