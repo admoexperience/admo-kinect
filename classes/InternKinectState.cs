@@ -7,5 +7,7 @@ namespace Admo.classes
         public SkeletonPoint Head;
         public SkeletonPoint HandRight;
         public SkeletonPoint HandLeft;
+        public SkeletonPoint ElbowLeft;
+        public SkeletonPoint ElbowRight;
     }
 }
