@@ -127,7 +127,9 @@ namespace Admo
             {
                 Head = first.Joints[JointType.Head].Position,
                 HandRight = first.Joints[JointType.HandRight].Position,
-                HandLeft = first.Joints[JointType.HandLeft].Position
+                HandLeft = first.Joints[JointType.HandLeft].Position,
+                ElbowLeft = first.Joints[JointType.ElbowLeft].Position,
+                ElbowRight = first.Joints[JointType.ElbowRight].Position
             };    
 
             if (FilteredKinectState == null)
@@ -141,6 +143,8 @@ namespace Admo
             ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head, ColorImageFormat.RgbResolution640x480Fps30);
             ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft, ColorImageFormat.RgbResolution640x480Fps30);
             ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint rightElbowColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight, ColorImageFormat.RgbResolution640x480Fps30);
+            ColorImagePoint leftElbowColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight, ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
             TheHacks.UncalibratedCoordinates[2] = leftColorPoint.X;
@@ -150,6 +154,9 @@ namespace Admo
             kinectState.RightHand = ScaleCoordinates(currState.HandRight, rightColorPoint);
             kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
+            kinectState.LeftElbow = ScaleCoordinates(currState.ElbowLeft, leftElbowColorPoint);
+            kinectState.RightElbow = ScaleCoordinates(currState.ElbowRight, rightElbowColorPoint);
+
 
             double timeNow = LifeCycle.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - TimeFoundUser;
@@ -281,6 +288,8 @@ namespace Admo
             currState.HandLeft=FilterPoint(currState.HandLeft, filteredState.HandLeft);
             currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight);
             currState.Head = FilterPoint(currState.Head, filteredState.Head);
+            currState.ElbowRight = FilterPoint(currState.ElbowRight, filteredState.ElbowRight);
+            currState.ElbowLeft = FilterPoint(currState.ElbowLeft, filteredState.ElbowLeft);
 
             return currState;
         }
