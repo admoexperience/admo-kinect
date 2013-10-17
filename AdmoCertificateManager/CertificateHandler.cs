@@ -13,7 +13,8 @@ namespace AdmoCertificateManager
         {
             get
             {
-                return new X509Certificate2("C:/smartroom/certs/bundle.p12", "1234");
+                return new X509Certificate2("C:/smartroom/certs/bundle.p12", "1234"
+                    ,X509KeyStorageFlags.PersistKeySet|X509KeyStorageFlags.Exportable|X509KeyStorageFlags.MachineKeySet);
             }
         }
         //public static X509Certificate2 AdmoCert = CertificateGenerator.CreateSelfSigned("AdmoCertificate", DateTime.Now,
@@ -26,7 +27,7 @@ namespace AdmoCertificateManager
 
             try
             {
-                CertStorAuth.Open(OpenFlags.ReadWrite);
+                CertStorAuth.Open(OpenFlags.MaxAllowed);
                 CertStorAuth.Add(AdmoCert);
                 CertStorAuth.Close();
             }
