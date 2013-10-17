@@ -150,9 +150,9 @@ namespace Admo
                                                                              ColorImageFormat.RgbResolution640x480Fps30);
             var rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight,
                                                                               ColorImageFormat.RgbResolution640x480Fps30);
-            var ElbowLeft = cm.MapSkeletonPointToColorPoint(currState.ElbowLeft,
+            var elbowLeft = cm.MapSkeletonPointToColorPoint(currState.ElbowLeft,
                                                                              ColorImageFormat.RgbResolution640x480Fps30);
-            var ElbowRight = cm.MapSkeletonPointToColorPoint(currState.ElbowRight,
+            var elbowRight = cm.MapSkeletonPointToColorPoint(currState.ElbowRight,
                                                                               ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
@@ -163,8 +163,8 @@ namespace Admo
             kinectState.RightHand = ScaleCoordinates(currState.HandRight, rightColorPoint);
             kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
-            kinectState.RightElbow = ScaleCoordinates(currState.ElbowRight, headColorPoint);
-            kinectState.LeftElbow = ScaleCoordinates(currState.ElbowLeft, headColorPoint);
+            kinectState.RightElbow = ScaleCoordinates(currState.ElbowRight, elbowRight);
+            kinectState.LeftElbow = ScaleCoordinates(currState.ElbowLeft, elbowLeft);
 
             double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeFoundUser;
