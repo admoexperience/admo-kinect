@@ -109,9 +109,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
-    <Compile Include="classes\CertificateGenerator.cs" />
-    <Compile Include="classes\CertificateApi.cs" />
-    <Compile Include="classes\CertificateHandler.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
     <Compile Include="classes\TheHacks.cs" />
