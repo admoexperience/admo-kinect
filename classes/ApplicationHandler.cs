@@ -22,32 +22,32 @@ namespace Admo
 
             //get the raw data from kinect with the depth for every pixel
 
-            double timeNow = Utils.GetCurrentTimeInSeconds();
-            double timeDelta = timeNow - _timeLostUser;
+            var timeNow = Utils.GetCurrentTimeInSeconds();
+            var timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
-
-            var pixels = new byte[height*width*4];
-
-            int xCoord = 0;
-            int yCoord = 0;
-            int zCoord = 0;
 
             //loop through all distances
             //pick a RGB color based on distance
-            for (int depthIndex = 0, colorIndex = 0;
-                 depthIndex < rawDepthData.Length && colorIndex < pixels.Length;
-                 depthIndex++, colorIndex += 4)
-            {
-                //gets the depth value
-                int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
 
-                // Distance user is required to stand
-                if ((depth > 400) && (depth < 2500))
+
+            var zCoord=0;
+            var xCoord=0;
+            var yCoord=0;
+
+            for (var xcoord = 0; xcoord < width; xcoord++)
+            {
+                for (var ycoord = 0; ycoord < height; ycoord++)
                 {
-                    yCoord = depthIndex/(width);
-                    xCoord = depthIndex - yCoord*(width);
-                    zCoord = depth;
-                    break;
+                    //bitshift conversion for some reason the kinect needs it
+                    var currDepth = rawDepthData[ycoord + xcoord * height] >> DepthImageFrame.PlayerIndexBitmaskWidth; ;
+                    if ((currDepth > 400) && (currDepth < 2500))
+                    {
+                        xCoord = xcoord;
+                        yCoord = ycoord;
+                        zCoord = currDepth;
+                        xcoord = width;
+                        ycoord = height;
+                    }
                 }
             }
 

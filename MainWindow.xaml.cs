@@ -264,7 +264,7 @@ namespace Admo
 
                 //get closest skeleton
                 skeletonFrameData.CopySkeletonDataTo(allSkeletons);
-                Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
+                var first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
                 //check whether there is a user/skeleton
                 if (first == null)
