@@ -86,8 +86,34 @@ namespace AdmoTests
         {
 
             var myAppHandler = new ApplicationHandler();
+            // Test if sending just zeros returns default state
+            var depthData = new short[307200];
+
+            //Prefere way to loop through array stored in column major format
+            //Still fast because sequentially accessing elements however still
+            //readable 
+
+            const int height = 480;
+    
+
+            depthData[200*height + 300] = 500*8;
+
+            var myState2 = myAppHandler.FindPlayer(
+                depthData, 480, 640);
+
+
+            //check if switching to phase 2 fails.
+            // Regression 
+            //Check if correct phase
+            Assert.AreEqual(myState2.Phase, 1);
+
+
+ 
             var myState = myAppHandler.FindPlayer(
                 new short[307200], 480, 640);
+
+           // var 
+
             var defaultState = new KinectState();
             Assert.AreEqual(myState.Head.X,defaultState.Head.X);
 
@@ -102,5 +128,6 @@ namespace AdmoTests
             Assert.AreEqual(1,stage2);
             Assert.AreEqual(2, stage1);
         }
+        
     }
 }
