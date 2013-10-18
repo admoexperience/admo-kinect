@@ -21,6 +21,7 @@ namespace AdmoCertificateManager
         //                                                                               DateTime.Now.AddYears(15), "1234");
         public static X509Store CertStorAuth = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
         public static X509Store CertStorLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+        public static string Port = "5001";
 
         public static void AddCertToStore()
         {
@@ -104,8 +105,8 @@ namespace AdmoCertificateManager
         {
             //var args = new string[] {"http", "add", "sslcert", "ipport=0.0.0.0:9000","appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8}","certhash=" +
             //   
-            string arguments = "http add sslcert ipport=0.0.0.0:5500 " +
-                               "appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
+            string arguments = "http add sslcert ipport=0.0.0.0:" + Port +
+                               " appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
                                AdmoCert.GetCertHashString();
             var p = new Process
             {
@@ -124,7 +125,7 @@ namespace AdmoCertificateManager
         public static string DeleteOldCerts()
         {
 
-            const string arguments2 = "http delete sslcert ipport=0.0.0.0:5500";
+            string arguments2 = @"http delete sslcert ipport=0.0.0.0:" + Port;
             var p = new Process
             {
                 StartInfo =
@@ -138,6 +139,21 @@ namespace AdmoCertificateManager
             p.Start();
             return p.StandardOutput.ReadToEnd();
 
+        }
+        public static string GrantPermissionToUseUrl()
+        {
+           var p = new Process
+            {
+                StartInfo =
+                {
+                    FileName = "netsh.exe",
+                    Arguments = "http add urlacl url=https://+:" + Port + @"/ user=""NT AUTHORITY\Authenticated Users""",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                }
+            };
+            p.Start();
+            return p.StandardOutput.ReadToEnd();
         }
 
 

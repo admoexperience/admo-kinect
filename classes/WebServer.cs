@@ -17,11 +17,11 @@ namespace Admo.classes
         private static HttpListener _listener;
         private const string CurrentPath = @"C:/smartroom/pods/current/";
         private const string OveridePath = @"C:/smartroom/pods/overide/";
-
+        public static string Port = "5001";
         public WebServer()
         {
 
-            _address = "https://+:5500/";
+            _address = "https://+:" + Port + "/";
 
             // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
