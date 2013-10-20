@@ -53,10 +53,10 @@ namespace Admo.classes
                      * in this case it'll show "Server appears to be working".
                      * regardless of what file/path was requested.
                      */
-                var myRequest = request.RawUrl;
-                if (request.RawUrl == "/")
+                var myRequest = request.Url.AbsolutePath;
+                if (request.RawUrl.EndsWith("/"))
                 {
-                    myRequest = "index.html";
+                    myRequest += "index.html";
                 }
                 if (myRequest.StartsWith("/"))
                 {
@@ -289,6 +289,7 @@ namespace Admo.classes
                 {"wmlc", "application/vnd.wap.wmlc"},
                 {"wmls", "text/vnd.wap.wmlscript"},
                 {"wmlsc", "application/vnd.wap.wmlscriptc"},
+                {"woff", "application/font-woff"},
                 {"wrl", "model/vrml"},
                 {"xbm", "image/x-xbitmap"},
                 {"xht", "application/xhtml+xml"},
