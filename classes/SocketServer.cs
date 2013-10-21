@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Admo.classes;
 using Newtonsoft.Json;
 using NLog;
@@ -27,6 +26,7 @@ namespace Admo
             Logger.Info("Starting SocketIOClient server");
             _server = new WebSocketServer("ws://localhost:1080");
             AllSockets = new List<IWebSocketConnection>();
+            
             _server.Start(socket =>
             {
                 socket.OnOpen = () =>
