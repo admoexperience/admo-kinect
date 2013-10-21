@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
 
@@ -7,147 +8,115 @@ namespace AdmoCertificateManager
 {
     public class CertificateHandler
     {
-        //private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+       
+        public X509Store CertStoreAuth = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+        public X509Store CertStoerLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+        public readonly string Port;
+        public const string DefaultPort = "5001";
+        public const string DefaultCertFile = "bundle.p12";
+        public const string DefaultPassword = "1234";
 
-        public static X509Certificate2 AdmoCert
+        public X509Certificate2 AdmoCert
         {
             get
             {
-                return new X509Certificate2("bundle.p12", "1234"
-                    ,X509KeyStorageFlags.PersistKeySet|X509KeyStorageFlags.Exportable|X509KeyStorageFlags.MachineKeySet);
+                return new X509Certificate2(DefaultCertFile, DefaultPassword,
+                    X509KeyStorageFlags.PersistKeySet |
+                    X509KeyStorageFlags.Exportable | 
+                    X509KeyStorageFlags.MachineKeySet);
             }
         }
-        //public static X509Certificate2 AdmoCert = CertificateGenerator.CreateSelfSigned("AdmoCertificate", DateTime.Now,
-        //                                                                               DateTime.Now.AddYears(15), "1234");
-        public static X509Store CertStorAuth = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
-        public static X509Store CertStorLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-        public static string Port = "5001";
 
-        public static void AddCertToStore()
+        public CertificateHandler(String portNumber)
         {
-
-            try
-            {
-                CertStorAuth.Open(OpenFlags.MaxAllowed);
-                CertStorAuth.Add(AdmoCert);
-                CertStorAuth.Close();
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("failed to add cert to Authority store");
-            }
-
-            try
-            {
-                CertStorLocal.Open(OpenFlags.ReadWrite);
-                CertStorLocal.Add(AdmoCert);
-                CertStorLocal.Close();
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("failed to add cert to my store");
-            }
-
+            Port = portNumber;
         }
-        public static void RemoveFromStore()
+
+
+        public void AddCertToStore()
         {
-
-            try
-            {
-                CertStorAuth.Open(OpenFlags.ReadWrite);
-
-                CertStorAuth.Remove(AdmoCert);
-                CertStorAuth.Close();
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("failed to Remove cert to Authority store");
-            }
-
-
-            try
-            {
-                CertStorLocal.Open(OpenFlags.ReadWrite);
-
-                CertStorLocal.Remove(AdmoCert);
-                CertStorLocal.Close();
-
-
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("failed to Remove cert to my store");
-            }
-
+            Console.WriteLine("Attempting to add it to AuthStore");
+            AddCertToStore(CertStoreAuth);
+            Console.WriteLine("Attempting to add it to MyStore");
+            AddCertToStore(CertStoerLocal);
         }
-        public static bool CheckIfInStore(X509Store store, X509Certificate2 cert)
+
+        public void RemoveFromStore()
+        {
+            Console.WriteLine("Attempting to remove it from AuthStore");
+            RemoveFromStore(CertStoreAuth);
+            Console.WriteLine("Attempting to remove it from MyStore");
+            RemoveFromStore(CertStoerLocal);
+        }
+
+
+        public bool CheckIfInStore(X509Store store, X509Certificate2 cert)
         {
             store.Open(OpenFlags.ReadOnly);
             var storeCerts = store.Certificates;
-            foreach (X509Certificate2 storecert in storeCerts)
-            {
-                if (storecert.GetHashCode() == cert.GetHashCode())
-                {
-                    store.Close();
-                    return true;
-                }
-            }
-
+            var found = storeCerts.Cast<X509Certificate2>().Any(storecert => storecert.GetHashCode() == cert.GetHashCode());
             store.Close();
-            return false;
+            return found;
         }
 
-        public static string BindApp2Cert()
+        public string BindApp2Cert()
         {
-            //var args = new string[] {"http", "add", "sslcert", "ipport=0.0.0.0:9000","appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8}","certhash=" +
-            //   
-            string arguments = "http add sslcert ipport=0.0.0.0:" + Port +
-                               " appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
-                               AdmoCert.GetCertHashString();
+            return RunNetshCommand("http add sslcert ipport=0.0.0.0:" + Port +" "+
+                               "appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
+                               AdmoCert.GetCertHashString());
+        }
+
+
+        public string DeleteOldCerts()
+        {
+            return RunNetshCommand(@"http delete sslcert ipport=0.0.0.0:" + Port);
+        }
+
+
+        public string GrantPermissionToUseUrl()
+        {
+            return RunNetshCommand("http add urlacl url=https://+:" + Port + @"/ user=""NT AUTHORITY\Authenticated Users""");
+        }
+
+
+        private void AddCertToStore(X509Store store)
+        {
+            try
+            {
+                store.Open(OpenFlags.MaxAllowed);
+                store.Add(AdmoCert);
+                store.Close();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Failed to add cert to " + store.Name);
+            }
+        }
+
+
+        private void RemoveFromStore(X509Store store)
+        {
+            try
+            {
+                store.Open(OpenFlags.ReadWrite);
+                store.Remove(AdmoCert);
+                store.Close();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("failed to Remove cert to " + store.Name);
+            }
+        }
+
+
+        private static string RunNetshCommand(string cmd)
+        {
             var p = new Process
             {
                 StartInfo =
                 {
                     FileName = "netsh.exe",
-                    Arguments = arguments,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                }
-            };
-            p.Start();
-
-            return p.StandardOutput.ReadToEnd();
-        }
-        public static string DeleteOldCerts()
-        {
-
-            string arguments2 = @"http delete sslcert ipport=0.0.0.0:" + Port;
-            var p = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "netsh.exe",
-                    Arguments = arguments2,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                }
-            };
-            p.Start();
-            return p.StandardOutput.ReadToEnd();
-
-        }
-        public static string GrantPermissionToUseUrl()
-        {
-           var p = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "netsh.exe",
-                    Arguments = "http add urlacl url=https://+:" + Port + @"/ user=""NT AUTHORITY\Authenticated Users""",
+                    Arguments = cmd,
                     UseShellExecute = false,
                     RedirectStandardOutput = true
                 }

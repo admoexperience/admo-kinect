@@ -97,6 +97,7 @@ namespace Admo
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
             _webServer = new WebServer();
+            _webServer.Start();
 
             _application = new ApplicationHandler();
 

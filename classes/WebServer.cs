@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using NLog;
 
@@ -12,35 +11,33 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static String _address;
-        private static Thread _listenThread;
-        private static HttpListener _listener;
+        private readonly String _address;
+        private readonly Thread _listenThread;
+        private readonly HttpListener _listener;
         private const string CurrentPath = @"C:/smartroom/pods/current/";
-        private const string OveridePath = @"C:/smartroom/pods/overide/";
+        private const string OverridePath = @"C:/smartroom/pods/override/";
         public static string Port = "5001";
+
         public WebServer()
         {
-
             _address = "https://+:" + Port + "/";
-
-            // Process.Start("cmd", "/C copy c:\\file.txt lpt1");
             // setup thread
             _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
 
             // setup listener
             _listener = new HttpListener();
             _listener.Prefixes.Add(_address);
+        }
 
-            // Gogogo
+        public void Start()
+        {
             _listenThread.Start();
         }
 
 
-        private static void Worker()
+        private void Worker()
         {
             // start listening
-
-
             _listener.Start();
 
             // request -> response loop
@@ -53,35 +50,34 @@ namespace Admo.classes
                      * in this case it'll show "Server appears to be working".
                      * regardless of what file/path was requested.
                      */
-                var myRequest = request.RawUrl;
-                if (request.RawUrl == "/")
+                var myRequest = request.Url.AbsolutePath;
+                if (request.RawUrl.EndsWith("/"))
                 {
-                    myRequest = "index.html";
+                    myRequest += "index.html";
                 }
                 if (myRequest.StartsWith("/"))
                 {
                     myRequest = myRequest.Remove(0, 1);
                 }
-                string myPath = Path.Combine(OveridePath, myRequest);
 
+                //First try find it in the overide folder
+                var myPath = Path.Combine(OverridePath, myRequest);
+
+                //If the file was not overriden
                 if (!File.Exists(myPath))
                 {
                     myPath = Path.Combine(CurrentPath, myRequest);
                 }
 
                 var mimeExtension = GetMimeType(myPath);
+                //TODO: handle files not found, 404
                 try
                 {
                     using (var response = context.Response)
                     {
                         var file2Serve = File.ReadAllBytes(myPath);
-
-                        //byte[] data = Encoding.UTF8.GetBytes(html);
-                        //if (request.ContentType != null)
-                            response.ContentType = mimeExtension;
-
+                        response.ContentType = mimeExtension;
                         response.ContentLength64 = file2Serve.Length;
-
                         using (var output = response.OutputStream)
                         {
                             output.Write(file2Serve, 0, file2Serve.Length);
@@ -93,31 +89,29 @@ namespace Admo.classes
                     Logger.Debug("unable to process" + myPath);
                 }
             }
-
-            //c.WriteLine("[{0:HH:mm}] Running", DateTime.Now);
         }
 
         public void Close()
         {
             _listener.Stop();
         }
+
         private static string GetMimeType(string fileName)
         {
             //get file extension
             var s = Path.GetExtension(fileName);
             if (s != null)
             {
-                string extension = s.ToLowerInvariant();
+                var extension = s.ToLowerInvariant().Remove(0, 1);
 
-                if (extension.Length > 0 &&
-                    MimeTypesDictionary.ContainsKey(extension.Remove(0, 1)))
+                if (MimeTypesDictionary.ContainsKey(extension))
                 {
-                    return MimeTypesDictionary[extension.Remove(0, 1)];
+                    return MimeTypesDictionary[extension];
                 }
             }
             return "unknown/unknown";
         }
-        
+
         private static readonly Dictionary<string, string> MimeTypesDictionary = new Dictionary<string, string>
             {
                 {"ai", "application/postscript"},
@@ -289,6 +283,7 @@ namespace Admo.classes
                 {"wmlc", "application/vnd.wap.wmlc"},
                 {"wmls", "text/vnd.wap.wmlscript"},
                 {"wmlsc", "application/vnd.wap.wmlscriptc"},
+                {"woff", "application/font-woff"},
                 {"wrl", "model/vrml"},
                 {"xbm", "image/x-xbitmap"},
                 {"xht", "application/xhtml+xml"},
@@ -309,6 +304,5 @@ namespace Admo.classes
                 {"xyz", "chemical/x-xyz"},
                 {"zip", "application/zip"}
             };
-
     }
-}  
+}
