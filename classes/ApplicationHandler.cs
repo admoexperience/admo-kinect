@@ -30,9 +30,9 @@ namespace Admo
             //pick a RGB color based on distance
 
 
-            var zCoord=0;
-            var xCoord=0;
-            var yCoord=0;
+            var zCoord = 0;
+            var xCoord = 0;
+            var yCoord = 0;
 
             for (var xcoord = 0; xcoord < width; xcoord++)
             {
@@ -51,7 +51,7 @@ namespace Admo
                 }
             }
 
-            var kinectState = new KinectState {Phase = 1};
+            var kinectState = new KinectState { Phase = 1 };
 
             if ((xCoord > 50) && (xCoord < 590) && (yCoord < 250))
             {
@@ -60,12 +60,12 @@ namespace Admo
                 the first pixel (array_xy) would be at the top left corner of the user's head to get the centre of the user's head,
                 * we must add a dynamic variable (which change depending on how far away the user is) to the x and y coordinates */
 
-                double xMiddle = 35000/zCoord;
-                double yMiddle = 80000/zCoord;
+                double xMiddle = 35000 / zCoord;
+                double yMiddle = 80000 / zCoord;
 
 
-                xCoord = (int) (xCoord + xMiddle);
-                yCoord = (int) (yCoord + yMiddle);
+                xCoord = (int)(xCoord + xMiddle);
+                yCoord = (int)(yCoord + yMiddle);
 
                 kinectState.SetHead(xCoord, yCoord, zCoord, 0, 0);
                 kinectState.Phase = 2;
@@ -91,10 +91,10 @@ namespace Admo
             }
 
             return kinectState;
-            
+
         }
 
-        private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+        private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
         public bool Detected = false;
         private bool _firstDetection = true;
 
@@ -105,7 +105,7 @@ namespace Admo
         private double _timeFoundUser = Utils.GetCurrentTimeInSeconds();
         private InternKinectState _filteredKinectState;
         //Value between 0 and 1 indicating the degree of filtering
-        public const float FilterConst = (float) 0.7;
+        public const float FilterConst = (float)0.7;
         private bool _isFirstExecute = true;
         //generate string from joint coordinates to send to node server to draw stickman
         public void Manage_Skeletal_Data(Skeleton first, CoordinateMapper cm)
@@ -122,17 +122,17 @@ namespace Admo
                 }
             }
 
-            var kinectState = new KinectState {Phase = mode};
+            var kinectState = new KinectState { Phase = mode };
 
             var currState = new InternKinectState
-                {
-                    Head = first.Joints[JointType.Head].Position,
-                    HandRight = first.Joints[JointType.HandRight].Position,
-                    HandLeft = first.Joints[JointType.HandLeft].Position,
-                    ElbowRight=first.Joints[JointType.ElbowRight].Position,
-                    ElbowLeft=first.Joints[JointType.ElbowLeft].Position
+            {
+                Head = first.Joints[JointType.Head].Position,
+                HandRight = first.Joints[JointType.HandRight].Position,
+                HandLeft = first.Joints[JointType.HandLeft].Position,
+                ElbowRight = first.Joints[JointType.ElbowRight].Position,
+                ElbowLeft = first.Joints[JointType.ElbowLeft].Position
 
-                };
+            };
 
             if (_isFirstExecute)
             {
@@ -140,7 +140,7 @@ namespace Admo
                 _isFirstExecute = false;
             }
             //Applies filter to the state of Kinect
-            currState = FilterState(currState, _filteredKinectState,FilterConst);
+            currState = FilterState(currState, _filteredKinectState, FilterConst);
 
             _filteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
@@ -206,11 +206,11 @@ namespace Admo
         public static Position ScaleCoordinates(SkeletonPoint pos, ColorImagePoint colorImagePoint)
         {
             var admoPos = new Position
-                {
-                    X = (int) ((colorImagePoint.X - TheHacks.FovLeft)*(KinectFovWidth/TheHacks.FovWidth)),
-                    Y = (int) ((colorImagePoint.Y - TheHacks.FovTop)*(KinectFovHeight/TheHacks.FovHeight)),
-                    Z = (int) (pos.Z*1000)
-                };
+            {
+                X = (int)((colorImagePoint.X - TheHacks.FovLeft) * (KinectFovWidth / TheHacks.FovWidth)),
+                Y = (int)((colorImagePoint.Y - TheHacks.FovTop) * (KinectFovHeight / TheHacks.FovHeight)),
+                Z = (int)(pos.Z * 1000)
+            };
 
             if (admoPos.X < 0)
             {
@@ -239,7 +239,7 @@ namespace Admo
         {
             int mode = 1;
 
-            double timeNow = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
 
             //if user is detected and is in middle of screen
             if (Math.Abs(headX) < 0.7) // | (detected == true))
@@ -248,7 +248,7 @@ namespace Admo
                 if (_firstDetection)
                 {
                     _firstDetection = false;
-                    _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+                    _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
                 }
                 else
                 {
@@ -279,8 +279,8 @@ namespace Admo
 
         public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
         {
-            
-            return current*alpha + filter*(1 - alpha);
+
+            return current * alpha + filter * (1 - alpha);
         }
 
         public static InternKinectState FilterState(InternKinectState currState, InternKinectState filteredState, float filterConst)
@@ -295,7 +295,7 @@ namespace Admo
             return currState;
         }
 
-        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint,float filterConst)
+        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint, float filterConst)
         {
             currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
             currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, filterConst);
@@ -307,7 +307,7 @@ namespace Admo
         {
             //read calibration values from CMS if calibration app has not been set to run
             //use legacy calibration values if there is no calibration values in the CMS
-            string tempTop = Config.ReadConfigOption(Config.Keys.FovCropTop, "56");
+            var tempTop = Config.ReadConfigOption(Config.Keys.FovCropTop, "56");
             string tempLeft = Config.ReadConfigOption(Config.Keys.FovCropLeft, "52");
             string tempWidth = Config.ReadConfigOption(Config.Keys.FovCropWidth, "547");
 
@@ -316,7 +316,7 @@ namespace Admo
             TheHacks.FovTop = Convert.ToInt32(tempTop);
             TheHacks.FovLeft = Convert.ToInt32(tempLeft);
             TheHacks.FovWidth = Convert.ToInt32(tempWidth);
-            TheHacks.FovHeight = TheHacks.FovWidth*3/4;
+            TheHacks.FovHeight = TheHacks.FovWidth * 3 / 4;
         }
     }
 }
