@@ -20,7 +20,7 @@ namespace AdmoTests.stats
 
             var request = mp.FormatRequestForTrack(s);
 
-            Assert.AreEqual("https://api.mixpanel.com/track/?verbose=1&test=1&" +
+            Assert.AreEqual("https://api.mixpanel.com/track/?" +
                 "data=eyJldmVudCI6IiRib3JuIiwicHJvcGVydGllcyI6eyJkaXN0aW5jdF9pZCI6NDgxLCJ0aW1lIjoxMzIxNDk5MzcxLCJ0b2tlbiI6IjEzZmUzZGRjODZlYjZmOTBjNGVlN2QwZDQ3NTYzMTUwIn19", request);
         }
 
@@ -35,7 +35,7 @@ namespace AdmoTests.stats
             var request = mp.FormatRequestForImport(s);
 
             Assert.AreEqual("https://api.mixpanel.com/import/"+
-                "?api_key=7a7727f7880dc39463f99475e7cefcf8&verbose=1&test=1&" +
+                "?api_key=7a7727f7880dc39463f99475e7cefcf8&" +
                 "data=eyJldmVudCI6IiRib3JuIiwicHJvcGVydGllcyI6eyJkaXN0aW5jdF9pZCI6NDgxLCJ0aW1lIjoxMzIxNDk5MzcxLCJ0b2tlbiI6IjEzZmUzZGRjODZlYjZmOTBjNGVlN2QwZDQ3NTYzMTUwIn19", request);
         }
 

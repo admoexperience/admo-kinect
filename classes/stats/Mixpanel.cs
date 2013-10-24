@@ -13,6 +13,7 @@ namespace Admo.classes.stats
         public const String BaseUrl = "https://api.mixpanel.com";
         public const String ImportUri = "/import/";
         public const String TrackUri = "/track/";
+        public Boolean Debug = false;
 
         public Mixpanel(String apiKey, String token)
         {
@@ -24,8 +25,12 @@ namespace Admo.classes.stats
         {
             //Embed the trackingtoken
             request.Properties.Add("token",Token);
-            var url = BaseUrl + TrackUri + "?verbose=1&test=1&"+
+            var url = BaseUrl + TrackUri + "?"+
                 "data=" + request.AsBase64();
+            if (Debug)
+            {
+                url += "&verbose=1&test=1";
+            }
             return url;
         }
 
@@ -33,15 +38,19 @@ namespace Admo.classes.stats
         {
             //Embed the trackingtoken
             request.Properties.Add("token", Token);
-            var url = BaseUrl + ImportUri + "?api_key="+ApiKey+"&verbose=1&test=1&" +
+            var url = BaseUrl + ImportUri + "?api_key="+ApiKey+"&" +
                 "data=" + request.AsBase64();
+            if (Debug)
+            {
+                url += "&verbose=1&test=1";
+            }
             return url;
         }
 
 
         public long AsEpocTime(DateTime dateTime)
         {
-            return Utils.AsEpocTime(dateTime);
+            return Utils.AsEpochTime(dateTime);
         }
     }
 }

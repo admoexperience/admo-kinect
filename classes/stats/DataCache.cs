@@ -27,7 +27,7 @@ namespace Admo.classes.stats
 
         public void InsertData(String data)
         {
-            var filename = Utils.AsEpocTime(DateTime.UtcNow);
+            var filename = Utils.AsEpochTime(DateTime.UtcNow);
             if (!Directory.Exists(_folder))
             {
                 Directory.CreateDirectory(_folder);
