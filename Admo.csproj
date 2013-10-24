@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -80,6 +80,7 @@
       <HintPath>packages\NLog.2.0.1.2\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -109,7 +110,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
+    <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\InternKinectState.cs" />
+    <Compile Include="classes\stats\Mixpanel.cs" />
+    <Compile Include="classes\stats\StatRequest.cs" />
+    <Compile Include="classes\stats\StatsEngine.cs" />
     <Compile Include="classes\TheHacks.cs" />
     <Compile Include="classes\DataContainer.cs" />
     <Compile Include="classes\GestureDetection.cs" />
@@ -215,6 +220,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release copy "$(ProjectDir)\NLog.release.config" "$(TargetDir)nlog.config"</PostBuildEvent>

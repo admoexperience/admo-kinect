@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Admo.classes;
+using Admo.classes.stats;
 using Newtonsoft.Json;
 using NLog;
 using Newtonsoft.Json.Serialization;
@@ -106,7 +107,6 @@ namespace Admo
                 if (obj.type == "alive")
                 {
                     MainWindow.LifeCycle.SetBrowserTimeNow();
-                   // SendRawData("host-"+ Config.GetHostName());
                 }else if (obj.type == "config")
                 {
                     Logger.Debug("Client requested config");
@@ -114,6 +114,20 @@ namespace Admo
                     var config = Config.GetConfiguration();
                     var sendData = ConvertToJson("config", config);
                     SendToAll(sendData);
+                }else if (obj.type == "trackAnalytics")
+                {
+                    var eventName = obj.data.name;
+                    var pTmp = obj.data.properties;
+
+                    var properties = JsonConvert.DeserializeObject<Dictionary<String, String>>(Convert.ToString(pTmp));
+
+                    var s = new StatRequest
+                        {
+                            Event = eventName,
+                            Properties = properties
+                        };
+                    
+                    Config.StatsEngine.Track(s);
                 }
 
             }
