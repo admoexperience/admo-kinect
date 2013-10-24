@@ -41,9 +41,7 @@ namespace Admo.classes.stats
 
         public long AsEpocTime(DateTime dateTime)
         {
-            var span = (dateTime
-                - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
-            return (long)span.TotalSeconds;
+            return Utils.AsEpocTime(dateTime);
         }
     }
 }

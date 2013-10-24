@@ -12,5 +12,12 @@ namespace Admo.classes
         {
             return Convert.ToDouble(DateTime.Now.Ticks) / 10000 / 1000;
         }
+
+        public static long AsEpocTime(DateTime dateTime)
+        {
+            var span = (dateTime
+                        - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
+            return (long) span.TotalSeconds;
+        }
     }
 }
