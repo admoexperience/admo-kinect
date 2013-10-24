@@ -81,8 +81,9 @@ namespace Admo.classes
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
 
-           var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken());
-           StatsEngine = new StatsEngine(mixpanel);
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken());
+            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
+            StatsEngine = new StatsEngine(dataCache, mixpanel);
         }
 
         private static void MigratedLegacyConfig()
@@ -116,9 +117,11 @@ namespace Admo.classes
         public static void OnPubNubConnection(string result)
         {
             var list = ParsePubnubConnection(result);
-            IsOnline = list[0].Equals("1");
-            if (IsOnline)
-            {
+            var online = list[0].Equals("1");
+            IsOnline = online;
+            if (online)
+            { 
+                StatsEngine.ProcessOfflineCache();
                 UpdateConfigCache();
                 _api.CheckIn();
                 Log.Debug("Pubnub connected [" + list[1]+"]");

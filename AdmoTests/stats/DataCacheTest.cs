@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Admo.classes.stats;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -36,6 +37,17 @@ namespace AdmoTests.stats
             Assert.AreEqual("1",data);
             Assert.AreEqual(2, db.GetRowCount());
         }
+
+        [TestMethod]
+        public void RowCountShouldBeZeroIfNotFound()
+        {
+            var db = new DataCache("doesntexsist");
+            Assert.AreEqual(0,db.GetRowCount());
+            //maybe it shouldn't return an Empty string
+            Assert.AreEqual(String.Empty, db.PopData());
+        }
+
+
 
         private static DataCache CreateDb()
         {

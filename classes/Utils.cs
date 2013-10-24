@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Admo.classes
 {
-    class Utils
+    public class Utils
     {
         public static double GetCurrentTimeInSeconds()
         {
@@ -18,6 +20,18 @@ namespace Admo.classes
             var span = (dateTime
                         - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
             return (long) span.TotalSeconds;
+        }
+
+        public static String ConvertToJson(Object obj)
+        {
+            return JsonConvert.SerializeObject(obj,
+                                       Formatting.None,
+                                       new JsonSerializerSettings
+                                       {
+                                           NullValueHandling = NullValueHandling.Ignore,
+                                           Formatting = Formatting.None,
+                                           ContractResolver = new CamelCasePropertyNamesContractResolver()
+                                       });
         }
     }
 }

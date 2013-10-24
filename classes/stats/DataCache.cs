@@ -38,7 +38,7 @@ namespace Admo.classes.stats
             var counter = 1;
             while (File.Exists(file))
             {
-                file = Path.Combine(_folder, filename +'-'+ counter + CacheExtention);
+                file = Path.Combine(_folder, filename + '-' + counter + CacheExtention);
                 counter++;
             }
             File.WriteAllText(file, data);
@@ -46,22 +46,26 @@ namespace Admo.classes.stats
 
         public int GetRowCount()
         {
-           var files =  Directory.GetFiles(_folder, "*", SearchOption.TopDirectoryOnly);
-           return files.Length;
+            if (!Directory.Exists(_folder)) return 0;
+            var files = Directory.GetFiles(_folder, "*", SearchOption.TopDirectoryOnly);
+            return files.Length;
         }
 
         public String PopData()
         {
             var directory = new DirectoryInfo(_folder);
-            var file = directory.GetFiles().OrderBy(f => f.CreationTime).First();
-            
-            //There is no values left return empty array
-            if (!file.Exists) return String.Empty;
+            if (directory.Exists)
+            {
+                var file = directory.GetFiles().OrderBy(f => f.CreationTime).First();
 
-            var contents = File.ReadAllText(file.FullName);
-            file.Delete();
-            return contents;
+                //There is no values left return empty array
+                if (!file.Exists) return String.Empty;
+
+                var contents = File.ReadAllText(file.FullName);
+                file.Delete();
+                return contents;
+            }
+            return String.Empty;
         }
-
     }
 }

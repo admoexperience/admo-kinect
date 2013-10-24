@@ -119,7 +119,7 @@ namespace Admo
                     var eventName = obj.data.name;
                     var pTmp = obj.data.properties;
 
-                    var properties = JsonConvert.DeserializeObject<Dictionary<String, String>>(Convert.ToString(pTmp));
+                    var properties = JsonConvert.DeserializeObject<Dictionary<String, object>>(Convert.ToString(pTmp));
 
                     var s = new StatRequest
                         {
@@ -133,7 +133,7 @@ namespace Admo
             }
             catch (Exception e) // Bad JSON! For shame.
             {
-                Logger.Error("Error parsing json from client ");
+                Logger.Error("Error parsing json from client ",e);
                 Logger.Error(message);
             }
         }

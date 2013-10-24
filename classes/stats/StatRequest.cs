@@ -16,14 +16,7 @@ namespace Admo.classes.stats
 
         public String AsJson()
         {
-            return JsonConvert.SerializeObject(this,
-                                        Formatting.None,
-                                        new JsonSerializerSettings
-                                            {
-                                                NullValueHandling = NullValueHandling.Ignore,
-                                                Formatting = Formatting.None,
-                                                ContractResolver = new CamelCasePropertyNamesContractResolver()
-                                            });
+            return Utils.ConvertToJson(this);
         }
 
         public String AsBase64()
