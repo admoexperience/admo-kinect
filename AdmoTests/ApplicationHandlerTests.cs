@@ -35,7 +35,7 @@ namespace AdmoTests
                 Z = (float)1
             };
 
-            var newPoint = ApplicationHandler.FilterPoint(point, fillpoint, (float)0.5);
+            var newPoint = ApplicationHandler.FilterPoint(point, fillpoint, (float) 0.5);
 
             var test = new SkeletonPoint
             {
@@ -44,37 +44,37 @@ namespace AdmoTests
                 Z = (float)5.5
             };
 
-            Assert.AreEqual(test, newPoint);
+            Assert.AreEqual(test,newPoint);
         }
-
+        
         [TestMethod]
         public void Scaling()
         {
 
             //test will break if default scaling parameters change
             var point = new SkeletonPoint
-            {
-                X = (float)0.294321,
-                Y = (float)0.134594,
-                Z = (float)0.6999
-            };
+                {
+                    X = (float)0.294321,
+                    Y = (float)0.134594,
+                    Z = (float)0.6999
+                };
 
             var colorpoint = new ColorImagePoint
-            {
-                X = 555,
-                Y = 132,
-            };
+                {
+                    X = 555,
+                    Y = 132,           
+                };
 
             var newPos = ApplicationHandler.ScaleCoordinates(point, colorpoint);
 
             var checkPos = new Position
-            {
-                X = 640,
-                Xmm = (float)0.294321,
-                Y = 99,
-                Ymm = (float)0.13459,
-                Z = 699
-            };
+                {
+                    X = 640,
+                    Xmm = (float)0.294321,
+                    Y = 99,
+                    Ymm = (float)0.13459,
+                    Z = 699
+                };
             Assert.AreEqual(newPos.X, checkPos.X);
             Assert.AreEqual(newPos.Y, checkPos.Y);
             Assert.AreEqual(newPos.Z, checkPos.Z);
@@ -94,9 +94,9 @@ namespace AdmoTests
             //readable 
 
             const int width = 640;
+    
 
-
-            depthData[200 + 300 * width] = 500 * 8;
+            depthData[200 + 300*width] = 500*8;
 
             var myState2 = myAppHandler.FindPlayer(
                 depthData, 480, 640);
@@ -108,14 +108,14 @@ namespace AdmoTests
             Assert.AreEqual(1, myState2.Phase);
 
 
-
+ 
             var myState = myAppHandler.FindPlayer(
                 new short[307200], 480, 640);
 
-            // var 
+           // var 
 
             var defaultState = new KinectState();
-            Assert.AreEqual(myState.Head.X, defaultState.Head.X);
+            Assert.AreEqual(myState.Head.X,defaultState.Head.X);
 
         }
         [TestMethod]
@@ -128,6 +128,6 @@ namespace AdmoTests
             Assert.AreEqual(1, stage1);
             Assert.AreEqual(2, stage2);
         }
-
+        
     }
 }

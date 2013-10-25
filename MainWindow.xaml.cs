@@ -99,12 +99,11 @@ namespace Admo
             _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
 
-            _webServer = new WebServer();
-            _webServer.Start();
-
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
+            _webServer = new WebServer();
+            _webServer.Start();
 
             // initialize the sensor chooser and UI
             _sensorChooser = new KinectSensorChooser();

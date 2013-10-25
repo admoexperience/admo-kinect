@@ -31,12 +31,12 @@ namespace Admo
 
             //MUST loop through it row by row instead of column
             //If not it swtiches states continuously
-            for (var ycoord = 0; ycoord < height; ycoord++)
+            for (var ycoord = 0; ycoord < height; ycoord++) 
             {
                 for (var xcoord = 0; xcoord < width; xcoord++)
                 {
                     //bitshift conversion for some reason the kinect needs it
-                    var currDepth = rawDepthData[xcoord + ycoord * width] >> DepthImageFrame.PlayerIndexBitmaskWidth;
+                    var currDepth = rawDepthData[xcoord + ycoord * width] >> DepthImageFrame.PlayerIndexBitmaskWidth; 
                     if ((currDepth > 400) && (currDepth < 2500))
                     {
                         xCoord = xcoord;
