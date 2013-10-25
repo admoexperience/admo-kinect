@@ -12,7 +12,7 @@ namespace Admo
         private const string Browser = "Chrome";
         private const string BrowserExe = Browser + ".exe";
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private readonly double _startupTime = GetCurrentTimeInSeconds();
+        private readonly double _startupTime = Utils.GetCurrentTimeInSeconds();
          
 
         internal enum StartupStage
@@ -34,9 +34,9 @@ namespace Admo
 
         private  RestartingStage _currentRestartingStage = RestartingStage.None;
 
-        private  double _restartTime = GetCurrentTimeInSeconds();
+        private double _restartTime = Utils.GetCurrentTimeInSeconds();
         private  Boolean _restartingBrowser = false;
-        private  double _browserTime = GetCurrentTimeInSeconds();
+        private double _browserTime = Utils.GetCurrentTimeInSeconds();
 
         private  Process _startupProcess;
         private  Process _applicationBrowserProcess;
@@ -68,7 +68,7 @@ namespace Admo
 
         private void StartUpTimer(object sender, ElapsedEventArgs eNotUsed)
         {
-            var currentTime = GetCurrentTimeInSeconds();
+            var currentTime = Utils.GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _startupTime;
             /*
             //Set the kinect and webcam config
@@ -115,16 +115,11 @@ namespace Admo
                         _applicationBrowserProcess = LaunchBrowser(Config.GetLaunchUrl());
                         _currentStartupStage = StartupStage.AppRunning;
                         //set the last accessed time to now.
-                        _browserTime = GetCurrentTimeInSeconds();
+                        _browserTime = Utils.GetCurrentTimeInSeconds();
                         MouseDriver.HideTaskBarAndMouse();
                     }
                     break;
             }
-        }
-
-        public static double GetCurrentTimeInSeconds()
-        {
-            return Convert.ToDouble(DateTime.Now.Ticks) / 10000 / 1000;
         }
 
         private static Process LaunchBrowser(String url)
@@ -134,7 +129,7 @@ namespace Admo
 
         private  Boolean IsBrowserRunning()
         {
-            var currentTime = GetCurrentTimeInSeconds();
+            var currentTime = Utils.GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _browserTime;
             //Browser has reported in last 20 seconds
             return timeDiff  < 20;
@@ -161,7 +156,7 @@ namespace Admo
             
             if (shouldRestartBrowser && !_restartingBrowser)
             {
-                _restartTime = GetCurrentTimeInSeconds();
+                _restartTime = Utils.GetCurrentTimeInSeconds();
                 _restartingBrowser = true;
                 _currentRestartingStage = RestartingStage.None;
                 Log.Debug("Attempting to restart the browser " + _restartTime);
@@ -215,7 +210,7 @@ namespace Admo
 
         private  void RestartBrowser()
         {
-            var currentTime = GetCurrentTimeInSeconds();
+            var currentTime = Utils.GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _restartTime;
             switch(_currentRestartingStage)
             {
@@ -256,7 +251,7 @@ namespace Admo
 
         public void SetBrowserTimeNow()
         {
-            _browserTime = GetCurrentTimeInSeconds();
+            _browserTime = Utils.GetCurrentTimeInSeconds();
         }
     }
 }

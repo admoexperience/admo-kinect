@@ -26,6 +26,7 @@ namespace Admo.classes
             public const string FovCropLeft = "fov_crop_left";
             public const string FovCropWidth = "fov_crop_width";
             public const string CalibrationActive = "calibration_active";
+            public const string UnitName = "name";
         }
 
         private static Pubnub pubnub;
@@ -255,7 +256,10 @@ namespace Admo.classes
         public static JObject GetConfiguration()
         {
             var x = GetJsonConfig()["config"] as JObject;
-            x.Add("hostname",GetHostName());
+            //This value has been deprecated infavour of using the units name.
+            //Legacy units/apps should still pass in the correct param even though the value will change.
+            //2013-10-09
+            x.Add("hostname",ReadConfigOption(Keys.UnitName, GetHostName()));
             x.Add("apiKey", GetApiKey());
             x.Add("cmsUri", CmsApi.CmsUrl);
             return x;

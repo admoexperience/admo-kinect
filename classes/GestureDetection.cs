@@ -12,28 +12,32 @@ namespace Admo.classes
             HandX = handX;
             HandY = handY;
             HeadY = headY;
-
         }
+
         public float HandX;
         public float HandY;
         public float HeadY;
     }
-    class GestureDetection
-    {
 
+    public class GestureDetection
+    {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private double _swipeDistanceInMeters = 0.3;
+        public double SwipeDistanceInMeters = 0.3;
         private const double SwipeDeltaY = 0.075;
         private const double SwipeHeight = 0.6;
-        private const double SwipeTimeInFrames = 10; // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
+        private bool SwipeInDeltaY = false;
 
-        private const int QueueLength = 20; // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
+        private const double SwipeTimeInFrames = 10;
+        // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
 
-        private Queue<HandHead> CoordHist = new Queue<HandHead>(QueueLength);
+        private const int QueueLength = 20;
+        // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture
 
-        private double _timeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
-        private const double SwipeWaitTime = 1.2;
+        private readonly Queue<HandHead> CoordHist = new Queue<HandHead>(QueueLength);
+
+        private double _timeSwipeCompleted = Utils.GetCurrentTimeInSeconds();
+        private const double FramesWaitTime = 36;
         private bool _swipeReady = true;
 
         private float _swipeEndX = 0;
@@ -42,11 +46,10 @@ namespace Admo.classes
         private bool _movedFromPreviousArea = false;
 
         //manage gestures
-        public string GestureHandler(HandHead mycoords)
+        public string DetectSwipe(HandHead mycoords)
         {
- 
             int count = 0;
-          
+
             SwipeTimeout();
 
             count = CoordHist.Count();
@@ -63,7 +66,7 @@ namespace Admo.classes
                 CoordHist.Enqueue(mycoords);
 
 
-                var endCoordinates = mycoords;
+                HandHead endCoordinates = mycoords;
                 _swipeEndX = mycoords.HandX;
 
                 int timeLoop = 0;
@@ -80,6 +83,7 @@ namespace Admo.classes
 
                     if ((swipeDeltaY > SwipeDeltaY) || (swipeHeadY > SwipeHeight))
                     {
+                        SwipeInDeltaY = false;
                         break;
                     }
 
@@ -93,42 +97,36 @@ namespace Admo.classes
 
                     if (!_swipeReady)
                     {
-                        _previousMove = _swipeDistanceInMeters = 0.35;
+                        _previousMove = SwipeDistanceInMeters = 0.35;
                     }
                     else
                     {
-                        _previousMove = _swipeDistanceInMeters = 0.2;
+                        _previousMove = SwipeDistanceInMeters = 0.2;
                     }
 
-                    if ((Math.Abs(swipeDiff) > _swipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) &&
+                    if ((Math.Abs(swipeDiff) > SwipeDistanceInMeters) && (timeLoop < SwipeTimeInFrames) &&
                         (_movedFromPreviousArea))
                     {
-
                         _movedFromPreviousArea = false;
                         _swipePreviousX = mycoords.HandX;
-                        _timeSwipeCompleted = LifeCycle.GetCurrentTimeInSeconds();
+                        _timeSwipeCompleted = 0;
 
                         if (swipeDiff < 0)
                         {
                             return "SwipeToRight";
                         }
                         return "SwipeToLeft";
-
                     }
+                    _timeSwipeCompleted++;
                 }
             }
 
             return "";
         }
 
-        private  void SwipeTimeout()
+        private void SwipeTimeout()
         {
-            var currentTime = LifeCycle.GetCurrentTimeInSeconds();
-            var timeSinceSwipe = currentTime - _timeSwipeCompleted;
-
-            _swipeReady = !(timeSinceSwipe < SwipeWaitTime);
+            _swipeReady = !(_timeSwipeCompleted < FramesWaitTime);
         }
-
-        
     }
 }

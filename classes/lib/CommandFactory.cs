@@ -18,7 +18,6 @@ namespace Admo.classes.lib
             { "calibrate", new CalibrateCommand()},
         };
 
-
         public static BaseCommand ParseCommand(string rawCommand)
         {
             dynamic rawOjbect = JsonConvert.DeserializeObject(rawCommand);

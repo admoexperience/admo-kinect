@@ -29,7 +29,6 @@ namespace Admo
         private KinectSensor _currentKinectSensor;
         public static int KinectElevationAngle = 0; //used in application handler
 
-        private ApplicationHandler _application;
         //drawing variables
 
         /// <summary>
@@ -53,7 +52,8 @@ namespace Admo
         private readonly GestureDetection _gestureDetectionRight = new GestureDetection();
         private readonly GestureDetection _gestureDetectionLeft = new GestureDetection();
 
-        private double _angleChangeTime = LifeCycle.GetCurrentTimeInSeconds();
+        private ApplicationHandler _applicationHandler;
+        private double _angleChangeTime = Utils.GetCurrentTimeInSeconds();
         private WebServer _webServer;
 
         public MainWindow()
@@ -72,9 +72,9 @@ namespace Admo
                 //Ignore resharper
 
                 if (_currentKinectSensor.ElevationAngle != KinectElevationAngle &&
-                    (_angleChangeTime - LifeCycle.GetCurrentTimeInSeconds()) > 1)
+                    (_angleChangeTime - Utils.GetCurrentTimeInSeconds()) > 1)
                 {
-                    _angleChangeTime = LifeCycle.GetCurrentTimeInSeconds();
+                    _angleChangeTime = Utils.GetCurrentTimeInSeconds();
                     _currentKinectSensor.ElevationAngle = KinectElevationAngle;
                 }
             }
@@ -96,12 +96,11 @@ namespace Admo
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
+            _applicationHandler = new ApplicationHandler();
+            ApplicationHandler.ConfigureCalibrationByConfig();
+
             _webServer = new WebServer();
             _webServer.Start();
-
-            _application = new ApplicationHandler();
-
-            ApplicationHandler.ConfigureCalibrationByConfig();
 
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
@@ -118,7 +117,7 @@ namespace Admo
             if (!Config.IsDevMode())
             {
                 //Minimize the window so that the chrome window is always infront.
-                WindowState = (WindowState) FormWindowState.Minimized;
+                WindowState = (WindowState)FormWindowState.Minimized;
             }
         }
 
@@ -136,13 +135,13 @@ namespace Admo
 
             //Kinect filter parameters
             var parameters = new TransformSmoothParameters
-                {
-                    Smoothing = 0.7f,
-                    Correction = 0.3f,
-                    Prediction = 1.0f,
-                    JitterRadius = 1.0f,
-                    MaxDeviationRadius = 1.0f
-                };
+            {
+                Smoothing = 0.5f,
+                Correction = 0.0f,
+                Prediction = 0.0f,
+                JitterRadius = 0.02f,
+                MaxDeviationRadius = 0.04f
+            };
 
             bool error = false;
 
@@ -269,40 +268,28 @@ namespace Admo
 
                 //get closest skeleton
                 skeletonFrameData.CopySkeletonDataTo(allSkeletons);
-                Skeleton first = KinectLib.GetPrimarySkeleton(allSkeletons);
+                var first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
                 //check whether there is a user/skeleton
                 if (first == null)
                 {
+                    var rawDepthData = new short[depthFrame.PixelDataLength];
+
+                    depthFrame.CopyPixelDataTo(rawDepthData);
                     //check whether there is a user in fov who's skeleton has not yet been registered
-                    _application.FindPlayer(depthFrame);
+
+                    var kinectState = _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height, depthFrame.Width);
+                    SocketServer.SendKinectData(kinectState);
                     //set detection variable
-                    _application.Detected = false;
+
+                    _applicationHandler.Detected = false;
                 }
                 else
                 {
-                    //swipe gesture detection
-                    string gestureRight =
-                        _gestureDetectionRight.GestureHandler(new HandHead(
-                                                                  first.Joints[JointType.HandRight].Position.X,
-                                                                  first.Joints[JointType.HandRight].Position.Y,
-                                                                  first.Joints[JointType.Head].Position.X));
-                    if (gestureRight.Length != 0)
-                        SocketServer.SendGestureEvent(gestureRight);
-
-                    string gestureLeft =
-                        _gestureDetectionLeft.GestureHandler(new HandHead(first.Joints[JointType.HandLeft].Position.X,
-                                                                          first.Joints[JointType.HandLeft].Position.Y,
-                                                                          first.Joints[JointType.Head].Position.X));
-                    if (gestureLeft.Length != 0)
-                        SocketServer.SendGestureEvent(gestureLeft);
+                    GetDataForSocketServer(first);
 
                     //Map the skeletal coordinates to the video map
                     MapSkeletonToVideo(first);
-
-
-                    //Managing data send to Node                 
-                    _application.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
                 }
             }
             finally
@@ -319,6 +306,27 @@ namespace Admo
             }
         }
 
+        private void GetDataForSocketServer(Skeleton first)
+        {
+            //swipe gesture detection
+            string gestureRight =
+                _gestureDetectionRight.DetectSwipe(new HandHead(
+                                                          first.Joints[JointType.HandRight].Position.X,
+                                                          first.Joints[JointType.HandRight].Position.Y,
+                                                          first.Joints[JointType.Head].Position.X));
+            if (gestureRight.Length != 0)
+                SocketServer.SendGestureEvent(gestureRight);
+
+            string gestureLeft =
+                _gestureDetectionLeft.DetectSwipe(new HandHead(first.Joints[JointType.HandLeft].Position.X,
+                                                                  first.Joints[JointType.HandLeft].Position.Y,
+                                                                  first.Joints[JointType.Head].Position.X));
+            if (gestureLeft.Length != 0)
+                SocketServer.SendGestureEvent(gestureLeft);
+            //Managing data send to Node                 
+            _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
+        }
+
         private void DisplayVideo(ColorImageFrame colorFrame)
         {
             //color frame handlers
@@ -332,7 +340,7 @@ namespace Admo
                 _colorBitmap.WritePixels(
                     new Int32Rect(0, 0, _colorBitmap.PixelWidth, _colorBitmap.PixelHeight),
                     _colorImage,
-                    _colorBitmap.PixelWidth*sizeof (int),
+                    _colorBitmap.PixelWidth * sizeof(int),
                     0);
             }
             colorFrame.Dispose();
@@ -405,8 +413,8 @@ namespace Admo
         {
             //Divide by 2 for width and height so point is right in the middle 
             // instead of in top/left corner
-            Canvas.SetLeft(element, point.X - element.Width/2);
-            Canvas.SetTop(element, point.Y - element.Height/2);
+            Canvas.SetLeft(element, point.X - element.Width / 2);
+            Canvas.SetTop(element, point.Y - element.Height / 2);
         }
 
         private void WindowClosing(object sender, CancelEventArgs e)

@@ -1,65 +1,54 @@
 ﻿using System;
-using System.Collections.Generic;
 using Admo.classes;
 using Microsoft.Kinect;
 using NLog;
 
 namespace Admo
 {
-    internal class ApplicationHandler
+    public class ApplicationHandler
     {
         private static Logger Log = LogManager.GetCurrentClassLogger();
 
         //variables for changing the fov when using a webcam instead of the kinect rgb camera
 
-        const int KinectFovHeight = 480;
-        const int KinectFovWidth = 640;
-        
+        private const int KinectFovHeight = 480;
+        private const int KinectFovWidth = 640;
+
+
         //Skeletal coordinates in meters
         //Find a possible person in the depth image
-        public void FindPlayer(DepthImageFrame depthFrame)
+        public KinectState FindPlayer(short[] rawDepthData, int height, int width)
         {
-            if (depthFrame == null)
-            {
-                return;
-            }
 
-            //get the raw data from kinect with the depth for every pixel
-
-            short[] rawDepthData = new short[depthFrame.PixelDataLength];
-
-            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
-            double timeDelta = timeNow - _timeLostUser;
+            var timeNow = Utils.GetCurrentTimeInSeconds();
+            var timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
 
-            depthFrame.CopyPixelDataTo(rawDepthData);
 
-            Byte[] pixels = new byte[depthFrame.Height*depthFrame.Width*4];
+            var zCoord = 0;
+            var xCoord = 0;
+            var yCoord = 0;
 
-            int xCoord = 0;
-            int yCoord = 0;
-            int zCoord = 0;
-
-            //loop through all distances
-            //pick a RGB color based on distance
-            for (int depthIndex = 0, colorIndex = 0;
-                 depthIndex < rawDepthData.Length && colorIndex < pixels.Length;
-                 depthIndex++, colorIndex += 4)
+            //MUST loop through it row by row instead of column
+            //If not it swtiches states continuously
+            for (var ycoord = 0; ycoord < height; ycoord++)
             {
-                //gets the depth value
-                int depth = rawDepthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
-
-                // Distance user is required to stand
-                if ((depth > 400) && (depth < 2500))
+                for (var xcoord = 0; xcoord < width; xcoord++)
                 {
-                    yCoord = depthIndex/(depthFrame.Width);
-                    xCoord = depthIndex - yCoord*(depthFrame.Width);
-                    zCoord = depth;
-                    break;
+                    //bitshift conversion for some reason the kinect needs it
+                    var currDepth = rawDepthData[xcoord + ycoord * width] >> DepthImageFrame.PlayerIndexBitmaskWidth;
+                    if ((currDepth > 400) && (currDepth < 2500))
+                    {
+                        xCoord = xcoord;
+                        yCoord = ycoord;
+                        zCoord = currDepth;
+                        xcoord = width;
+                        ycoord = height;
+                    }
                 }
             }
 
-            var kinectState = new KinectState {Phase = 1};
+            var kinectState = new KinectState { Phase = 1 };
 
             if ((xCoord > 50) && (xCoord < 590) && (yCoord < 250))
             {
@@ -71,7 +60,7 @@ namespace Admo
                 double xMiddle = 35000 / zCoord;
                 double yMiddle = 80000 / zCoord;
 
-               
+
                 xCoord = (int)(xCoord + xMiddle);
                 yCoord = (int)(yCoord + yMiddle);
 
@@ -82,7 +71,7 @@ namespace Admo
 
             //checks whether the user was standing in the middle of the fov when tracking of said user was lost
             //if this is the case then in all likelyhood someone walk inbetween the kinect and the user
-            
+
             if ((_standinMiddle) && (_previousKinectState != null) && (timeDelta < timeWait))
             {
                 //since the user is still in the fov, although not visible by the kinect, use the kinectState of when the user was last visible until the user is visible again
@@ -90,7 +79,7 @@ namespace Admo
                 _firstDetection = false;
 
                 _lostUser = true;
-                _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
+                _timeFoundUser = Utils.GetCurrentTimeInSeconds();
             }
             else
             {
@@ -98,34 +87,48 @@ namespace Admo
                 _lostUser = false;
             }
 
-            SocketServer.SendKinectData(kinectState);
+            return kinectState;
+
         }
 
-        private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+        private double _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
         public bool Detected = false;
         private bool _firstDetection = true;
 
-        private bool _standinMiddle = false;
-        private bool _lostUser = false;
+        private bool _standinMiddle;
+        private bool _lostUser;
         private KinectState _previousKinectState = new KinectState();
-        private double _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
-        private double _timeFoundUser = LifeCycle.GetCurrentTimeInSeconds();
-        private  InternKinectState _filteredKinectState; 
+        private double _timeLostUser = Utils.GetCurrentTimeInSeconds();
+        private double _timeFoundUser = Utils.GetCurrentTimeInSeconds();
+        private InternKinectState _filteredKinectState;
         //Value between 0 and 1 indicating the degree of filtering
-        private const float FilterConst = (float)0.7;
+        public const float FilterConst = (float)0.7;
         private bool _isFirstExecute = true;
         //generate string from joint coordinates to send to node server to draw stickman
-        public void Manage_Skeletal_Data(Skeleton first,CoordinateMapper cm)
+        public void Manage_Skeletal_Data(Skeleton first, CoordinateMapper cm)
         {
-            int mode = Stages(first);
-            var kinectState = new KinectState { Phase = mode };
+            int mode = GetStage(first.Joints[JointType.Head].Position.X);
 
+            if (mode == 3)
+            {
+                if (TheHacks.LockedSkeleton == false)
+                {
+                    MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
+                    MainWindow.KinectLib.LockedSkeleton = first;
+                    TheHacks.LockedSkeleton = true;
+                }
+            }
+
+            var kinectState = new KinectState { Phase = mode };
 
             var currState = new InternKinectState
             {
                 Head = first.Joints[JointType.Head].Position,
                 HandRight = first.Joints[JointType.HandRight].Position,
-                HandLeft = first.Joints[JointType.HandLeft].Position
+                HandLeft = first.Joints[JointType.HandLeft].Position,
+                ElbowRight = first.Joints[JointType.ElbowRight].Position,
+                ElbowLeft = first.Joints[JointType.ElbowLeft].Position
+
             };
 
             if (_isFirstExecute)
@@ -133,15 +136,21 @@ namespace Admo
                 _filteredKinectState = currState;
                 _isFirstExecute = false;
             }
-
             //Applies filter to the state of Kinect
-            currState = FilterState(currState, _filteredKinectState);
+            currState = FilterState(currState, _filteredKinectState, FilterConst);
 
             _filteredKinectState = currState;
             //Map a skeletal point to a point on the color image 
-            ColorImagePoint headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head, ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft, ColorImageFormat.RgbResolution640x480Fps30);
-            ColorImagePoint rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight, ColorImageFormat.RgbResolution640x480Fps30);
+            var headColorPoint = cm.MapSkeletonPointToColorPoint(currState.Head,
+                                                                             ColorImageFormat.RgbResolution640x480Fps30);
+            var leftColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandLeft,
+                                                                             ColorImageFormat.RgbResolution640x480Fps30);
+            var rightColorPoint = cm.MapSkeletonPointToColorPoint(currState.HandRight,
+                                                                              ColorImageFormat.RgbResolution640x480Fps30);
+            var elbowLeft = cm.MapSkeletonPointToColorPoint(currState.ElbowLeft,
+                                                                             ColorImageFormat.RgbResolution640x480Fps30);
+            var elbowRight = cm.MapSkeletonPointToColorPoint(currState.ElbowRight,
+                                                                              ColorImageFormat.RgbResolution640x480Fps30);
 
             //Sadly nescesary evil before more major refactor
             TheHacks.UncalibratedCoordinates[2] = leftColorPoint.X;
@@ -151,28 +160,30 @@ namespace Admo
             kinectState.RightHand = ScaleCoordinates(currState.HandRight, rightColorPoint);
             kinectState.LeftHand = ScaleCoordinates(currState.HandLeft, leftColorPoint);
             kinectState.Head = ScaleCoordinates(currState.Head, headColorPoint);
+            kinectState.RightElbow = ScaleCoordinates(currState.ElbowRight, elbowRight);
+            kinectState.LeftElbow = ScaleCoordinates(currState.ElbowLeft, elbowLeft);
 
-            double timeNow = LifeCycle.GetCurrentTimeInSeconds();
+            double timeNow = Utils.GetCurrentTimeInSeconds();
             double timeDelta = timeNow - _timeFoundUser;
             const double timeWait = 2.5;
 
             //checks whether the user is standing in die middle of the horizonal axis fov of the kinect with a delta of 400mm 
             const double deltaMiddle = 0.4;
-            var headX = first.Joints[JointType.Head].Position.X;
+            float headX = first.Joints[JointType.Head].Position.X;
             if ((headX < deltaMiddle) && (headX > -deltaMiddle))
             {
                 _standinMiddle = true;
                 //remember the kinectState(t-1)
                 _previousKinectState = kinectState;
-                _timeLostUser = LifeCycle.GetCurrentTimeInSeconds();
+                _timeLostUser = Utils.GetCurrentTimeInSeconds();
             }
             else
             {
                 _standinMiddle = false;
             }
-            
+
             //he was lost but now he is found
-            
+
             if (_lostUser)
             {
                 kinectState = _previousKinectState;
@@ -184,21 +195,19 @@ namespace Admo
                 {
                     _lostUser = false;
                 }
-
             }
 
             SocketServer.SendKinectData(kinectState);
         }
 
-        private static Position ScaleCoordinates(SkeletonPoint pos,ColorImagePoint colorImagePoint)
+        public static Position ScaleCoordinates(SkeletonPoint pos, ColorImagePoint colorImagePoint)
         {
-
             var admoPos = new Position
-                {
-                    X = (int) ((colorImagePoint.X - TheHacks.FovLeft)*(KinectFovWidth/TheHacks.FovWidth)),
-                    Y = (int) ((colorImagePoint.Y - TheHacks.FovTop)*(KinectFovHeight/TheHacks.FovHeight)),
-                    Z = (int) (pos.Z*1000)
-                };
+            {
+                X = (int)((colorImagePoint.X - TheHacks.FovLeft) * (KinectFovWidth / TheHacks.FovWidth)),
+                Y = (int)((colorImagePoint.Y - TheHacks.FovTop) * (KinectFovHeight / TheHacks.FovHeight)),
+                Z = (int)(pos.Z * 1000)
+            };
 
             if (admoPos.X < 0)
             {
@@ -223,21 +232,20 @@ namespace Admo
             return admoPos;
         }
 
-        public int Stages( Skeleton first)
+        public int GetStage(float headX)
         {
             int mode = 1;
 
-            double timeNow = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+            double timeNow = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
 
             //if user is detected and is in middle of screen
-            var headX = first.Joints[JointType.HandRight].Position.X;
-            if (Math.Abs(headX)<0.7) // | (detected == true))
+            if (Math.Abs(headX) < 0.7) // | (detected == true))
             {
                 //when user is initialy registred
                 if (_firstDetection)
                 {
                     _firstDetection = false;
-                    _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks)/10000;
+                    _timeStartHud = Convert.ToDouble(DateTime.Now.Ticks) / 10000;
                 }
                 else
                 {
@@ -247,12 +255,6 @@ namespace Admo
                     if (timeDelta > 500)
                     {
                         //skeleton lock  
-                        if (TheHacks.LockedSkeleton == false)
-                        {
-                            MainWindow.KinectLib.LockedSkeletonId = first.TrackingId;
-                            MainWindow.KinectLib.LockedSkeleton = first;
-                            TheHacks.LockedSkeleton = true;
-                        }
 
                         mode = 3;
                     }
@@ -274,25 +276,28 @@ namespace Admo
 
         public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
         {
-            return current*alpha + filter*(1 - alpha);
+
+            return current * alpha + filter * (1 - alpha);
         }
 
-        public static InternKinectState FilterState(InternKinectState currState,InternKinectState filteredState)
+        public static InternKinectState FilterState(InternKinectState currState, InternKinectState filteredState, float filterConst)
         {
-            currState.HandLeft=FilterPoint(currState.HandLeft, filteredState.HandLeft);
-            currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight);
-            currState.Head = FilterPoint(currState.Head, filteredState.Head);
+            currState.HandLeft = FilterPoint(currState.HandLeft, filteredState.HandLeft, filterConst);
+            currState.HandRight = FilterPoint(currState.HandRight, filteredState.HandRight, filterConst);
+            currState.Head = FilterPoint(currState.Head, filteredState.Head, filterConst);
+            currState.ElbowLeft = FilterPoint(currState.ElbowLeft, filteredState.ElbowLeft, filterConst);
+            currState.ElbowRight = FilterPoint(currState.ElbowRight, filteredState.ElbowRight, filterConst);
+
 
             return currState;
         }
 
-        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint)
+        public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint, float filterConst)
         {
-            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, FilterConst);
-            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, FilterConst);
-            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, FilterConst);
+            currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
+            currPoint.Y = ExponentialWheightedMovingAverage(currPoint.Y, filteredPoint.Y, filterConst);
+            currPoint.Z = ExponentialWheightedMovingAverage(currPoint.Z, filteredPoint.Z, filterConst);
             return currPoint;
-
         }
 
         public static void ConfigureCalibrationByConfig()
@@ -300,8 +305,8 @@ namespace Admo
             //read calibration values from CMS if calibration app has not been set to run
             //use legacy calibration values if there is no calibration values in the CMS
             var tempTop = Config.ReadConfigOption(Config.Keys.FovCropTop, "56");
-            var tempLeft = Config.ReadConfigOption(Config.Keys.FovCropLeft, "52");
-            var tempWidth = Config.ReadConfigOption(Config.Keys.FovCropWidth, "547");
+            string tempLeft = Config.ReadConfigOption(Config.Keys.FovCropLeft, "52");
+            string tempWidth = Config.ReadConfigOption(Config.Keys.FovCropWidth, "547");
 
             //refer to document Calibration Method
             //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
@@ -309,8 +314,6 @@ namespace Admo
             TheHacks.FovLeft = Convert.ToInt32(tempLeft);
             TheHacks.FovWidth = Convert.ToInt32(tempWidth);
             TheHacks.FovHeight = TheHacks.FovWidth * 3 / 4;
-
         }
-       
     }
 }
