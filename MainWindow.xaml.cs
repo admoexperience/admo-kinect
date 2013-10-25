@@ -54,6 +54,7 @@ namespace Admo
 
         private ApplicationHandler _applicationHandler;
         private double _angleChangeTime = Utils.GetCurrentTimeInSeconds();
+        private WebServer _webServer;
 
         public MainWindow()
         {
@@ -101,6 +102,8 @@ namespace Admo
             //start and stop old kinect sensor kinect sensor
             KinectSensor sensor1 = KinectSensor.KinectSensors[0];
             sensor1.Stop();
+            _webServer = new WebServer();
+            _webServer.Start();
 
             // initialize the sensor chooser and UI
             _sensorChooser = new KinectSensorChooser();
@@ -113,7 +116,7 @@ namespace Admo
             if (!Config.IsDevMode())
             {
                 //Minimize the window so that the chrome window is always infront.
-                WindowState = (WindowState) FormWindowState.Minimized;
+                WindowState = (WindowState)FormWindowState.Minimized;
             }
         }
 
@@ -131,13 +134,13 @@ namespace Admo
 
             //Kinect filter parameters
             var parameters = new TransformSmoothParameters
-                {
-                    Smoothing = 0.5f,
-                    Correction = 0.0f,
-                    Prediction = 0.0f,
-                    JitterRadius = 0.02f,
-                    MaxDeviationRadius = 0.04f
-                };
+            {
+                Smoothing = 0.5f,
+                Correction = 0.0f,
+                Prediction = 0.0f,
+                JitterRadius = 0.02f,
+                MaxDeviationRadius = 0.04f
+            };
 
             bool error = false;
 
@@ -273,11 +276,11 @@ namespace Admo
 
                     depthFrame.CopyPixelDataTo(rawDepthData);
                     //check whether there is a user in fov who's skeleton has not yet been registered
-                    
-                     var kinectState= _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height,depthFrame.Width);
+
+                    var kinectState = _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height, depthFrame.Width);
                     SocketServer.SendKinectData(kinectState);
                     //set detection variable
-                    
+
                     _applicationHandler.Detected = false;
                 }
                 else
@@ -336,7 +339,7 @@ namespace Admo
                 _colorBitmap.WritePixels(
                     new Int32Rect(0, 0, _colorBitmap.PixelWidth, _colorBitmap.PixelHeight),
                     _colorImage,
-                    _colorBitmap.PixelWidth*sizeof (int),
+                    _colorBitmap.PixelWidth * sizeof(int),
                     0);
             }
             colorFrame.Dispose();
@@ -409,8 +412,8 @@ namespace Admo
         {
             //Divide by 2 for width and height so point is right in the middle 
             // instead of in top/left corner
-            Canvas.SetLeft(element, point.X - element.Width/2);
-            Canvas.SetTop(element, point.Y - element.Height/2);
+            Canvas.SetLeft(element, point.X - element.Width / 2);
+            Canvas.SetTop(element, point.Y - element.Height / 2);
         }
 
         private void WindowClosing(object sender, CancelEventArgs e)

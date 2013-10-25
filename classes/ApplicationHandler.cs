@@ -20,26 +20,23 @@ namespace Admo
         public KinectState FindPlayer(short[] rawDepthData, int height, int width)
         {
 
-            //get the raw data from kinect with the depth for every pixel
-
             var timeNow = Utils.GetCurrentTimeInSeconds();
             var timeDelta = timeNow - _timeLostUser;
             const double timeWait = 2.5;
-
-            //loop through all distances
-            //pick a RGB color based on distance
 
 
             var zCoord = 0;
             var xCoord = 0;
             var yCoord = 0;
 
-            for (var xcoord = 0; xcoord < width; xcoord++)
+            //MUST loop through it row by row instead of column
+            //If not it swtiches states continuously
+            for (var ycoord = 0; ycoord < height; ycoord++) 
             {
-                for (var ycoord = 0; ycoord < height; ycoord++)
+                for (var xcoord = 0; xcoord < width; xcoord++)
                 {
                     //bitshift conversion for some reason the kinect needs it
-                    var currDepth = rawDepthData[ycoord + xcoord * height] >> DepthImageFrame.PlayerIndexBitmaskWidth; ;
+                    var currDepth = rawDepthData[xcoord + ycoord * width] >> DepthImageFrame.PlayerIndexBitmaskWidth; 
                     if ((currDepth > 400) && (currDepth < 2500))
                     {
                         xCoord = xcoord;

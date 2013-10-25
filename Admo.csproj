@@ -111,6 +111,7 @@
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
+    <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
     <Compile Include="classes\stats\Mixpanel.cs" />
     <Compile Include="classes\stats\StatRequest.cs" />
@@ -220,7 +221,12 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="AdmoCertificateManager\AdmoCertificateManager.csproj">
+      <Project>{94556b6a-074e-4026-a3d8-20ed2c6f1a89}</Project>
+      <Name>AdmoCertificateManager</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release copy "$(ProjectDir)\NLog.release.config" "$(TargetDir)nlog.config"</PostBuildEvent>

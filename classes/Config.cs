@@ -155,7 +155,7 @@ namespace Admo.classes
         public static String GetWebServer()
         {
             if (_webServer != null) return _webServer;
-            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:4001");
+            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:5001");
             return _webServer;
         }
 

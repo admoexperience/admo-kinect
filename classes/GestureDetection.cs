@@ -29,7 +29,7 @@ namespace Admo.classes
         private bool SwipeInDeltaY = false;
 
         private const double SwipeTimeInFrames = 10;
-                            // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
+        // 10 * 30ms (Kinect Framerate) = 300ms - time allowed to copmlete a swipe gesture
 
         private const int QueueLength = 20;
         // 20 * 30ms (Kinect Framerate) = 600ms - coordinates for the last 600ms are recorded and inspected for a swipe gesture

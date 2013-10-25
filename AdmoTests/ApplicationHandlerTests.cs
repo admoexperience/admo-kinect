@@ -93,10 +93,10 @@ namespace AdmoTests
             //Still fast because sequentially accessing elements however still
             //readable 
 
-            const int height = 480;
+            const int width = 640;
     
 
-            depthData[200*height + 300] = 500*8;
+            depthData[200 + 300*width] = 500*8;
 
             var myState2 = myAppHandler.FindPlayer(
                 depthData, 480, 640);
@@ -105,7 +105,7 @@ namespace AdmoTests
             //check if switching to phase 2 fails.
             // Regression 
             //Check if correct phase
-            Assert.AreEqual(myState2.Phase, 1);
+            Assert.AreEqual(1, myState2.Phase);
 
 
  
@@ -122,11 +122,11 @@ namespace AdmoTests
         public void Stages()
         {
             var myAppHandler = new ApplicationHandler();
-            var stage2 = myAppHandler.GetStage((float)0.6);
-            var stage1 = myAppHandler.GetStage((float)0.8);
+            var stage1 = myAppHandler.GetStage((float)0.6);
+            var stage2 = myAppHandler.GetStage((float)0.8);
 
-            Assert.AreEqual(1,stage2);
-            Assert.AreEqual(2, stage1);
+            Assert.AreEqual(1, stage1);
+            Assert.AreEqual(2, stage2);
         }
         
     }
