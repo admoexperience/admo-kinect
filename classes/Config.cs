@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Admo.classes.lib;
+using Admo.classes.stats;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,7 +11,7 @@ using PubNubMessaging.Core;
 
 namespace Admo.classes
 {
-    class Config
+    public class Config
     {
         public class Keys
         {
@@ -27,6 +28,8 @@ namespace Admo.classes
             public const string FovCropWidth = "fov_crop_width";
             public const string CalibrationActive = "calibration_active";
             public const string UnitName = "name";
+            public const string MixpanelApiToken = "mixpanel_api_token";
+            public const string MixpanelApiKey = "mixpanel_api_key";
         }
 
         private static Pubnub pubnub;
@@ -45,10 +48,14 @@ namespace Admo.classes
 
         private static CmsApi _api;
 
+        public static Boolean IsOnline = false;
+
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
         public static event ConfigOptionChanged OptionChanged;
         public delegate void ConfigOptionChanged();
+
+        public static StatsEngine StatsEngine;
 
         public static String GetHostName()
         {
@@ -68,10 +75,15 @@ namespace Admo.classes
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
             pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnection);
 
+
             var pod = new PodWatcher(GetPodFile(), PodFolder);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
+
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken());
+            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
+            StatsEngine = new StatsEngine(dataCache, mixpanel);
         }
 
         private static void MigratedLegacyConfig()
@@ -92,16 +104,24 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
-
-        private static void OnPubNubConnection(string result)
+        public static List<String> ParsePubnubConnection(string result)
         {
             //List order is  
             // 0,1 connected disconnected
             //message
             //api key
-            var list = JsonConvert.DeserializeObject<List<object>>(result);
-            if (list[0].ToString().Equals("1"))
-            {
+            var list = JsonConvert.DeserializeObject<List<String>>(result);
+            return list;
+        }
+
+        public static void OnPubNubConnection(string result)
+        {
+            var list = ParsePubnubConnection(result);
+            var online = list[0].Equals("1");
+            IsOnline = online;
+            if (online)
+            { 
+                StatsEngine.ProcessOfflineCache();
                 UpdateConfigCache();
                 _api.CheckIn();
                 Log.Debug("Pubnub connected [" + list[1]+"]");
@@ -178,7 +198,16 @@ namespace Admo.classes
             var elevationAngle = Convert.ToInt32(temp);
             Log.Info("elevation path: " + elevationAngle);
             return elevationAngle;
+        }
 
+        public static String GetMixpanelApiToken()
+        {
+            return ReadAnalyticConfigOption(Keys.MixpanelApiToken);
+        }
+
+        public static String GetMixpanelApiKey()
+        {
+            return ReadAnalyticConfigOption(Keys.MixpanelApiKey);
         }
 
         private static String GetLocalConfig(String config)
@@ -294,9 +323,26 @@ namespace Admo.classes
         {
 
             var obj = GetJsonConfig();
-            object optionValue = obj["config"][option];
+            var optionValue = obj["config"][option];
 
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
+            return val;
+        }
+
+        public static String ReadAnalyticConfigOption(String option)
+        {
+
+            var obj = GetJsonConfig();
+            var analytics = obj["config"]["analytics"];
+
+            if (analytics == null)
+            {
+                return String.Empty;
+            }
+
+            var optionValue = analytics[option];
+
+            var val = optionValue == null ? string.Empty : optionValue.ToString().Trim();
             return val;
         }
 
