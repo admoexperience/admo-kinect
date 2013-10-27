@@ -188,8 +188,10 @@ namespace Admo.classes
 
         public static String GetLoadingPage()
         {
-            var loading = ReadConfigOption(Keys.LoadingPage, "loading.html");
-            return GetWebServer() + "/" + loading;
+            var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var path = Path.GetDirectoryName(exeLocation);
+            var loadingFile = Path.Combine(path, "resources", "loading.html");
+            return "file:///" + loadingFile;
         }
 
         public static int GetElevationAngle()

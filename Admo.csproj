@@ -166,7 +166,9 @@
     </Compile>
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
-    <Content Include="resources\loading.html" />
+    <Content Include="resources\loading.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
