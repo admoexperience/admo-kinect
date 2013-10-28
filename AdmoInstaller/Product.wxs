@@ -22,6 +22,12 @@
                         <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
+              <!--<Component Id="BackGroundResource" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
+                <File Id="ADMO.EXE.CONFIG" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\loading.html" />
+              </Component>-->
+              <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
+                <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
+              </Component>
                 <Component Id="ADMO.EXE.CONFIG" DiskId="1" Guid="DEC55158-C7D1-432E-8E7A-D0C3519FA8C8">
                     <File Id="ADMO.EXE.CONFIG" Name="Admo.exe.config" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe.config" />
                 </Component>
@@ -83,6 +89,7 @@
             <ComponentRef Id="NLOG.DLL" />
             <ComponentRef Id="StartMenuShortcuts" />
            <ComponentRef Id="RegistryEntries" />
+          <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
         </Feature>
         <InstallExecuteSequence>
           <RemoveExistingProducts After="InstallInitialize"/>
