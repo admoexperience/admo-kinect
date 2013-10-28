@@ -80,6 +80,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="NLog.Targets.Syslog, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\NLog.Targets.Syslog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />

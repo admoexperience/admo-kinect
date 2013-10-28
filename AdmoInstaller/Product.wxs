@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+    <Product Id="B9C7A594-1D15-4503-92CA-42E6137C949A" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc" UpgradeCode="2C4EB1BB-BFE5-48F8-B9DB-E6562E88CF1C">
+        <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200" Compressed="yes" />
+        <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
+      <DirectoryRef Id="TARGETDIR">
+        <Component Id="RegistryEntries" Guid="8BE6F3D1-366A-4FE8-9736-19832C9AFD42">
+          <RegistryKey Root="HKCU"
+                       Key="Control Panel\Desktop"
+                Action="create">
+            <RegistryValue Type="integer" Name="ForegroundLockTimeout" Value="00000000" KeyPath="yes"/>
+            <RegistryValue Type="integer" Name="ForegroundFlashCount" Value="00000001"/>
+          </RegistryKey>
+        </Component>
+      </DirectoryRef>
+
+
+      <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder" Name="PFiles" />
+            <Directory Id="AdmoInstallLoc" Name="Admo">
+                <Component Id="ADMO.EXE" DiskId="1" Guid="EDDBC1EC-D9F9-40BA-ABDF-1AD74E89CDB1">
+                    <File Id="ADMO.EXE" Name="Admo.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe">
+                        <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="Admo" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
+                        <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
+                    </File>
+                </Component>
+              <!--<Component Id="BackGroundResource" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
+                <File Id="ADMO.EXE.CONFIG" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\loading.html" />
+              </Component>-->
+              <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
+                <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
+              </Component>
+                <Component Id="ADMO.EXE.CONFIG" DiskId="1" Guid="DEC55158-C7D1-432E-8E7A-D0C3519FA8C8">
+                    <File Id="ADMO.EXE.CONFIG" Name="Admo.exe.config" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe.config" />
+                </Component>
+                <Component Id="FLECK.DLL" DiskId="1" Guid="25659CED-846A-4DF0-B28D-AE53E303D8C3">
+                    <File Id="FLECK.DLL" Name="Fleck.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Fleck.dll" />
+                </Component>
+                <Component Id="INPUTSIMULATOR.DLL" DiskId="1" Guid="168C0403-CC65-49E7-810E-F4E6A63CC9F6">
+                    <File Id="INPUTSIMULATOR.DLL" Name="InputSimulator.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\InputSimulator.dll" />
+                </Component>
+                <Component Id="KINECTINTERACTION170_32.DLL" DiskId="1" Guid="1735AD21-2948-4B8B-86EF-C902122AD773">
+                    <File Id="KINECTINTERACTION170_32.DLL" Name="KinectInteraction170_32.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_32.dll" />
+                </Component>
+                <Component Id="KINECTINTERACTION170_64.DLL" DiskId="1" Guid="27E326A0-D1C2-4947-B46F-AFE9528575A6">
+                    <File Id="KINECTINTERACTION170_64.DLL" Name="KinectInteraction170_64.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_64.dll" />
+                </Component>
+                <Component Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" DiskId="1" Guid="C154930C-2D02-42A7-A508-D33A5C6038FD">
+                    <File Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" Name="Microsoft.Kinect.Toolkit.Controls.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Controls.dll" />
+                </Component>
+                <Component Id="MICROSOFT.KINECT.TOOLKIT.DLL" DiskId="1" Guid="46FE8879-0930-4252-A06A-1625CA0E6832">
+                    <File Id="MICROSOFT.KINECT.TOOLKIT.DLL" Name="Microsoft.Kinect.Toolkit.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.dll" />
+                </Component>
+                <Component Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" DiskId="1" Guid="C101B010-A4C7-491A-96A7-7494A8376666">
+                    <File Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" Name="Microsoft.Kinect.Toolkit.Interaction.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Interaction.dll" />
+                </Component>
+                <Component Id="NEWTONSOFT.JSON.DLL" DiskId="1" Guid="D6A7DD73-3F32-484C-AA3D-4B0B1F85C8AA">
+                    <File Id="NEWTONSOFT.JSON.DLL" Name="Newtonsoft.Json.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
+                </Component>
+                <Component Id="NLOG.CONFIG" DiskId="1" Guid="D4BB2380-81A9-4B3F-9C98-62179DA7D15A">
+                    <File Id="NLOG.CONFIG" Name="NLog.config" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.config" />
+                </Component>
+                <Component Id="NLOG.DLL" DiskId="1" Guid="90D2C3AF-39C9-4712-887C-330D25E920CF">
+                    <File Id="NLOG.DLL" Name="NLog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.dll" />
+                </Component>
+              <Directory Id="ResourceLoc" Name="resources">
+                <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
+                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
+                </Component>
+              </Directory>
+            </Directory>
+            <Directory Id="DesktopFolder" />
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ProgramMenuDir" Name="Admo">
+                    <Component Id="StartMenuShortcuts" Guid="3885D3BF-3C83-4BC1-B10E-2A2B9AA3FBDB">
+                        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
+                        <Shortcut Id="UninstallProduct" Name="Uninstall" Description="Uninstalls the application" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+                        <util:InternetShortcut Id="WebsiteShortcut" Name="Find out more" Target="http://www.admoexperience.com/" /> 
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory>
+
+      <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+            <ComponentRef Id="ADMO.EXE" />
+            <ComponentRef Id="ADMO.EXE.CONFIG" />
+            <ComponentRef Id="FLECK.DLL" />
+            <ComponentRef Id="INPUTSIMULATOR.DLL" />
+            <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
+            <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
+            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
+            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
+            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
+            <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
+            <ComponentRef Id="NLOG.CONFIG" />
+            <ComponentRef Id="NLOG.DLL" />
+            <ComponentRef Id="StartMenuShortcuts" />
+           <ComponentRef Id="RegistryEntries" />
+          <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
+        <ComponentRef Id="LOADING.HTML" />
+      </Feature>
+        <InstallExecuteSequence>
+          <RemoveExistingProducts After="InstallInitialize"/>
+        </InstallExecuteSequence>
+        <UI />
+        <PropertyRef Id="NETFRAMEWORK35" />
+        <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
+        <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
+        <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
+    </Product>
+</Wix>
