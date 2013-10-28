@@ -18,8 +18,8 @@
             <Directory Id="AdmoInstallLoc" Name="Admo">
                 <Component Id="ADMO.EXE" DiskId="1" Guid="EDDBC1EC-D9F9-40BA-ABDF-1AD74E89CDB1">
                     <File Id="ADMO.EXE" Name="Admo.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe">
-                        <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="admo" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
-                        <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
+                        <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="Admo" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
+                        <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
                 <Component Id="ADMO.EXE.CONFIG" DiskId="1" Guid="DEC55158-C7D1-432E-8E7A-D0C3519FA8C8">
@@ -58,7 +58,7 @@
             </Directory>
             <Directory Id="DesktopFolder" />
             <Directory Id="ProgramMenuFolder">
-                <Directory Id="ProgramMenuDir" Name="admo">
+                <Directory Id="ProgramMenuDir" Name="Admo">
                     <Component Id="StartMenuShortcuts" Guid="3885D3BF-3C83-4BC1-B10E-2A2B9AA3FBDB">
                         <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
                         <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
