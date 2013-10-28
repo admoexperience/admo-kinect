@@ -13,6 +13,7 @@
           </RegistryKey>
         </Component>
       </DirectoryRef>
+
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />
             <Directory Id="AdmoInstallLoc" Name="Admo">
@@ -61,6 +62,14 @@
                 <Component Id="NLOG.DLL" DiskId="1" Guid="90D2C3AF-39C9-4712-887C-330D25E920CF">
                     <File Id="NLOG.DLL" Name="NLog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.dll" />
                 </Component>
+              <Directory Id="ResourceLoc" Name="resources">
+                <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
+                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
+                </Component>
+                <Component Id="BACKGROUND.PNG" DiskId="1" Guid="8B631F8F-AEB7-4446-A1AF-8C3BE7543771" >
+                  <File Id="BACKGROUND.PNG" Name="background.png" Source="$(var.SolutionDir)\Admo\resources\background.png" />
+                </Component>
+              </Directory>
             </Directory>
             <Directory Id="DesktopFolder" />
             <Directory Id="ProgramMenuFolder">
@@ -74,7 +83,8 @@
                 </Directory>
             </Directory>
         </Directory>
-        <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+
+      <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
             <ComponentRef Id="ADMO.EXE" />
             <ComponentRef Id="ADMO.EXE.CONFIG" />
             <ComponentRef Id="FLECK.DLL" />
@@ -90,7 +100,9 @@
             <ComponentRef Id="StartMenuShortcuts" />
            <ComponentRef Id="RegistryEntries" />
           <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
-        </Feature>
+        <ComponentRef Id="LOADING.HTML" />
+        <ComponentRef Id="BACKGROUND.PNG" />
+      </Feature>
         <InstallExecuteSequence>
           <RemoveExistingProducts After="InstallInitialize"/>
         </InstallExecuteSequence>
