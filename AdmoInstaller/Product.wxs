@@ -3,6 +3,16 @@
     <Product Id="B9C7A594-1D15-4503-92CA-42E6137C949A" Name="Admo" Language="1033" Version="0.0.0.1" Manufacturer="Admo Inc" UpgradeCode="2C4EB1BB-BFE5-48F8-B9DB-E6562E88CF1C">
         <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200" Compressed="yes" />
         <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
+      <DirectoryRef Id="TARGETDIR">
+        <Component Id="RegistryEntries" Guid="8BE6F3D1-366A-4FE8-9736-19832C9AFD42">
+          <RegistryKey Root="HKCU"
+                       Key="Control Panel\Desktop"
+                Action="create">
+            <RegistryValue Type="integer" Name="ForegroundLockTimeout" Value="00000000" KeyPath="yes"/>
+            <RegistryValue Type="integer" Name="ForegroundFlashCount" Value="00000001"/>
+          </RegistryKey>
+        </Component>
+      </DirectoryRef>
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />
             <Directory Id="AdmoInstallLoc" Name="Admo">
@@ -72,6 +82,7 @@
             <ComponentRef Id="NLOG.CONFIG" />
             <ComponentRef Id="NLOG.DLL" />
             <ComponentRef Id="StartMenuShortcuts" />
+           <ComponentRef Id="RegistryEntries" />
         </Feature>
         <InstallExecuteSequence>
           <RemoveExistingProducts After="InstallInitialize"/>
