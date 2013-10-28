@@ -67,9 +67,6 @@
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
                   <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
                 </Component>
-                <Component Id="BACKGROUND.PNG" DiskId="1" Guid="8B631F8F-AEB7-4446-A1AF-8C3BE7543771" >
-                  <File Id="BACKGROUND.PNG" Name="background.png" Source="$(var.SolutionDir)\Admo\resources\background.png" />
-                </Component>
               </Directory>
             </Directory>
             <Directory Id="DesktopFolder" />
@@ -102,7 +99,6 @@
            <ComponentRef Id="RegistryEntries" />
           <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
         <ComponentRef Id="LOADING.HTML" />
-        <ComponentRef Id="BACKGROUND.PNG" />
       </Feature>
         <InstallExecuteSequence>
           <RemoveExistingProducts After="InstallInitialize"/>
