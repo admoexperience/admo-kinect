@@ -223,7 +223,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="AdmoCertificateManager\AdmoCertificateManager.csproj">
+    <ProjectReference Include="..\AdmoCertificateManager\AdmoCertificateManager.csproj">
       <Project>{94556b6a-074e-4026-a3d8-20ed2c6f1a89}</Project>
       <Name>AdmoCertificateManager</Name>
     </ProjectReference>
