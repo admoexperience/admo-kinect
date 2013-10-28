@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-    <Product Id="B9C7A594-1D15-4503-92CA-42E6137C949A" Name="Admo" Language="1033" Version="0.0.0.1" Manufacturer="Admo Inc" UpgradeCode="2C4EB1BB-BFE5-48F8-B9DB-E6562E88CF1C">
+    <Product Id="B9C7A594-1D15-4503-92CA-42E6137C949A" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc" UpgradeCode="2C4EB1BB-BFE5-48F8-B9DB-E6562E88CF1C">
         <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200" Compressed="yes" />
         <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
       <DirectoryRef Id="TARGETDIR">
@@ -14,7 +14,8 @@
         </Component>
       </DirectoryRef>
 
-        <Directory Id="TARGETDIR" Name="SourceDir">
+
+      <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />
             <Directory Id="AdmoInstallLoc" Name="Admo">
                 <Component Id="ADMO.EXE" DiskId="1" Guid="EDDBC1EC-D9F9-40BA-ABDF-1AD74E89CDB1">
