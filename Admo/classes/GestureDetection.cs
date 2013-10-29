@@ -23,6 +23,10 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+
+        public const String SwipeRightGesture = "SwipeToRight";
+        public const String SwipeLeftGesture = "SwipeToLeft";
+
         public double SwipeDistanceInMeters = 0.3;
         private const double SwipeDeltaY = 0.075;
         private const double SwipeHeight = 0.6;

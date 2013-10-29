@@ -30,6 +30,7 @@ namespace Admo.classes
             public const string UnitName = "name";
             public const string MixpanelApiToken = "mixpanel_api_token";
             public const string MixpanelApiKey = "mixpanel_api_key";
+            public const string TransformSmoothingType = "transform_smoothing_type";
         }
 
         private static Pubnub pubnub;
@@ -408,5 +409,9 @@ namespace Admo.classes
             }
         }
 
+        public static string GetTransformSmoothType()
+        {
+            return ReadConfigOption(Keys.TransformSmoothingType, "avatar");
+        }
     }
 }

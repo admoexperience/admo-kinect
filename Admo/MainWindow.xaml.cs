@@ -133,17 +133,10 @@ namespace Admo
                 return;
             }
 
-            //Kinect filter parameters
-            var parameters = new TransformSmoothParameters
-            {
-                Smoothing = 0.5f,
-                Correction = 0.0f,
-                Prediction = 0.0f,
-                JitterRadius = 0.02f,
-                MaxDeviationRadius = 0.04f
-            };
 
-            bool error = false;
+
+            var parameters = KinectLib.GetTransformSmoothParameters(Config.GetTransformSmoothType());
+            var error = false;
 
             if (args.OldSensor != null)
             {
@@ -309,20 +302,24 @@ namespace Admo
         private void GetDataForSocketServer(Skeleton first)
         {
             //swipe gesture detection
-            string gestureRight =
+            var gestureRight =
                 _gestureDetectionRight.DetectSwipe(new HandHead(
                                                           first.Joints[JointType.HandRight].Position.X,
                                                           first.Joints[JointType.HandRight].Position.Y,
                                                           first.Joints[JointType.Head].Position.X));
-            if (gestureRight.Length != 0)
-                SocketServer.SendGestureEvent(gestureRight);
+            if (gestureRight == GestureDetection.SwipeLeftGesture)
+            {
+                   SocketServer.SendGestureEvent(gestureRight);
+            }
 
-            string gestureLeft =
+            var gestureLeft =
                 _gestureDetectionLeft.DetectSwipe(new HandHead(first.Joints[JointType.HandLeft].Position.X,
                                                                   first.Joints[JointType.HandLeft].Position.Y,
                                                                   first.Joints[JointType.Head].Position.X));
-            if (gestureLeft.Length != 0)
+            if (gestureLeft == GestureDetection.SwipeRightGesture)
+            {
                 SocketServer.SendGestureEvent(gestureLeft);
+            }
             //Managing data send to Node                 
             _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
         }
