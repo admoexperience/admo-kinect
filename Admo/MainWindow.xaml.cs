@@ -419,7 +419,11 @@ namespace Admo
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {
-            KinectLib.StopKinectSensor(_sensorChooser.Kinect);
+            if (_sensorChooser.Kinect != null)
+            {
+                KinectLib.StopKinectSensor(_sensorChooser.Kinect);
+
+            }
             SocketServer.Stop();
             Log.Info("Shutting down server");
             _closing = true;
