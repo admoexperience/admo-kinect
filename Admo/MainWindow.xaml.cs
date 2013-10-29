@@ -60,6 +60,7 @@ namespace Admo
         {
             InitializeComponent();
             Loaded += OnLoaded;
+            this.Closing += WindowClosing;
         }
 
         public void OnConfigChange()
