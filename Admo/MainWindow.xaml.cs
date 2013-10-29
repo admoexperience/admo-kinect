@@ -132,17 +132,10 @@ namespace Admo
                 return;
             }
 
-            //Kinect filter parameters
-            var parameters = new TransformSmoothParameters
-            {
-                Smoothing = 0.5f,
-                Correction = 0.0f,
-                Prediction = 0.0f,
-                JitterRadius = 0.02f,
-                MaxDeviationRadius = 0.04f
-            };
 
-            bool error = false;
+
+            var parameters = KinectLib.GetTransformSmoothParameters(Config.GetTransformSmoothType());
+            var error = false;
 
             if (args.OldSensor != null)
             {

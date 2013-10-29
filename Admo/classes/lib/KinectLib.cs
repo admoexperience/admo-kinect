@@ -4,9 +4,26 @@ namespace Admo.classes.lib
 {
     public class KinectLib
     {
-
         public int LockedSkeletonId = 0;
         public Skeleton LockedSkeleton = null;
+
+        public static readonly TransformSmoothParameters VideoAppSmoothingParams = new TransformSmoothParameters
+            {
+                Smoothing = 0.5f,
+                Correction = 0.0f,
+                Prediction = 0.0f,
+                JitterRadius = 0.02f,
+                MaxDeviationRadius = 0.04f
+            };
+
+        public static readonly TransformSmoothParameters AvatarAppSmoothingParams = new TransformSmoothParameters
+            {
+                Smoothing = 0.9f,
+                Correction = 0.1f,
+                Prediction = 0.1f,
+                JitterRadius = 0.05f,
+                MaxDeviationRadius = 0.05f
+            };
 
         public void StopKinectSensor(KinectSensor sensor)
         {
@@ -21,13 +38,13 @@ namespace Admo.classes.lib
                 sensor.AudioSource.Stop();
             }
         }
+
         public Skeleton GetPrimarySkeleton(Skeleton[] skeletons)
         {
             Skeleton skeleton = null;
 
             if (skeletons != null)
             {
-
                 //check if any skeletons has been locked on in t-1        
                 if (TheHacks.LockedSkeleton == true)
                 {
@@ -44,11 +61,9 @@ namespace Admo.classes.lib
                             else
                             {
                                 TheHacks.LockedSkeleton = false;
-
                             }
                         }
                     }
-
                 }
                 else
                 {
@@ -63,7 +78,8 @@ namespace Admo.classes.lib
                             }
                             else
                             {
-                                if ((skeleton.Position.Z > skeletons[i].Position.Z))//if not just use the closest skeleton
+                                if ((skeleton.Position.Z > skeletons[i].Position.Z))
+                                    //if not just use the closest skeleton
                                 {
                                     skeleton = skeletons[i];
                                 }
@@ -71,7 +87,6 @@ namespace Admo.classes.lib
                         }
                     }
                 }
-
             }
 
             //if there is no other users in die fov and the locked skeleton moves out of the field of view
@@ -82,6 +97,10 @@ namespace Admo.classes.lib
             }
 
             return skeleton;
+        }
+        public TransformSmoothParameters GetTransformSmoothParameters(string type)
+        {
+            return type == "avatar" ? AvatarAppSmoothingParams : VideoAppSmoothingParams;
         }
     }
 }

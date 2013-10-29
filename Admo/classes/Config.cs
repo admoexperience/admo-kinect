@@ -408,5 +408,9 @@ namespace Admo.classes
             }
         }
 
+        public static string GetTransformSmoothType()
+        {
+            return ReadConfigOption("transform_smooth_type", "video_feed");
+        }
     }
 }
