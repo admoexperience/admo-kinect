@@ -13,6 +13,9 @@
           </RegistryKey>
         </Component>
       </DirectoryRef>
+      <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
+      <Property Id="ARPPRODUCTICON" Value="Company.ico" />
+      <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
 
 
       <Directory Id="TARGETDIR" Name="SourceDir">
@@ -63,6 +66,14 @@
                 <Component Id="NLOG.DLL" DiskId="1" Guid="90D2C3AF-39C9-4712-887C-330D25E920CF">
                     <File Id="NLOG.DLL" Name="NLog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.dll" />
                 </Component>
+
+              <Component Id="ADMOCERTMANAGER" DiskId="1" Guid="20CD5EB9-A70E-42C8-B5C8-82B602419818">
+                <File Id="ADMOCERTMANAGER" Name="AdmoCertificateManager.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoCertificateManager.exe" />
+              </Component>
+              <Component Id="BUNDLEP12" DiskId="1" Guid="ABF68A0A-58BA-45FD-B192-3882019D4128">
+                <File Id="BUNDLEP12" Name="Bundle.p12" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\bundle.p12" />
+              </Component>
+              
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
                   <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
@@ -98,6 +109,8 @@
             <ComponentRef Id="StartMenuShortcuts" />
            <ComponentRef Id="RegistryEntries" />
           <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
+        <ComponentRef Id="BUNDLEP12" />
+        <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
       </Feature>
         <InstallExecuteSequence>
