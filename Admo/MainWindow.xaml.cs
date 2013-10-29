@@ -308,20 +308,24 @@ namespace Admo
         private void GetDataForSocketServer(Skeleton first)
         {
             //swipe gesture detection
-            string gestureRight =
+            var gestureRight =
                 _gestureDetectionRight.DetectSwipe(new HandHead(
                                                           first.Joints[JointType.HandRight].Position.X,
                                                           first.Joints[JointType.HandRight].Position.Y,
                                                           first.Joints[JointType.Head].Position.X));
-            if (gestureRight.Length != 0)
-                SocketServer.SendGestureEvent(gestureRight);
+            if (gestureRight == GestureDetection.SwipeLeftGesture)
+            {
+                   SocketServer.SendGestureEvent(gestureRight);
+            }
 
-            string gestureLeft =
+            var gestureLeft =
                 _gestureDetectionLeft.DetectSwipe(new HandHead(first.Joints[JointType.HandLeft].Position.X,
                                                                   first.Joints[JointType.HandLeft].Position.Y,
                                                                   first.Joints[JointType.Head].Position.X));
-            if (gestureLeft.Length != 0)
+            if (gestureLeft == GestureDetection.SwipeRightGesture)
+            {
                 SocketServer.SendGestureEvent(gestureLeft);
+            }
             //Managing data send to Node                 
             _applicationHandler.Manage_Skeletal_Data(first, new CoordinateMapper(_currentKinectSensor));
         }
