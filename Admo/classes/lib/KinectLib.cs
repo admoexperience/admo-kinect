@@ -7,7 +7,7 @@ namespace Admo.classes.lib
         public int LockedSkeletonId = 0;
         public Skeleton LockedSkeleton = null;
 
-        public static readonly TransformSmoothParameters VideoAppSmoothingParams = new TransformSmoothParameters
+        public static readonly TransformSmoothParameters AvatarAppSmoothingParams = new TransformSmoothParameters
             {
                 Smoothing = 0.5f,
                 Correction = 0.0f,
@@ -16,7 +16,7 @@ namespace Admo.classes.lib
                 MaxDeviationRadius = 0.04f
             };
 
-        public static readonly TransformSmoothParameters AvatarAppSmoothingParams = new TransformSmoothParameters
+        public static readonly TransformSmoothParameters CursorAppSmoothingParams = new TransformSmoothParameters
             {
                 Smoothing = 0.9f,
                 Correction = 0.1f,
@@ -100,7 +100,7 @@ namespace Admo.classes.lib
         }
         public TransformSmoothParameters GetTransformSmoothParameters(string type)
         {
-            return type == "avatar" ? AvatarAppSmoothingParams : VideoAppSmoothingParams;
+            return type == "cursor" ? CursorAppSmoothingParams : AvatarAppSmoothingParams;
         }
     }
 }

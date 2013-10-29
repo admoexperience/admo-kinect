@@ -12,15 +12,15 @@ namespace AdmoTests.classes.lib
         {
             var klib = new KinectLib();
             var type = klib.GetTransformSmoothParameters("doestmatter");
-            Assert.AreSame(KinectLib.VideoAppSmoothingParams,type);
+            Assert.AreEqual(KinectLib.AvatarAppSmoothingParams,type);
         }
 
         [TestMethod]
         public void AvatarSmoothingParams()
         {
             var klib = new KinectLib();
-            var type = klib.GetTransformSmoothParameters("avatar");
-            Assert.AreSame(KinectLib.AvatarAppSmoothingParams, type);
+            var type = klib.GetTransformSmoothParameters("cursor");
+            Assert.AreEqual(KinectLib.CursorAppSmoothingParams, type);
         }
 
         [TestMethod]
@@ -28,8 +28,8 @@ namespace AdmoTests.classes.lib
         {
             //Just incase we change it later
             var klib = new KinectLib();
-            var type = klib.GetTransformSmoothParameters("video_feed");
-            Assert.AreSame(KinectLib.VideoAppSmoothingParams, type);
+            var type = klib.GetTransformSmoothParameters("avatar");
+            Assert.AreEqual(KinectLib.AvatarAppSmoothingParams, type);
         }
     }
 }
