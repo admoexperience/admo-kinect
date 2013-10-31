@@ -47,7 +47,8 @@ namespace Admo.classes
         private const String PodFolder = @"C:\smartroom\pods\";
         private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
-        private static CmsApi _api;
+        private static CmsApi Api { get; set; }
+    
 
         public static Boolean IsOnline = false;
 
@@ -70,7 +71,7 @@ namespace Admo.classes
             // This is only a temp code change to allow for automagic folder and migration to new folder
             MigratedLegacyConfig();
 
-            _api = new CmsApi(GetApiKey());
+            Api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
@@ -124,7 +125,7 @@ namespace Admo.classes
             { 
                 StatsEngine.ProcessOfflineCache();
                 UpdateConfigCache();
-                _api.CheckIn();
+                Api.CheckIn();
                 Log.Debug("Pubnub connected [" + list[1]+"]");
             }
             else
@@ -177,8 +178,13 @@ namespace Admo.classes
 
         public static String GetPodFile()
         {
-            var def = Path.Combine(GetBaseConfigPath(), "pods", "dist.pod.zip");
-            var pod = ReadConfigOption(Keys.PodFile, def);
+            var defDir = Path.Combine(GetBaseConfigPath(), "pods");
+            if (!Directory.Exists(defDir))
+            {
+                Directory.CreateDirectory(defDir);
+            }
+            var defPod = Path.Combine(defDir, "dist.pod.zip");
+            var pod = ReadConfigOption(Keys.PodFile, defPod);
             return pod;
         }
 
@@ -213,12 +219,12 @@ namespace Admo.classes
             return ReadAnalyticConfigOption(Keys.MixpanelApiKey);
         }
 
-        private static String GetLocalConfig(String config)
+        public static String GetLocalConfig(String config)
         {
             return Path.Combine(GetBaseConfigPath(), config + ".txt");
         }
 
-        private static String GetCmsConfigCacheFile()
+        public static String GetCmsConfigCacheFile()
         {
             return Path.Combine(GetBaseConfigPath(), "configcache.json");
         }
@@ -232,7 +238,14 @@ namespace Admo.classes
             }
             return apiKey;
         }
-        
+
+        public static Boolean HasApiKey()
+        {
+            var apiKey = ReadLocalConfig("ApiKey");
+            return !apiKey.Equals(String.Empty);
+
+        }
+
         private static String GetPubNubSubKey()
         {
             var key = ReadConfigOption(Keys.PubnubSubscribeKey, "");
@@ -351,7 +364,7 @@ namespace Admo.classes
 
         public static void CheckIn()
         {
-            _api.CheckIn();
+            Api.CheckIn();
         }
 
         public static async void UpdateConfigCache()
@@ -360,15 +373,13 @@ namespace Admo.classes
             {
                 Log.Debug("Updating config");
 
-                var responseAsString = await _api.GetConfig();
+                var responseAsString = await Api.GetConfig();
                 //test its valid json
                 dynamic obj = JsonConvert.DeserializeObject(responseAsString);
                 var cacheFile = GetCmsConfigCacheFile();
                 try
                 {
-                    var streamWriter = new StreamWriter(cacheFile);
-                    streamWriter.Write(responseAsString);
-                    streamWriter.Close();
+                    File.WriteAllText(cacheFile, responseAsString);
                 }
                 catch (Exception e)
                 {
@@ -400,7 +411,7 @@ namespace Admo.classes
                 var width = (int)(img.Width / compress);
                 var height = (int)(img.Height / compress);
                 var smallImage = (Image) new Bitmap(img, width, height);
-                var result = await _api.PostScreenShot(smallImage);
+                var result = await Api.PostScreenShot(smallImage);
             }
             catch (Exception e)
             {

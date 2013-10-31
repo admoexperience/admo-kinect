@@ -33,5 +33,10 @@ namespace Admo.classes
                                            ContractResolver = new CamelCasePropertyNamesContractResolver()
                                        });
         }
+
+        public static Dictionary<String, object> ParseJson(string result)
+        {
+            return JsonConvert.DeserializeObject<Dictionary<String, object>>(result);
+        }
     }
 }

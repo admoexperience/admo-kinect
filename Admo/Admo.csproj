@@ -106,6 +106,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="forms\BootstrapUnit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -115,6 +119,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
+    <Compile Include="classes\lib\CmsAccountApi.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
@@ -150,6 +155,9 @@
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="classes\Utils.cs" />
+    <Compile Include="forms\BootstrapUnit.xaml.cs">
+      <DependentUpon>BootstrapUnit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -171,6 +179,7 @@
     </Compile>
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
+    <Resource Include="resources\left-banner.png" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

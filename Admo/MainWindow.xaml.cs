@@ -101,8 +101,11 @@ namespace Admo
             ApplicationHandler.ConfigureCalibrationByConfig();
 
             //start and stop old kinect sensor kinect sensor
-            KinectSensor sensor1 = KinectSensor.KinectSensors[0];
-            sensor1.Stop();
+            if (KinectSensor.KinectSensors.Count > 0)
+            {
+                var sensor1 = KinectSensor.KinectSensors[0];
+                sensor1.Stop();
+            }
             _webServer = new WebServer();
             _webServer.Start();
 
@@ -416,7 +419,7 @@ namespace Admo
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {
-            if (_sensorChooser.Kinect != null)
+            if (_sensorChooser!= null &&_sensorChooser.Kinect != null)
             {
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
 
