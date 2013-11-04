@@ -34,7 +34,6 @@ namespace Admo.classes
         }
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static Pubnub pubnub;
         public const int CheckingInterval = 5 * 60; //Once every 5mins
         private const int ScreenshotInterval = 30 * 60; //Once every 30mins
         
@@ -46,12 +45,13 @@ namespace Admo.classes
         private static String _webServer = null;
 
         private const String PodFolder = @"C:\smartroom\pods\";
-        private const String BaseDropboxFolder = @"C:\Dropbox\Admo-Units\";
 
         private static CmsApi Api { get; set; }
     
 
         public static Boolean IsOnline = false;
+
+        public static PushNotification Pusher;
 
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
@@ -70,9 +70,13 @@ namespace Admo.classes
         {
             Api = new CmsApi(GetApiKey());
             UpdateConfigCache();
-
-            pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
-            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, result => OnPubnubConnection(result), OnPubnubError);
+            Pusher = new PushNotification
+            {
+                Channel = GetApiKey(), 
+                SubscribeKey = GetPubNubSubKey(),
+                OnConnection = OnPushNotificationConnection
+            };
+            Pusher.Connect();
 
 
             var pod = new PodWatcher(GetPodFile(), PodFolder);
@@ -85,10 +89,16 @@ namespace Admo.classes
             StatsEngine = new StatsEngine(dataCache, mixpanel);
         }
 
-        private static void OnPubnubError(PubnubClientError obj)
+        public static void OnPushNotificationConnection(Boolean online)
         {
-            Logger.Error("Pubnub error "+obj.Description);
+            IsOnline = online;
+            if (!online) return;
+            StatsEngine.ProcessOfflineCache();
+            UpdateConfigCache();
+            Api.CheckIn();
         }
+
+
 
         public static void NewWebContent(String file)
         {
@@ -96,42 +106,7 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
-        public static List<String> ParsePubnubConnection(string result)
-        {
-            //List order is  
-            // 0,1 connected disconnected
-            //message
-            //api key
-            var list = JsonConvert.DeserializeObject<List<String>>(result);
-            return list;
-        }
-
-        public static void OnPubnubConnection(string result)
-        {
-            var list = ParsePubnubConnection(result);
-            var online = list[0].Equals("1");
-            IsOnline = online;
-            if (online)
-            { 
-                StatsEngine.ProcessOfflineCache();
-                UpdateConfigCache();
-                Api.CheckIn();
-                Logger.Debug("Pubnub connected [" + list[1]+"]");
-            }
-            else
-            {
-                Logger.Debug("Pubnub disconnected [" + list[1] + "]");
-            }
-        }
-
         
-        private static void OnPubNubMessage(string result)
-        {
-            var list = JsonConvert.DeserializeObject<List<String>>(result);
-            var command = CommandFactory.ParseCommand(list[0]);
-            //Performs the command
-            command.Perform();
-        }
 
         //Production mode by default. 
         //Text field can be used to change enviroment only once per startup

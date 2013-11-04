@@ -120,6 +120,7 @@
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
     <Compile Include="classes\lib\CmsAccountApi.cs" />
+    <Compile Include="classes\lib\PushNotification.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
