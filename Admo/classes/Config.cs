@@ -33,10 +33,11 @@ namespace Admo.classes
             public const string TransformSmoothingType = "transform_smoothing_type";
         }
 
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static Pubnub pubnub;
         public const int CheckingInterval = 5 * 60; //Once every 5mins
         private const int ScreenshotInterval = 30 * 60; //Once every 30mins
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        
 
         //variable dictating whether facetracking is activated
         public static readonly bool RunningFacetracking = false;
@@ -67,15 +68,11 @@ namespace Admo.classes
 
         public static void Init()
         {
-            // 09/09/2013 -- Config was moved from dropbox to local storage folder.
-            // This is only a temp code change to allow for automagic folder and migration to new folder
-            MigratedLegacyConfig();
-
             Api = new CmsApi(GetApiKey());
             UpdateConfigCache();
 
             pubnub = new Pubnub("", GetPubNubSubKey(), "", "", false);
-            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, OnPubNubConnection);
+            pubnub.Subscribe<string>(GetApiKey(), OnPubNubMessage, result => OnPubnubConnection(result), OnPubnubError);
 
 
             var pod = new PodWatcher(GetPodFile(), PodFolder);
@@ -88,21 +85,14 @@ namespace Admo.classes
             StatsEngine = new StatsEngine(dataCache, mixpanel);
         }
 
-        private static void MigratedLegacyConfig()
+        private static void OnPubnubError(PubnubClientError obj)
         {
-            if (Directory.Exists(GetBaseConfigPath())) return;
-            Log.Info(GetBaseConfigPath() + " Doesn't exsist creating it");
-
-            Directory.CreateDirectory(GetBaseConfigPath());
-
-            //Move the config from the old dropbox folder to the new folder.
-            File.Move(Path.Combine(BaseDropboxFolder,GetHostName(),"ApiKey.txt"), Path.Combine(GetBaseConfigPath(),"ApiKey.txt"));
-            File.Move(Path.Combine(BaseDropboxFolder, GetHostName(), "configcache.json"), Path.Combine(GetBaseConfigPath(), "configcache.json"));
+            Logger.Error("Pubnub error "+obj.Description);
         }
 
         public static void NewWebContent(String file)
         {
-            Log.Debug("New server data "+ file);
+            Logger.Debug("New server data "+ file);
             SocketServer.SendReloadEvent();
         }
 
@@ -116,7 +106,7 @@ namespace Admo.classes
             return list;
         }
 
-        public static void OnPubNubConnection(string result)
+        public static void OnPubnubConnection(string result)
         {
             var list = ParsePubnubConnection(result);
             var online = list[0].Equals("1");
@@ -126,11 +116,11 @@ namespace Admo.classes
                 StatsEngine.ProcessOfflineCache();
                 UpdateConfigCache();
                 Api.CheckIn();
-                Log.Debug("Pubnub connected [" + list[1]+"]");
+                Logger.Debug("Pubnub connected [" + list[1]+"]");
             }
             else
             {
-                Log.Debug("Pubnub disconnected [" + list[1] + "]");
+                Logger.Debug("Pubnub disconnected [" + list[1] + "]");
             }
         }
 
@@ -205,7 +195,7 @@ namespace Admo.classes
         {
             var temp = ReadConfigOption(Keys.KinectElevation,"1");
             var elevationAngle = Convert.ToInt32(temp);
-            Log.Info("elevation path: " + elevationAngle);
+            Logger.Info("elevation path: " + elevationAngle);
             return elevationAngle;
         }
 
@@ -251,7 +241,7 @@ namespace Admo.classes
             var key = ReadConfigOption(Keys.PubnubSubscribeKey, "");
             if (String.IsNullOrEmpty(key))
             {
-                Log.Warn("Pubnubkey not found manually triggering an update; please restart application");
+                Logger.Warn("Pubnubkey not found manually triggering an update; please restart application");
                 //TODO: This should throw some sort of exception.
                 //We need to make sure the config is bootstraped from the app before starting.
                 UpdateConfigCache();
@@ -276,12 +266,12 @@ namespace Admo.classes
                 objReader.Close();
             }
             catch (DirectoryNotFoundException dnfe){
-                Log.Debug("Config file not found [" + filePath + "]");
+                Logger.Debug("Config file not found [" + filePath + "]");
                 return String.Empty;
             }
             catch (FileNotFoundException fnfe)
             {
-                Log.Debug("Config file not found [" + filePath + "]");
+                Logger.Debug("Config file not found [" + filePath + "]");
                 return String.Empty;
             }
             return temp == null ? string.Empty : temp.Trim();
@@ -323,12 +313,12 @@ namespace Admo.classes
             }
             catch (DirectoryNotFoundException dnfe)
             {
-                Log.Error("Cache file not found [" + cacheFile + "]");
+                Logger.Error("Cache file not found [" + cacheFile + "]");
                 return new JObject();
             }
             catch (FileNotFoundException fnfe)
             {
-                Log.Error("Cache file not found [" + cacheFile + "]");
+                Logger.Error("Cache file not found [" + cacheFile + "]");
                 return new JObject();
             }
             var obj = (JObject)JsonConvert.DeserializeObject(temp);
@@ -371,7 +361,7 @@ namespace Admo.classes
         {
             try
             {
-                Log.Debug("Updating config");
+                Logger.Debug("Updating config");
 
                 var responseAsString = await Api.GetConfig();
                 //test its valid json
@@ -383,13 +373,13 @@ namespace Admo.classes
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Failed to write cache file for [" + "App" + "] to disk", e);
+                    Logger.Error("Failed to write cache file for [" + "App" + "] to disk", e);
                 }
             }
             catch (Exception e)
             {
                 //Happens when the unit is offline
-                Log.Warn("Unable to update the cacheconfig file",e);
+                Logger.Warn("Unable to update the cacheconfig file",e);
             }
 
             SocketServer.SendUpdatedConfig();
@@ -401,7 +391,7 @@ namespace Admo.classes
         {
             try
             {
-                Log.Debug("Taking screenshot");
+                Logger.Debug("Taking screenshot");
                 var sc = new ScreenCapture();
                 // capture entire screen
                 var img = sc.CaptureScreen();
@@ -415,8 +405,8 @@ namespace Admo.classes
             }
             catch (Exception e)
             {
-                Log.Error(e);
-                Log.Error("Unable to save screen shot", e);
+                Logger.Error(e);
+                Logger.Error("Unable to save screen shot", e);
             }
         }
 
