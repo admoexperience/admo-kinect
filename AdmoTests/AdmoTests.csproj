@@ -60,6 +60,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Api\Dto\ConfigTest.cs" />
     <Compile Include="classes\lib\KinectLibTest.cs" />
     <Compile Include="classes\lib\PushNotificationTest.cs" />
     <Compile Include="CommandFactoryTest.cs" />

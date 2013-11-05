@@ -52,11 +52,11 @@ namespace Admo.forms
                 {
                     var unitInfo = Utils.ParseJson(parsed["unit"].ToString());
                     var apiKey = unitInfo["api_key"].ToString();
-                    File.WriteAllText(Config.GetLocalConfig("ApiKey"), apiKey);
+                    File.WriteAllText(Admo.classes.Config.GetLocalConfig("ApiKey"), apiKey);
 
                     var unitApi = new CmsApi(apiKey);
                     var stringval = await unitApi.GetConfig();
-                    File.WriteAllText(Config.GetCmsConfigCacheFile(), stringval);
+                    File.WriteAllText(Admo.classes.Config.GetCmsConfigCacheFile(), stringval);
                     var main = new MainWindow();
                     main.Show();
                     Close();

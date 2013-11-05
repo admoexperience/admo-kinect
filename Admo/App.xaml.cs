@@ -26,16 +26,16 @@ namespace Admo
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private async void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            //create all the directories
-            Config.InitDirs();
+            //
+            Admo.classes.Config.InitDirs();
             var api = new CmsApi("api_key");
             var jsonAppList = await api.GetAppList();
-            var podList = JsonHelper.ConvertFromApiRequest<PodList>(jsonAppList);
+            var podList = JsonHelper.ConvertFromApiRequest<PodApp>(jsonAppList);
             Logger.Debug(podList);
             
             var mainWindow = new MainWindow();
             var bootstrapWindow = new BootstrapUnit();
-            var hasConfig = Config.HasApiKey();
+            var hasConfig = Admo.classes.Config.HasApiKey();
             if (hasConfig)
             {
                 mainWindow.WindowState = WindowState.Minimized;
