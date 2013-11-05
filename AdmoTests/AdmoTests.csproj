@@ -66,6 +66,7 @@
     <Compile Include="CommandFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\JsonHelperTest.cs" />
+    <Compile Include="Utilities\UnitTest1.cs" />
     <Compile Include="WebServerTest.cs" />
     <Compile Include="ApplicationHandlerTests.cs" />
     <Compile Include="GestureDetectionTests.cs" />
@@ -83,7 +84,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Resources\dist-test.pod.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

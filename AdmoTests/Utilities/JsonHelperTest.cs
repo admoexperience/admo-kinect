@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Admo.Api;
 using Admo.Api.Dto;
 using Admo.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,6 +29,9 @@ namespace AdmoTests.Utilities
             Assert.AreEqual("sum", pod.PodChecksum);
             Assert.AreEqual("http://foo.com/bar/test.zip", pod.PodUrl);
         }
+
+      
+
 
     }
 }

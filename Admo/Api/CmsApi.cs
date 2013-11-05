@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Admo.Api.Dto;
+using Admo.Utilities;
 using NLog;
 
 namespace Admo.Api
@@ -28,18 +30,7 @@ namespace Admo.Api
             try
             {
                 Logger.Debug("Checking into the CMS");
-                // You need to add a reference to System.Net.Http to declare client.
-                var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get,
-                                                            CmsApi.CmsUrl + "checkin.json");
-                // Add our custom headers
-                requestMessage.Headers.Add("Api-Key", _apiKey);
-
-                // Send the request to the server
-                var response = await httpClient.SendAsync(requestMessage);
-
-
-                var responseAsString = await response.Content.ReadAsStringAsync();
+                await GetUrlContent(CmsUrl + "checkin.json");
             }
             catch (Exception e)
             {
@@ -72,9 +63,10 @@ namespace Admo.Api
             return data;
         }
 
-        public async Task<String> GetAppList()
+        public async Task<List<PodApp>> GetAppList()
         {
-            return await GetUrlContent(CmsUrl+"apps.json");
+            var json = await GetUrlContent(CmsUrl+"apps.json");
+            return JsonHelper.ConvertFromApiRequest<List<PodApp>>(json);
         }
 
         private async Task<String> GetUrlContent(String url)

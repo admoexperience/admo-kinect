@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -34,6 +36,18 @@ namespace Admo.Utilities
         public static Dictionary<String, object> ParseJson(string result)
         {
             return JsonConvert.DeserializeObject<Dictionary<String, object>>(result);
+        }
+
+        public static String Sha256(String fileName)
+        {
+            using (var stream = File.OpenRead(fileName))
+            {
+                var sha = new SHA256Managed();
+                var hash = sha.ComputeHash(stream);
+
+                var shaHash = BitConverter.ToString(hash).Replace("-", String.Empty);
+                return shaHash.ToLowerInvariant();
+            }
         }
     }
 }
