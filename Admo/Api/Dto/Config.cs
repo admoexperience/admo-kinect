@@ -26,9 +26,9 @@ namespace Admo.Api.Dto
         public String Name { get;set; }
         public ConfigAnalytics Analytics { get; set; }
         public String TransformSmoothingType { get; set; }
-        public String FovCropTop { get; set; }
-        public String FovCropLeft { get; set; }
-        public String FovCropWidth { get; set; }
+        public int FovCropTop { get; set; }
+        public int FovCropLeft { get; set; }
+        public int FovCropWidth { get; set; }
 
 
         public Config()
@@ -37,10 +37,13 @@ namespace Admo.Api.Dto
             Environment = "production";
             PodFile = Path.Combine(classes.Config.GetBaseConfigPath(),"pods", "default.pod.zip");
             KinectElevation = 1;
+            WebUiServer = "https://localhost:5001";
             //PubnubSubscribeKey doesn't have a default
             ScreenshotInterval = 30*60; //every 30mins
             TransformSmoothingType = "avatar";
+            FovCropTop = 56;
+            FovCropLeft = 52;
+            FovCropWidth = 547;
         }
-
     }
 }

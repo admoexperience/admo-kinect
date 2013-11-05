@@ -81,8 +81,7 @@ namespace Admo
                 }
             }
 
-            string cal = Config.ReadConfigOption(Config.Keys.CalibrationActive);
-            if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
+            if (Config.IsCalibrationActive())
             {
                 //set calibration values to zero in preparation for calibration
                 TheHacks.FovTop = 0;

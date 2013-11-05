@@ -5,6 +5,7 @@ using System.IO;
 using Admo.Api;
 using Admo.classes.lib;
 using Admo.classes.stats;
+using Admo.Utilities;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,7 +15,8 @@ namespace Admo.classes
 {
     public class Config
     {
-        public class Keys
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        /*public class Keys
         {
             public const string Environment = "environment";
             public const string WebUiServer = "web_ui_server";
@@ -34,17 +36,19 @@ namespace Admo.classes
             public const string TransformSmoothingType = "transform_smoothing_type";
         }
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        
         public const int CheckingInterval = 5 * 60; //Once every 5mins
         private const int ScreenshotInterval = 30 * 60; //Once every 30mins
         
 
         //variable dictating whether facetracking is activated
-        public static readonly bool RunningFacetracking = false;
+        
 
         private static String _enviroment = null;
-
+         * */
+        public static readonly bool RunningFacetracking = false;
         private const String PodFolder = @"C:\smartroom\pods\";
+        
 
         private static CmsApi Api { get; set; }
     
@@ -57,6 +61,9 @@ namespace Admo.classes
         //Currently can't pick up which config event changed.
         public static event ConfigOptionChanged OptionChanged;
         public delegate void ConfigOptionChanged();
+
+
+        private static Api.Dto.Config _config;
 
         public static StatsEngine StatsEngine;
 
@@ -83,6 +90,7 @@ namespace Admo.classes
         public static void Init()
         {
             Api = new CmsApi(GetApiKey());
+            _config = ReadConfig();
             UpdateConfigCache();
             Pusher = new PushNotification
             {
@@ -91,6 +99,7 @@ namespace Admo.classes
                 OnConnection = OnPushNotificationConnection
             };
             Pusher.Connect();
+            
 
 
             var pod = new PodWatcher(GetPodFile(), PodFolder);
@@ -125,16 +134,12 @@ namespace Admo.classes
         //Production mode by default.
         public static Boolean IsDevMode()
         {
-            if (_enviroment == null)
-            {
-                _enviroment = ReadConfigOption(Keys.Environment,"production");
-            }
-            return _enviroment.Equals("development");
+            return _config.Environment.Equals("development");
         }
 
         public static String GetWebServer()
         {
-            return ReadConfigOption(Keys.WebUiServer, "https://localhost:5001");
+            return _config.WebUiServer;
         }
 
         public static String GetBaseConfigPath()
@@ -145,23 +150,13 @@ namespace Admo.classes
 
         public static int GetScreenshotInterval()
         {
-            var val = ReadConfigOption(Keys.ScreenshotInterval, ScreenshotInterval.ToString());
-            var result = ScreenshotInterval;
-            int.TryParse(val, out result);
-            return result;
+            return _config.ScreenshotInterval;  
         }
 
 
         public static String GetPodFile()
         {
-            var defDir = Path.Combine(GetBaseConfigPath(), "pods");
-            if (!Directory.Exists(defDir))
-            {
-                Directory.CreateDirectory(defDir);
-            }
-            var defPod = Path.Combine(defDir, "dist.pod.zip");
-            var pod = ReadConfigOption(Keys.PodFile, defPod);
-            return pod;
+            return _config.PodFile;  
         }
 
         public static String GetLaunchUrl()
@@ -179,20 +174,17 @@ namespace Admo.classes
 
         public static int GetElevationAngle()
         {
-            var temp = ReadConfigOption(Keys.KinectElevation,"1");
-            var elevationAngle = Convert.ToInt32(temp);
-            Logger.Info("elevation path: " + elevationAngle);
-            return elevationAngle;
+            return _config.KinectElevation;  
         }
 
         public static String GetMixpanelApiToken()
         {
-            return ReadAnalyticConfigOption(Keys.MixpanelApiToken);
+            return _config.Analytics.MixpanelApiToken;  
         }
 
         public static String GetMixpanelApiKey()
         {
-            return ReadAnalyticConfigOption(Keys.MixpanelApiKey);
+            return _config.Analytics.MixpanelApiKey;  
         }
 
         public static String GetLocalConfig(String config)
@@ -224,15 +216,7 @@ namespace Admo.classes
 
         private static String GetPubNubSubKey()
         {
-            var key = ReadConfigOption(Keys.PubnubSubscribeKey, "");
-            if (String.IsNullOrEmpty(key))
-            {
-                Logger.Warn("Pubnubkey not found manually triggering an update; please restart application");
-                //TODO: This should throw some sort of exception.
-                //We need to make sure the config is bootstraped from the app before starting.
-                UpdateConfigCache();
-            }
-            return key;
+            return _config.PubnubSubscribeKey;
         }
 
         private static String ReadLocalConfig(String config)
@@ -247,27 +231,19 @@ namespace Admo.classes
             return String.IsNullOrWhiteSpace(temp) ? string.Empty : temp.Trim();
         }
 
-        public static String ReadConfigOption(String option, string defaultOption)
-        {
-            var val = ReadConfigOption(option);
-            //If the config option isn't there return the default value
-            if (String.IsNullOrEmpty(val))
-            {
-                val = defaultOption;
-            }
-            return val;
-        }
-
         public static JObject GetConfiguration()
         {
             var x = GetJsonConfig()["config"] as JObject;
-            //This value has been deprecated infavour of using the units name.
-            //Legacy units/apps should still pass in the correct param even though the value will change.
-            //2013-10-09
-            x.Add("hostname",ReadConfigOption(Keys.UnitName, GetHostName()));
             x.Add("apiKey", GetApiKey());
             x.Add("cmsUri", CmsApi.CmsUrl);
             return x;
+        }
+
+        private static Api.Dto.Config ReadConfig()
+        {
+            var cacheFile = GetCmsConfigCacheFile();
+            var temp = File.ReadAllText(cacheFile);
+            return JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(temp);
         }
 
         private static JObject GetJsonConfig()
@@ -284,23 +260,6 @@ namespace Admo.classes
             var obj = GetJsonConfig();
             var optionValue = obj["config"][option];
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
-            return val;
-        }
-
-        public static String ReadAnalyticConfigOption(String option)
-        {
-
-            var obj = GetJsonConfig();
-            var analytics = obj["config"]["analytics"];
-
-            if (analytics == null)
-            {
-                return String.Empty;
-            }
-
-            var optionValue = analytics[option];
-
-            var val = optionValue == null ? string.Empty : optionValue.ToString().Trim();
             return val;
         }
 
@@ -364,7 +323,25 @@ namespace Admo.classes
 
         public static string GetTransformSmoothType()
         {
-            return ReadConfigOption(Keys.TransformSmoothingType, "avatar");
+            return _config.TransformSmoothingType;
+        }
+
+        public static Boolean IsCalibrationActive()
+        {
+            return _config.CalibrationActive;
+        }
+
+        public static int GetFovCropTop()
+        {
+            return _config.FovCropTop;
+        }
+        public static int GetFovCropLeft()
+        {
+            return _config.FovCropLeft;
+        }
+        public static int GetFovCropWidth()
+        {
+            return _config.FovCropWidth;
         }
     }
 }
