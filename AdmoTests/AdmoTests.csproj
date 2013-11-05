@@ -64,6 +64,7 @@
     <Compile Include="classes\lib\PushNotificationTest.cs" />
     <Compile Include="CommandFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\JsonHelperTest.cs" />
     <Compile Include="WebServerTest.cs" />
     <Compile Include="ApplicationHandlerTests.cs" />
     <Compile Include="GestureDetectionTests.cs" />

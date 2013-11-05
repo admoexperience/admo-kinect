@@ -15,6 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Admo.classes;
 using Admo.classes.lib;
+using Admo.Api;
+using Admo.Api.Dto;
+using Admo.Utilities;
 using NLog;
 
 namespace Admo.forms

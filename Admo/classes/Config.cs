@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Admo.Api;
 using Admo.classes.lib;
 using Admo.classes.stats;
 using NLog;
@@ -42,7 +43,6 @@ namespace Admo.classes
         public static readonly bool RunningFacetracking = false;
 
         private static String _enviroment = null;
-        private static String _webServer = null;
 
         private const String PodFolder = @"C:\smartroom\pods\";
 
@@ -63,6 +63,20 @@ namespace Admo.classes
         public static String GetHostName()
         {
             return Environment.MachineName;
+        }
+
+        public static void InitDirs()
+        {
+            //Create all the directories needed for admo to function
+            var baseDir = new DirectoryInfo(GetBaseConfigPath());
+            if (!baseDir.Exists)
+            {
+                baseDir.Create();
+            }
+            baseDir.CreateSubdirectory("analytics");
+            baseDir.CreateSubdirectory("pods");
+            baseDir.CreateSubdirectory(Path.Combine("webserver","current"));
+            baseDir.CreateSubdirectory(Path.Combine("webserver", "override"));
         }
 
 
@@ -108,8 +122,7 @@ namespace Admo.classes
 
         
 
-        //Production mode by default. 
-        //Text field can be used to change enviroment only once per startup
+        //Production mode by default.
         public static Boolean IsDevMode()
         {
             if (_enviroment == null)
@@ -121,9 +134,7 @@ namespace Admo.classes
 
         public static String GetWebServer()
         {
-            if (_webServer != null) return _webServer;
-            _webServer = ReadConfigOption(Keys.WebUiServer, "https://localhost:5001");
-            return _webServer;
+            return ReadConfigOption(Keys.WebUiServer, "https://localhost:5001");
         }
 
         public static String GetBaseConfigPath()
@@ -232,24 +243,8 @@ namespace Admo.classes
 
         private static String ReadFile(string filePath)
         {
-            String temp;
-            try
-            {
-                var objReader =
-                    new StreamReader(filePath);
-                temp = objReader.ReadLine();
-                objReader.Close();
-            }
-            catch (DirectoryNotFoundException dnfe){
-                Logger.Debug("Config file not found [" + filePath + "]");
-                return String.Empty;
-            }
-            catch (FileNotFoundException fnfe)
-            {
-                Logger.Debug("Config file not found [" + filePath + "]");
-                return String.Empty;
-            }
-            return temp == null ? string.Empty : temp.Trim();
+            var temp = File.ReadAllText(filePath);
+            return String.IsNullOrWhiteSpace(temp) ? string.Empty : temp.Trim();
         }
 
         public static String ReadConfigOption(String option, string defaultOption)
@@ -278,24 +273,7 @@ namespace Admo.classes
         private static JObject GetJsonConfig()
         {
             var cacheFile = GetCmsConfigCacheFile();
-            String temp = null;
-            try
-            {
-                var objReader =
-                    new StreamReader(cacheFile);
-                temp = objReader.ReadToEnd();
-                objReader.Close();
-            }
-            catch (DirectoryNotFoundException dnfe)
-            {
-                Logger.Error("Cache file not found [" + cacheFile + "]");
-                return new JObject();
-            }
-            catch (FileNotFoundException fnfe)
-            {
-                Logger.Error("Cache file not found [" + cacheFile + "]");
-                return new JObject();
-            }
+            var temp = File.ReadAllText(cacheFile);
             var obj = (JObject)JsonConvert.DeserializeObject(temp);
             return obj;
         }
@@ -305,7 +283,6 @@ namespace Admo.classes
 
             var obj = GetJsonConfig();
             var optionValue = obj["config"][option];
-
             var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
             return val;
         }

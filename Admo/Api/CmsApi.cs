@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using NLog;
 
-namespace Admo.classes.lib
+namespace Admo.Api
 {
-    class CmsApi
+    public class CmsApi
     {
         public const String BaseUri = "https://cms.admoexperience.com/api/v1";
         public const String CmsUrl = BaseUri +"/unit/";
@@ -50,17 +50,7 @@ namespace Admo.classes.lib
 
         public async Task<String> GetConfig()
         {
-            var httpClient = new HttpClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, CmsApi.CmsUrl + "config.json");
-            // Add our custom headers
-            requestMessage.Headers.Add("Api-Key", _apiKey);
-
-            // Send the request to the server
-            var response = await httpClient.SendAsync(requestMessage);
-
-            // Just as an example I'm turning the response into a string here
-            var responseAsString = await response.Content.ReadAsStringAsync();
-            return responseAsString;
+            return await GetUrlContent(CmsUrl + "config.json");
         }
 
         public async Task<String> PostScreenShot(Image img)
@@ -80,6 +70,26 @@ namespace Admo.classes.lib
 
             var data = await responseMessage.Content.ReadAsStringAsync();
             return data;
+        }
+
+        public async Task<String> GetAppList()
+        {
+            return await GetUrlContent(CmsUrl+"apps.json");
+        }
+
+        private async Task<String> GetUrlContent(String url)
+        {
+            var httpClient = new HttpClient();
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+            // Add our custom headers
+            requestMessage.Headers.Add("Api-Key", _apiKey);
+
+            // Send the request to the server
+            var response = await httpClient.SendAsync(requestMessage);
+
+            // Just as an example I'm turning the response into a string here
+            var responseAsString = await response.Content.ReadAsStringAsync();
+            return responseAsString;
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
 using Admo.classes.lib;
+using Admo.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using NLog;

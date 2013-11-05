@@ -119,8 +119,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
-    <Compile Include="classes\lib\CmsAccountApi.cs" />
+    <Compile Include="Api\CmsAccountApi.cs" />
     <Compile Include="classes\lib\PushNotification.cs" />
+    <Compile Include="Api\Dto\Pod.cs" />
+    <Compile Include="Api\Dto\PodList.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
@@ -135,7 +137,7 @@
     </Compile>
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
-    <Compile Include="classes\lib\CmsApi.cs" />
+    <Compile Include="Api\CmsApi.cs" />
     <Compile Include="classes\lib\CommandFactory.cs" />
     <Compile Include="classes\lib\commands\BaseCommand.cs" />
     <Compile Include="classes\lib\commands\CalibrateCommand.cs" />
@@ -155,7 +157,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
-    <Compile Include="classes\Utils.cs" />
+    <Compile Include="Utilities\JsonHelper.cs" />
+    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
     </Compile>

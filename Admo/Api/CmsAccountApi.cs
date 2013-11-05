@@ -6,11 +6,12 @@ using System.Net.Http;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using Admo.Utilities;
 using NLog;
 
-namespace Admo.classes.lib
+namespace Admo.Api
 {
-    class CmsAccountApi 
+    public class CmsAccountApi 
     {
 
         //CmsApi.BaseUri+

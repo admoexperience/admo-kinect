@@ -1,5 +1,6 @@
 ﻿using System;
 using Admo.classes;
+using Admo.Utilities;
 using Microsoft.Kinect;
 using NLog;
 
