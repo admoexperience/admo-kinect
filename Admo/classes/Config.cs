@@ -16,36 +16,6 @@ namespace Admo.classes
     public class Config
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        /*public class Keys
-        {
-            public const string Environment = "environment";
-            public const string WebUiServer = "web_ui_server";
-            public const string PodFile = "pod_file";
-            public const string App = "app";
-            public const string LoadingPage = "loading_page";
-            public const string KinectElevation = "kinect_elevation";
-            public const string PubnubSubscribeKey = "pubnub_subscribe_key";
-            public const string ScreenshotInterval = "screenshot_interval";
-            public const string FovCropTop = "fov_crop_top";
-            public const string FovCropLeft = "fov_crop_left";
-            public const string FovCropWidth = "fov_crop_width";
-            public const string CalibrationActive = "calibration_active";
-            public const string UnitName = "name";
-            public const string MixpanelApiToken = "mixpanel_api_token";
-            public const string MixpanelApiKey = "mixpanel_api_key";
-            public const string TransformSmoothingType = "transform_smoothing_type";
-        }
-
-        
-        public const int CheckingInterval = 5 * 60; //Once every 5mins
-        private const int ScreenshotInterval = 30 * 60; //Once every 30mins
-        
-
-        //variable dictating whether facetracking is activated
-        
-
-        private static String _enviroment = null;
-         * */
         public static readonly bool RunningFacetracking = false;
         private const String PodFolder = @"C:\smartroom\pods\";
         
@@ -165,7 +135,13 @@ namespace Admo.classes
 
         public static String GetPodFile()
         {
-            return _config.PodFile;  
+            var podFile = _config.PodFile;
+            if (Path.IsPathRooted(podFile))
+            {
+                return podFile;
+            }
+
+            return Path.Combine(GetPodLocation(),_config.PodFile);  
         }
 
         public static String GetLaunchUrl()
@@ -285,7 +261,7 @@ namespace Admo.classes
 
                 var responseAsString = await Api.GetConfig();
                 //test its valid json
-                dynamic obj = JsonConvert.DeserializeObject(responseAsString);
+                _config = JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(responseAsString);
                 var cacheFile = GetCmsConfigCacheFile();
                 try
                 {
@@ -301,6 +277,7 @@ namespace Admo.classes
                 //Happens when the unit is offline
                 Logger.Warn("Unable to update the cacheconfig file",e);
             }
+            
 
             SocketServer.SendUpdatedConfig();
 
