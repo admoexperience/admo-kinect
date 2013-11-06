@@ -9,23 +9,29 @@ namespace Admo.Api.Dto
 {
     public class ConfigAnalytics
     {
-        public String MixpanelApiToken { get; set; }
-        public String MixpanelApiKey { get; set;  }
+        public string MixpanelApiToken { get; set; }
+        public string MixpanelApiKey { get; set; }
+
+        public ConfigAnalytics()
+        {
+            MixpanelApiKey = string.Empty;
+            MixpanelApiToken = string.Empty;
+        }
     }
 
-    public class Config
+    public class Config : BaseApiResult
     {
         public const int CheckingInterval = 5 * 60; //Once every 5mins
-        public String Environment { get; set; }
-        public String WebUiServer { get; set; }
-        public String PodFile { get; set; }
+        public string Environment { get; set; }
+        public string WebUiServer { get; set; }
+        public string PodFile { get; set; }
         public int KinectElevation { get; set; }
-        public String PubnubSubscribeKey { get; set; }
+        public string PubnubSubscribeKey { get; set; }
         public int ScreenshotInterval { get; set; }
-        public Boolean CalibrationActive { get; set; }
-        public String Name { get;set; }
+        public bool CalibrationActive { get; set; }
+        public string Name { get; set; }
         public ConfigAnalytics Analytics { get; set; }
-        public String TransformSmoothingType { get; set; }
+        public string TransformSmoothingType { get; set; }
         public int FovCropTop { get; set; }
         public int FovCropLeft { get; set; }
         public int FovCropWidth { get; set; }
@@ -35,7 +41,11 @@ namespace Admo.Api.Dto
         {
             //Put default values here
             Environment = "production";
-            PodFile = Path.Combine(classes.Config.GetBaseConfigPath(),"pods", "default.pod.zip");
+            Analytics = new ConfigAnalytics();
+            //Use bundled default app untill they publish a new one.
+            var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var path = Path.GetDirectoryName(exeLocation);
+            PodFile = Path.Combine(path,"resources", "default.pod.zip");
             KinectElevation = 1;
             WebUiServer = "https://localhost:5001";
             //PubnubSubscribeKey doesn't have a default

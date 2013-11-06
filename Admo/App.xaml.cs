@@ -32,7 +32,7 @@ namespace Admo
             
             var mainWindow = new MainWindow();
             var bootstrapWindow = new BootstrapUnit();
-            var hasConfig = classes.Config.HasApiKey() && false;
+            var hasConfig = classes.Config.HasApiKey();
             if (hasConfig)
             {
                 mainWindow.WindowState = WindowState.Minimized;

@@ -2,7 +2,7 @@
 
 namespace Admo.Api.Dto
 {
-    public struct PodApp
+    public class PodApp : BaseApiResult
     {
         public String Name { set; get; }
 

@@ -36,6 +36,7 @@ namespace Admo.forms
 
         private async void btn1_Click(object sender, RoutedEventArgs e)
         {
+            this.Cursor = Cursors.Wait;
             var username = UserNameTextField.Text;
             var password = PasswordField.Password;
             var device = DeviceNameField.Text;
@@ -47,30 +48,31 @@ namespace Admo.forms
             var result = await api.RegisterDevice(device);
             try
             {
-                var parsed = Utils.ParseJson(result);
-                if (parsed.ContainsKey("unit"))
+                var unit = JsonHelper.ConvertFromApiRequest<Unit>(result);
+                if (!unit.ContainsErrors())
                 {
-                    var unitInfo = Utils.ParseJson(parsed["unit"].ToString());
-                    var apiKey = unitInfo["api_key"].ToString();
-                    File.WriteAllText(Admo.classes.Config.GetLocalConfig("ApiKey"), apiKey);
+                    File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), unit.ApiKey);
 
-                    var unitApi = new CmsApi(apiKey);
+                    var unitApi = new CmsApi(unit.ApiKey);
                     var stringval = await unitApi.GetConfig();
-                    File.WriteAllText(Admo.classes.Config.GetCmsConfigCacheFile(), stringval);
+                    File.WriteAllText(classes.Config.GetCmsConfigCacheFile(), stringval);
                     var main = new MainWindow();
                     main.Show();
                     Close();
                 }
                 else
                 {
-                    ErrorsField.Text = "errors: " + parsed["error"];
+                    Logger.Error("Error: "+ unit.Error);
+                    ErrorsField.Text = "errors: " + unit.Error;
                 }
             }
             catch (Exception ee)
             {
                 Logger.Error("Unable to parse json from server for RegisterDevice", ee);
+                Logger.Error(ee.ToString);
                 ErrorsField.Text = ee.ToString();
             }
+            this.Cursor = Cursors.Arrow;
         }
     }
 }
