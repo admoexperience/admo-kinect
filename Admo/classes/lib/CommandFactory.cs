@@ -16,7 +16,7 @@ namespace Admo.classes.lib
             { "checkin", new CheckinCommand()},
             { "updateConfig", new UpdateConfigCommand()},
             { "calibrate", new CalibrateCommand()},
-            { "downloadPods",new UpdatePods()},
+            { "updatePods",new UpdatePods()},
         };
 
         //Null opt command that does nothing is returned when we cant parse the command
