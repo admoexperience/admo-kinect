@@ -17,12 +17,9 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly bool RunningFacetracking = false;
-        private const String PodFolder = @"C:\smartroom\pods\";
         
-
         private static CmsApi Api { get; set; }
     
-
         public static Boolean IsOnline = false;
 
         public static PushNotification Pusher;
@@ -77,7 +74,7 @@ namespace Admo.classes
             
 
 
-            var pod = new PodWatcher(GetPodFile(), PodFolder);
+            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
@@ -108,7 +105,12 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
-        
+
+        public static string GetWebServerBasePath()
+        {
+            return _config.WebServerBasePath;
+        }
+
 
         //Production mode by default.
         public static Boolean IsDevMode()

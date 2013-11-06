@@ -24,6 +24,7 @@ namespace Admo.Api.Dto
         public const int CheckingInterval = 5 * 60; //Once every 5mins
         public string Environment { get; set; }
         public string WebUiServer { get; set; }
+        public string WebServerBasePath { get; set; }
         public string PodFile { get; set; }
         public int KinectElevation { get; set; }
         public string PubnubSubscribeKey { get; set; }
@@ -45,6 +46,7 @@ namespace Admo.Api.Dto
             //Use bundled default app untill they publish a new one.
             var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var path = Path.GetDirectoryName(exeLocation);
+            WebServerBasePath = Path.Combine(path, "webserver");
             PodFile = Path.Combine(path,"resources", "default.pod.zip");
             KinectElevation = 1;
             WebUiServer = "https://localhost:5001";

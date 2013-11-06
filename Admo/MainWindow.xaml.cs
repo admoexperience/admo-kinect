@@ -106,7 +106,7 @@ namespace Admo
                 var sensor1 = KinectSensor.KinectSensors[0];
                 sensor1.Stop();
             }
-            _webServer = new WebServer();
+            _webServer = new WebServer(Config.GetWebServerBasePath());
             _webServer.Start();
 
             // initialize the sensor chooser and UI
