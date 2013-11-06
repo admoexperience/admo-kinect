@@ -31,8 +31,6 @@ namespace Admo
             var api = new CmsApi("api_key");
             var jsonAppList = await api.GetAppList();
             Logger.Debug(jsonAppList);
-            var podList = JsonHelper.ConvertFromApiRequest<List<PodApp>>(jsonAppList);
-            Logger.Debug(podList);
             
             var mainWindow = new MainWindow();
             var bootstrapWindow = new BootstrapUnit();
