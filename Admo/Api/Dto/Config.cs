@@ -46,8 +46,8 @@ namespace Admo.Api.Dto
             //Use bundled default app untill they publish a new one.
             var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var path = Path.GetDirectoryName(exeLocation);
-            WebServerBasePath = Path.Combine(path, "webserver");
-            PodFile = Path.Combine(path,"resources", "default.pod.zip");
+            PodFile = Path.Combine(path, "resources", "default.pod.zip");
+            WebServerBasePath = Path.Combine(classes.Config.GetBaseConfigPath(), "webserver");
             KinectElevation = 1;
             WebUiServer = "https://localhost:5001";
             //PubnubSubscribeKey doesn't have a default
