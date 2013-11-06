@@ -16,7 +16,11 @@ namespace Admo.classes.lib
             { "checkin", new CheckinCommand()},
             { "updateConfig", new UpdateConfigCommand()},
             { "calibrate", new CalibrateCommand()},
+            { "downloadPods",new UpdatePods()},
         };
+
+        //Null opt command that does nothing is returned when we cant parse the command
+        private static readonly UnknownCommand  UnknownCommand = new UnknownCommand();
 
         public static BaseCommand ParseCommand(string rawCommand)
         {
@@ -26,8 +30,8 @@ namespace Admo.classes.lib
             {
                 return Commmands[cmd];
             }
-            Logger.Error("Unkown command ["+cmd+"]");
-            return new UnknownCommand();
+            Logger.Warn("Unkown command ["+cmd+"]");
+            return UnknownCommand;
         }
     }
 

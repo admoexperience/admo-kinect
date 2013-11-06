@@ -21,7 +21,7 @@ namespace Admo.Utilities
             return (long) span.TotalSeconds;
         }
 
-        public static String ConvertToJson(Object obj)
+        public static string ConvertToJson(Object obj)
         {
             return JsonConvert.SerializeObject(obj,
                                        Formatting.None,
@@ -33,19 +33,19 @@ namespace Admo.Utilities
                                        });
         }
 
-        public static Dictionary<String, object> ParseJson(string result)
+        public static Dictionary<string, object> ParseJson(string result)
         {
-            return JsonConvert.DeserializeObject<Dictionary<String, object>>(result);
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(result);
         }
 
-        public static String Sha256(String fileName)
+        public static string Sha256(string fileName)
         {
             using (var stream = File.OpenRead(fileName))
             {
                 var sha = new SHA256Managed();
                 var hash = sha.ComputeHash(stream);
 
-                var shaHash = BitConverter.ToString(hash).Replace("-", String.Empty);
+                var shaHash = BitConverter.ToString(hash).Replace("-", string.Empty);
                 return shaHash.ToLowerInvariant();
             }
         }

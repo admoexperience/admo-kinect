@@ -8,6 +8,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Admo.Api.Dto;
+using Admo.Utilities;
 using NLog;
 
 namespace Admo.Api
@@ -15,22 +16,34 @@ namespace Admo.Api
     public class PodDownloader
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        public String Location { set; get; }
-        public List<PodApp> Pods {set; get; }
+        public readonly String Location;
 
-        public async Task<String> Download()
+        public PodDownloader(string location)
         {
-            foreach (var podApp in Pods)
+            Location = location;
+        }
+
+        public async Task<String> Download(List<PodApp> pods)
+        {
+            foreach (var podApp in pods)
             {
-                
                 var url = podApp.PodUrl;
-                Logger.Debug("Downloading ..  " + url);
+                //Figure out the files name from the url. 
+                // for http://hostname.com/path/foo/filename.pod.zip
                 var uri = new Uri(url);
                 var segment = uri.Segments.Last();
                 var fileName = Path.Combine(Location, segment);
+                var checkSum = podApp.PodChecksum;
+                //Basically if the file is already there
+                //And the checksums already match do nothing.
+                if (File.Exists(fileName) && checkSum.Equals(Utils.Sha256(fileName)))
+                {
+                    continue;
+                }
+                
+                //TODO: Be able to test this.
                 var httpClient = new HttpClient();
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-
 
                 using (
                         Stream contentStream = await (await httpClient.SendAsync(requestMessage)).Content.ReadAsStreamAsync(),
@@ -39,16 +52,7 @@ namespace Admo.Api
                 {
                     await contentStream.CopyToAsync(stream);
                 }
-                Logger.Debug("Finished writing filename " +fileName);
-                Logger.Debug(new FileInfo(fileName).Length);
-                using (var stream = File.OpenRead(fileName))
-                {
-                    var sha = new SHA256Managed();
-                    byte[] hash = sha.ComputeHash(stream);
-                    
-                    var shaHash = BitConverter.ToString(hash).Replace("-", String.Empty);
-                    Logger.Debug(shaHash);
-                }
+                Logger.Debug("Finished downloading filename [" +fileName+"] ["+Utils.Sha256(fileName)+"]");
             }
             return "asf";
         }

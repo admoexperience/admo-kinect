@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,14 +28,11 @@ namespace Admo
         private async void ApplicationStartup(object sender, StartupEventArgs e)
         {
             //
-            Admo.classes.Config.InitDirs();
-            var api = new CmsApi("api_key");
-            var jsonAppList = await api.GetAppList();
-            Logger.Debug(jsonAppList);
+            classes.Config.InitDirs();
             
             var mainWindow = new MainWindow();
             var bootstrapWindow = new BootstrapUnit();
-            var hasConfig = Admo.classes.Config.HasApiKey();
+            var hasConfig = classes.Config.HasApiKey() && false;
             if (hasConfig)
             {
                 mainWindow.WindowState = WindowState.Minimized;

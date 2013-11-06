@@ -16,6 +16,12 @@ namespace AdmoTests
         }
 
         [TestMethod]
+        public void TestComamndFactoryParsingDownloadPods()
+        {
+            TestParse("updatePods", typeof(UpdatePods));
+        }
+        
+        [TestMethod]
         public void TestParsingScrenshot()
         {
             TestParse("screenshot", typeof(ScreenshotCommand));

@@ -86,6 +86,11 @@ namespace Admo.classes
             baseDir.CreateSubdirectory(Path.Combine("webserver", "override"));
         }
 
+        public static string GetPodLocation()
+        {
+            return Path.Combine(GetBaseConfigPath(), "pods");
+        }
+
 
         public static void Init()
         {
@@ -110,6 +115,10 @@ namespace Admo.classes
             var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
+
+            //Async task to download pods in the background
+            //TODO: handle events and not always only on app start up
+            UpdatePods();
         }
 
         public static void OnPushNotificationConnection(Boolean online)
@@ -296,6 +305,21 @@ namespace Admo.classes
             SocketServer.SendUpdatedConfig();
 
             if (OptionChanged != null) OptionChanged();
+        }
+
+
+        public static async void UpdatePods()
+        {
+            try
+            {
+                var downloader = new PodDownloader(GetPodLocation());
+                var podList = await Api.GetAppList();
+                await downloader.Download(podList);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to download pod list",e);
+            }
         }
 
         public static async void TakeScreenshot()
