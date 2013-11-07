@@ -1,12 +1,9 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Permissions;
 using System.Timers;
 using NLog;
-using System.IO;
 using System.IO.Compression;
 
 /**

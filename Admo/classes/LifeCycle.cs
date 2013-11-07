@@ -3,6 +3,7 @@ using System.Timers;
 using System.Diagnostics;
 using Admo.classes;
 using  Admo.classes.lib.tasks;
+using Admo.Utilities;
 using NLog;
 
 namespace Admo
@@ -62,7 +63,7 @@ namespace Admo
             _monitorTimer.Start();
 
             //TODO: Handle config changes to the tasks screenshot interval can be configured
-            _checkInTask.Start(Config.CheckingInterval);
+            _checkInTask.Start(Api.Dto.Config.CheckingInterval);
             _screenshotTask.Start(Config.GetScreenshotInterval());
         }
 

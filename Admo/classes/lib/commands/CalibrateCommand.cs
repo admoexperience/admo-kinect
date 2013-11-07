@@ -38,9 +38,9 @@ namespace Admo.classes.lib.commands
             TheHacks.FovTop = trueTop - (falseTop * scalingFactor);
 
             Logger.Info("Calibration values changed");
-            Logger.Info(Config.Keys.FovCropTop + ": " + TheHacks.FovTop);
-            Logger.Info(Config.Keys.FovCropLeft + ": " + TheHacks.FovLeft);
-            Logger.Info(Config.Keys.FovCropWidth + ": " + TheHacks.FovWidth);
+            Logger.Info("fov_crop_top: " + TheHacks.FovTop);
+            Logger.Info("fov_crop_left: " + TheHacks.FovLeft);
+            Logger.Info("fov_crop_width: " + TheHacks.FovWidth);
         }
     }
 }

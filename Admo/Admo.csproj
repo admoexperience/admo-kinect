@@ -106,15 +106,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="forms\BootstrapUnit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Api\Dto\BaseApiResult.cs" />
+    <Compile Include="Api\Dto\Config.cs" />
+    <Compile Include="Api\Dto\Unit.cs" />
+    <Compile Include="Api\PodDownloader.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
+    <Compile Include="Api\CmsAccountApi.cs" />
+    <Compile Include="classes\lib\commands\UpdatePods.cs" />
+    <Compile Include="classes\lib\PushNotification.cs" />
+    <Compile Include="Api\Dto\Pod.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
@@ -129,7 +141,7 @@
     </Compile>
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
-    <Compile Include="classes\lib\CmsApi.cs" />
+    <Compile Include="Api\CmsApi.cs" />
     <Compile Include="classes\lib\CommandFactory.cs" />
     <Compile Include="classes\lib\commands\BaseCommand.cs" />
     <Compile Include="classes\lib\commands\CalibrateCommand.cs" />
@@ -149,7 +161,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
-    <Compile Include="classes\Utils.cs" />
+    <Compile Include="Utilities\JsonHelper.cs" />
+    <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="forms\BootstrapUnit.xaml.cs">
+      <DependentUpon>BootstrapUnit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -169,8 +185,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="resources\default.pod.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
+    <Resource Include="resources\left-banner.png" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

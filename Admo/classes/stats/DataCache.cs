@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
 /**
  * Class used to store cache of stats objects before we process them.
  */
+using Admo.Utilities;
 
 namespace Admo.classes.stats
 {

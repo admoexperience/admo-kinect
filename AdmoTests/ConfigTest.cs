@@ -1,5 +1,6 @@
 ﻿using System;
 using Admo.classes;
+using Admo.classes.lib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -11,8 +12,7 @@ namespace AdmoTests
         [TestMethod]
         public void ConfigsConlineStatIsDeterminedFromPubnub()
         {
-           var list =  Config.ParsePubnubConnection("[\"1\",\"message\",\"api_key\"]");
-           Assert.AreEqual("1",list[0]);
+            
         }
     }
 }

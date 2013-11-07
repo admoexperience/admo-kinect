@@ -10,23 +10,25 @@ namespace Admo.classes
     public class WebServer
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private readonly String _address;
+        public static string Port = "5001";
         private readonly Thread _listenThread;
         private readonly HttpListener _listener;
-        private const string CurrentPath = @"C:/smartroom/pods/current/";
-        private const string OverridePath = @"C:/smartroom/pods/override/";
-        public static string Port = "5001";
 
-        public WebServer()
+        private readonly string _overridePath;
+        private readonly string _currentPath;
+
+        public WebServer(string baseLocation)
         {
-            _address = "https://+:" + Port + "/";
+            //Folders need to exsist before
+            _overridePath = Path.Combine(baseLocation, "override");
+            _currentPath = Path.Combine(baseLocation, "current");
+            var address = "https://+:" + Port + "/";
             // setup thread
             _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
 
             // setup listener
             _listener = new HttpListener();
-            _listener.Prefixes.Add(_address);
+            _listener.Prefixes.Add(address);
         }
 
         public void Start()
@@ -61,12 +63,12 @@ namespace Admo.classes
                 }
 
                 //First try find it in the overide folder
-                var myPath = Path.Combine(OverridePath, myRequest);
+                var myPath = Path.Combine(_overridePath, myRequest);
 
                 //If the file was not overriden
                 if (!File.Exists(myPath))
                 {
-                    myPath = Path.Combine(CurrentPath, myRequest);
+                    myPath = Path.Combine(_currentPath, myRequest);
                 }
 
                 var mimeExtension = GetMimeType(myPath);

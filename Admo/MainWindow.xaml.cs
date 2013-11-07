@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
 using Admo.classes.lib;
+using Admo.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using NLog;
@@ -80,8 +81,7 @@ namespace Admo
                 }
             }
 
-            string cal = Config.ReadConfigOption(Config.Keys.CalibrationActive);
-            if (!String.IsNullOrEmpty(cal) && Boolean.Parse(cal))
+            if (Config.IsCalibrationActive())
             {
                 //set calibration values to zero in preparation for calibration
                 TheHacks.FovTop = 0;
@@ -101,9 +101,12 @@ namespace Admo
             ApplicationHandler.ConfigureCalibrationByConfig();
 
             //start and stop old kinect sensor kinect sensor
-            KinectSensor sensor1 = KinectSensor.KinectSensors[0];
-            sensor1.Stop();
-            _webServer = new WebServer();
+            if (KinectSensor.KinectSensors.Count > 0)
+            {
+                var sensor1 = KinectSensor.KinectSensors[0];
+                sensor1.Stop();
+            }
+            _webServer = new WebServer(Config.GetWebServerBasePath());
             _webServer.Start();
 
             // initialize the sensor chooser and UI
@@ -416,14 +419,17 @@ namespace Admo
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {
-            if (_sensorChooser.Kinect != null)
+            Log.Info("Shutting down server");
+            if (_sensorChooser!= null &&_sensorChooser.Kinect != null)
             {
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
 
             }
             SocketServer.Stop();
-            Log.Info("Shutting down server");
+           
             _closing = true;
+            _webServer.Close();
+            System.Windows.Application.Current.Shutdown();
         }
 
         public long LastHitTime { get; set; }

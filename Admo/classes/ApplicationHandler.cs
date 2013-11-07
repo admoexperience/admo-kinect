@@ -1,5 +1,6 @@
 ﻿using System;
 using Admo.classes;
+using Admo.Utilities;
 using Microsoft.Kinect;
 using NLog;
 
@@ -302,17 +303,11 @@ namespace Admo
 
         public static void ConfigureCalibrationByConfig()
         {
-            //read calibration values from CMS if calibration app has not been set to run
-            //use legacy calibration values if there is no calibration values in the CMS
-            var tempTop = Config.ReadConfigOption(Config.Keys.FovCropTop, "56");
-            string tempLeft = Config.ReadConfigOption(Config.Keys.FovCropLeft, "52");
-            string tempWidth = Config.ReadConfigOption(Config.Keys.FovCropWidth, "547");
-
             //refer to document Calibration Method
             //Dropbox/Admo/Hardware Design/Documents/Sensor Array Calibration Method.docx
-            TheHacks.FovTop = Convert.ToInt32(tempTop);
-            TheHacks.FovLeft = Convert.ToInt32(tempLeft);
-            TheHacks.FovWidth = Convert.ToInt32(tempWidth);
+            TheHacks.FovTop = Config.GetFovCropTop();
+            TheHacks.FovLeft = Config.GetFovCropLeft();
+            TheHacks.FovWidth = Config.GetFovCropWidth();
             TheHacks.FovHeight = TheHacks.FovWidth * 3 / 4;
         }
     }
