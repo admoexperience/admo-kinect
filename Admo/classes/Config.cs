@@ -84,7 +84,6 @@ namespace Admo.classes
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
             //Async task to download pods in the background
-            //TODO: handle events and not always only on app start up
             UpdatePods();
         }
 

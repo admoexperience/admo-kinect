@@ -25,8 +25,10 @@ namespace Admo.Api
 
         public async Task<String> Download(List<PodApp> pods)
         {
+            Logger.Debug("Found ["+pods.Count+"] pod files");
             foreach (var podApp in pods)
             {
+                Logger.Debug("Proccessing ["+ podApp.PodUrl+" with ["+podApp.PodChecksum+"]");
                 var url = podApp.PodUrl;
                 //Figure out the files name from the url. 
                 // for http://hostname.com/path/foo/filename.pod.zip
@@ -38,19 +40,25 @@ namespace Admo.Api
                 //And the checksums already match do nothing.
                 if (File.Exists(fileName) && checkSum.Equals(Utils.Sha256(fileName)))
                 {
+                    Logger.Debug("Pod file is there and checksum matches");
                     continue;
                 }
-                
+                Logger.Debug("Proccessing  [" +fileName + "]");
+                Logger.Debug("Proccessing  [" + podApp.PodChecksum + "]");
+
+                Logger.Debug("Downloading");
                 //TODO: Be able to test this.
                 var httpClient = new HttpClient();
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-
+                var message = await httpClient.SendAsync(requestMessage);
+   
                 using (
-                        Stream contentStream = await (await httpClient.SendAsync(requestMessage)).Content.ReadAsStreamAsync(),
-                        stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 2
-                , true))
+                        Stream contentStream = await message.Content.ReadAsStreamAsync(),
+                        stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
+                    Logger.Debug("More downloading");
                     await contentStream.CopyToAsync(stream);
+                    stream.Close();
                 }
                 Logger.Debug("Finished downloading filename [" +fileName+"] ["+Utils.Sha256(fileName)+"]");
             }
