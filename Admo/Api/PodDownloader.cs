@@ -49,16 +49,19 @@ namespace Admo.Api
                 Logger.Debug("Downloading");
                 //TODO: Be able to test this.
                 var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                var message = await httpClient.SendAsync(requestMessage);
-   
-                using (
-                        Stream contentStream = await message.Content.ReadAsStreamAsync(),
-                        stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+
+                var responseMessage = await httpClient.GetAsync(
+                           url,
+                           HttpCompletionOption.ResponseHeadersRead);  // the essential magic
+                Logger.Debug("Http result ");
+                using (var fileStream = File.Create(fileName))
                 {
-                    Logger.Debug("More downloading");
-                    await contentStream.CopyToAsync(stream);
-                    stream.Close();
+                    using (var httpStream = await responseMessage.Content.ReadAsStreamAsync())
+                    {
+                        Logger.Debug("Streaming to disk");
+                        httpStream.CopyTo(fileStream);
+                        fileStream.Flush();
+                    }
                 }
                 Logger.Debug("Finished downloading filename [" +fileName+"] ["+Utils.Sha256(fileName)+"]");
             }
