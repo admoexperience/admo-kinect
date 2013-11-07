@@ -419,14 +419,17 @@ namespace Admo
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {
+            Log.Info("Shutting down server");
             if (_sensorChooser!= null &&_sensorChooser.Kinect != null)
             {
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
 
             }
             SocketServer.Stop();
-            Log.Info("Shutting down server");
+           
             _closing = true;
+            _webServer.Close();
+            System.Windows.Application.Current.Shutdown();
         }
 
         public long LastHitTime { get; set; }
