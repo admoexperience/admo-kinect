@@ -48,7 +48,7 @@ namespace Admo.Api.Dto
             var path = Path.GetDirectoryName(exeLocation);
             PodFile = Path.Combine(path, "resources", "default.pod.zip");
             WebServerBasePath = Path.Combine(classes.Config.GetBaseConfigPath(), "webserver");
-            KinectElevation = 1;
+            KinectElevation = -9;
             WebUiServer = "https://localhost:5001";
             //PubnubSubscribeKey doesn't have a default
             ScreenshotInterval = 30*60; //every 30mins

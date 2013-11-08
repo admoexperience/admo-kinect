@@ -71,13 +71,6 @@ namespace Admo
         {
             var currentTime = Utils.GetCurrentTimeInSeconds();
             var timeDiff = currentTime - _startupTime;
-            /*
-            //Set the kinect and webcam config
-            Application_Handler.fov_top = 28*2;
-            Application_Handler.fov_left = 26*2;
-            Application_Handler.fov_height = 205*2;
-            Application_Handler.fov_width = 205*2*4/3;
-            */
             //in dev mode do nothing.
             if (Config.IsDevMode()) return;
 
@@ -151,7 +144,9 @@ namespace Admo
             //If browser hasn't reported in 30 seconds restart it
             if (!IsBrowserRunning())
             {
-                shouldRestartBrowser = true;
+                //Basically only restart the browser if its not running the default pod file.
+                //TODO(david): Handle this better
+                shouldRestartBrowser = Config.GetPodFile() != new Api.Dto.Config().PodFile;
                 Log.Debug("Setting shouldRestartBrowser to true");
             }
             
