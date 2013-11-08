@@ -25,8 +25,10 @@ namespace Admo.Api
 
         public async Task<String> Download(List<PodApp> pods)
         {
+            Logger.Debug("Found ["+pods.Count+"] pod files");
             foreach (var podApp in pods)
             {
+                Logger.Debug("Proccessing ["+ podApp.PodUrl+" with ["+podApp.PodChecksum+"]");
                 var url = podApp.PodUrl;
                 //Figure out the files name from the url. 
                 // for http://hostname.com/path/foo/filename.pod.zip
@@ -38,19 +40,28 @@ namespace Admo.Api
                 //And the checksums already match do nothing.
                 if (File.Exists(fileName) && checkSum.Equals(Utils.Sha256(fileName)))
                 {
+                    Logger.Debug("Pod file is there and checksum matches");
                     continue;
                 }
-                
+                Logger.Debug("Proccessing  [" +fileName + "]");
+                Logger.Debug("Proccessing  [" + podApp.PodChecksum + "]");
+
+                Logger.Debug("Downloading");
                 //TODO: Be able to test this.
                 var httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-                using (
-                        Stream contentStream = await (await httpClient.SendAsync(requestMessage)).Content.ReadAsStreamAsync(),
-                        stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 2
-                , true))
+                var responseMessage = await httpClient.GetAsync(
+                           url,
+                           HttpCompletionOption.ResponseHeadersRead);  // the essential magic
+                Logger.Debug("Http result ");
+                using (var fileStream = File.Create(fileName))
                 {
-                    await contentStream.CopyToAsync(stream);
+                    using (var httpStream = await responseMessage.Content.ReadAsStreamAsync())
+                    {
+                        Logger.Debug("Streaming to disk");
+                        httpStream.CopyTo(fileStream);
+                        fileStream.Flush();
+                    }
                 }
                 Logger.Debug("Finished downloading filename [" +fileName+"] ["+Utils.Sha256(fileName)+"]");
             }
