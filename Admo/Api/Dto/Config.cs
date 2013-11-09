@@ -49,7 +49,9 @@ namespace Admo.Api.Dto
             PodFile = Path.Combine(path, "resources", "default.pod.zip");
             WebServerBasePath = Path.Combine(classes.Config.GetBaseConfigPath(), "webserver");
             KinectElevation = -9;
-            WebUiServer = "https://localhost:5001";
+            //This will not save any data and force the browser to never display warnings about chrome 
+            //Not shutting down
+            WebUiServer = "--incognito https://localhost:5001";
             //PubnubSubscribeKey doesn't have a default
             ScreenshotInterval = 30*60; //every 30mins
             TransformSmoothingType = "avatar";
