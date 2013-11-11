@@ -93,6 +93,13 @@ namespace Admo.Utilities
             return deviceList;
         }
 
-        
+        //Searches usb devices and checks to see if any of them match the windows kinect
+        public static bool IsWindowsKinectPresent(List<UsbDevice> devices)
+        {
+            var kinectList = devices.Where(x => x.Description.Contains("Kinect for Windows"));
+            return kinectList.Any();
+        }
+
+
     }
 }
