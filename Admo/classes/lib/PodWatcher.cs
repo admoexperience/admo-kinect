@@ -154,6 +154,7 @@ namespace Admo.classes.lib
             //Ignore tvr files
             if (e.FullPath.EndsWith(".tvrdat")) return;
             //Basically forces the "onChange" Event to only happen once.
+            if (_fileChangedTimer == null) return;
             _fileChangedTimer.Stop();
             _fileChangedTimer.Start();
         }
