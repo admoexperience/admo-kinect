@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AdmoTests.Utilities
 {
     [TestClass]
-    public class HardwwarUtilsTest
+    public class HardwareUtilsTest
     {
         [TestMethod]
         public void TestForKinectPresent()
