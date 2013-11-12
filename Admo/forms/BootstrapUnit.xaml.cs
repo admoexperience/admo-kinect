@@ -32,11 +32,18 @@ namespace Admo.forms
         public BootstrapUnit()
         {
             InitializeComponent();
+
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            DeviceNameField.Text = Environment.MachineName;
         }
 
         private async void btn1_Click(object sender, RoutedEventArgs e)
         {
-            this.Cursor = Cursors.Wait;
+            Cursor = Cursors.Wait;
             var username = UserNameTextField.Text;
             var password = PasswordField.Password;
             var device = DeviceNameField.Text;
