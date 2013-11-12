@@ -27,9 +27,6 @@
                         <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
-              <!--<Component Id="BackGroundResource" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
-                <File Id="ADMO.EXE.CONFIG" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\loading.html" />
-              </Component>-->
               <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
                 <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
               </Component>
@@ -76,7 +73,10 @@
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
-                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
+                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\Loading.html" />
+                </Component>
+                <Component Id="DEFAULT.POD.ZIP" DiskId="1" Guid="272348B4-C6A4-4B3C-B193-4D9A17A0EBC9" >
+                  <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
                 </Component>
               </Directory>
             </Directory>
@@ -94,24 +94,25 @@
         </Directory>
 
       <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
-            <ComponentRef Id="ADMO.EXE" />
-            <ComponentRef Id="ADMO.EXE.CONFIG" />
-            <ComponentRef Id="FLECK.DLL" />
-            <ComponentRef Id="INPUTSIMULATOR.DLL" />
-            <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
-            <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
-            <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
-            <ComponentRef Id="NLOG.CONFIG" />
-            <ComponentRef Id="NLOG.DLL" />
-            <ComponentRef Id="StartMenuShortcuts" />
-           <ComponentRef Id="RegistryEntries" />
-          <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
+        <ComponentRef Id="ADMO.EXE" />
+        <ComponentRef Id="ADMO.EXE.CONFIG" />
+        <ComponentRef Id="FLECK.DLL" />
+        <ComponentRef Id="INPUTSIMULATOR.DLL" />
+        <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
+        <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
+        <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
+        <ComponentRef Id="NLOG.CONFIG" />
+        <ComponentRef Id="NLOG.DLL" />
+        <ComponentRef Id="StartMenuShortcuts" />
+        <ComponentRef Id="RegistryEntries" />
+        <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
         <ComponentRef Id="BUNDLEP12" />
         <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
+        <ComponentRef Id="DEFAULT.POD.ZIP" />
       </Feature>
         <InstallExecuteSequence>
           <RemoveExistingProducts After="InstallInitialize"/>
