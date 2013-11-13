@@ -195,6 +195,11 @@ namespace Admo.classes
 
         public static Boolean HasApiKey()
         {
+            var fileExsists = File.Exists(GetLocalConfig("ApiKey"));
+            if (!fileExsists)
+            {
+                return false;
+            }
             var apiKey = ReadLocalConfig("ApiKey");
             return !apiKey.Equals(String.Empty);
 

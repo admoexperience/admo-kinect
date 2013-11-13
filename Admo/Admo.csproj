@@ -127,6 +127,7 @@
     <Compile Include="classes\lib\commands\UpdatePods.cs" />
     <Compile Include="classes\lib\PushNotification.cs" />
     <Compile Include="Api\Dto\Pod.cs" />
+    <Compile Include="classes\lib\tasks\BrowserKeepAlive.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
