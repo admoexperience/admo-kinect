@@ -2,19 +2,21 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="AdmoSetup" Height="402" Width="600" FontFamily="Arial" FontSize="17" ResizeMode="NoResize">
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="204*"/>
-            <ColumnDefinition Width="49*"/>
-            <ColumnDefinition Width="44*"/>
+            <ColumnDefinition Width="309*"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="93*"/>
+            <ColumnDefinition Width="98*"/>
+            <ColumnDefinition Width="88*"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="UserNameTextField" HorizontalAlignment="Left" Height="40" Margin="296,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Email" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" Grid.ColumnSpan="3" />
-        <PasswordBox x:Name="PasswordField" HorizontalAlignment="Left" Height="40" Margin="296,140,0,0" VerticalAlignment="Top" Width="262" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" Padding="10" Grid.ColumnSpan="3"/>
-        <TextBox x:Name="DeviceNameField" HorizontalAlignment="Left" Height="40" Margin="296,202,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Device Name" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" MouseLeftButtonDown="DeviceNameField_Selected" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="UserNameTextField" HorizontalAlignment="Left" Height="40" Margin="294,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="11" Text="Email" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" Grid.ColumnSpan="5" BorderThickness="0" />
+        <PasswordBox x:Name="PasswordField" HorizontalAlignment="Left" Height="40" Margin="294,138,0,0" VerticalAlignment="Top" Width="262" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" Padding="11" Grid.ColumnSpan="5"/>
+        <TextBox x:Name="DeviceNameField" HorizontalAlignment="Left" Height="40" Margin="294,192,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="11" Text="Device Name" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" MouseLeftButtonDown="DeviceNameField_Selected" Grid.ColumnSpan="5" BorderThickness="0"/>
         <Image HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="252" Source="/Admo;component/resources/left-banner.png" Margin="0,0,0,-11"/>
-        <TextBlock x:Name="ErrorsField" HorizontalAlignment="Left" Margin="296,253,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="50" Width="262" Grid.ColumnSpan="3"/>
-        <TextBox x:Name="PasswordMaskBox" HorizontalAlignment="Left" Height="40" Margin="296,140,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Password" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" MouseLeftButtonDown="PasswordMaskBox_MouseDown" Grid.ColumnSpan="3" />
-        <Rectangle Fill="#FF49A8DE" HorizontalAlignment="Left" Height="5" Margin="0,-5,0,0" Stroke="#FF49A8DE" VerticalAlignment="Top" Width="594" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="3">
+        <TextBox x:Name="PasswordMaskBox" HorizontalAlignment="Left" Height="40" Margin="294,138,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="11" Text="Password" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" MouseLeftButtonDown="PasswordMaskBox_MouseDown" Grid.ColumnSpan="5" BorderThickness="0"/>
+        <Rectangle Fill="#FF49A8DE" HorizontalAlignment="Left" Height="10" Margin="0,-5,0,0" Stroke="#FF49A8DE" VerticalAlignment="Top" Width="594" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="5">
             <Rectangle.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleY="-1"/>
@@ -24,6 +26,13 @@
                 </TransformGroup>
             </Rectangle.RenderTransform>
         </Rectangle>
-        <TextBox x:Name="LoginBox" HorizontalAlignment="Left" Height="40" Margin="296,303,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="112" Padding="10" Text="     Login" Foreground="White" Background="#49A8DE" FontSize="14" Grid.ColumnSpan="1"  IsReadOnly="True" MouseLeftButtonUp="Login_MouseUp"/>
+        <TextBox x:Name="LoginBox" HorizontalAlignment="Center" Height="40" Margin="294,297,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="112" Padding="11" BorderThickness="0" Text="        Login" Foreground="White" Background="#49A8DE" FontSize="12" Grid.ColumnSpan="3"  IsReadOnly="True" MouseLeftButtonUp="Login_MouseUp" Cursor="Hand"/>
+        <Label Grid.ColumnSpan="4" Content="Login to Admo" FontSize="16" HorizontalAlignment="Left" Height="39" Margin="294,41,0,0" VerticalAlignment="Top" Width="212"/>
+        <RichTextBox x:Name="ErrorsField" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="28" Margin="294,237,0,0" VerticalAlignment="Top" Width="257" FontSize="10" BorderThickness="0" Foreground="#FF6D6E70" BorderBrush="{x:Null}">
+            <FlowDocument>
+                <Paragraph/>
+            </FlowDocument>
+        </RichTextBox>
     </Grid>
+
 </Window>
