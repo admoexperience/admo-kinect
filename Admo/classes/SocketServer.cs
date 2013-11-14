@@ -93,7 +93,11 @@ namespace Admo
 
         public static void Stop()
         {
-            _server.Dispose();
+
+            if (_serverRunning)
+            {
+                _server.Dispose();
+            }
             _serverRunning = false;
         }
 
