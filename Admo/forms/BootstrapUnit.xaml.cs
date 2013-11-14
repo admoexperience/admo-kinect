@@ -33,6 +33,8 @@ namespace Admo.forms
         {
             InitializeComponent();
             PasswordMaskBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordMaskBox_MouseDown), true);
+            DeviceNameField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(DeviceNameField_Selected), true);
+            LoginBox.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Login_MouseUp), true);
 
             Loaded += OnLoaded;
         }
@@ -41,7 +43,7 @@ namespace Admo.forms
         {
         }
 
-        private async void btn1_Click(object sender, RoutedEventArgs e)
+        private async void Login()
         {
             Cursor = Cursors.Wait;
             var username = UserNameTextField.Text;
@@ -89,11 +91,15 @@ namespace Admo.forms
             PasswordField.Focus();
         }
 
-        private void DeviceNameField_TextChanged(object sender, TextChangedEventArgs e)
+        private void Login_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Login();
+        }
+
+
+        private void DeviceNameField_Selected(object sender, MouseButtonEventArgs e)
         {
             DeviceNameField.Text = Environment.MachineName;
         }
-
-        
     }
 }
