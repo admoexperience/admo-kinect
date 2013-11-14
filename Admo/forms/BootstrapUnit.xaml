@@ -4,11 +4,21 @@
         Title="AdmoSetup" Height="402" Width="600" FontFamily="Arial" FontSize="17" ResizeMode="NoResize">
     <Grid>
         <TextBox x:Name="UserNameTextField" HorizontalAlignment="Left" Height="40" Margin="296,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Email" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" Grid.ColumnSpan="2" />
-        <PasswordBox x:Name="PasswordField" HorizontalAlignment="Left" Height="40" Margin="296,157,0,0" VerticalAlignment="Top" Width="262" Grid.ColumnSpan="2" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14"/>
-        <TextBox x:Name="DeviceNameField" HorizontalAlignment="Left" Height="40" Margin="296,230,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Device Name" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14"/>
+        <PasswordBox x:Name="PasswordField" HorizontalAlignment="Left" Height="40" Margin="296,140,0,0" VerticalAlignment="Top" Width="262" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" Padding="10"/>
+        <TextBox x:Name="DeviceNameField" HorizontalAlignment="Left" Height="40" Margin="296,202,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Device Name" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" TextChanged="DeviceNameField_TextChanged"/>
         <Image HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="252" Source="/Admo;component/resources/left-banner.png"/>
-        <TextBlock x:Name="ErrorsField" HorizontalAlignment="Left" Margin="296,273,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="49" Width="262"/>
+        <TextBlock x:Name="ErrorsField" HorizontalAlignment="Left" Margin="296,253,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="50" Width="262"/>
         <Button Click="btn1_Click" Content="Login" HorizontalAlignment="Left" Height="48" Margin="389,315,0,0" VerticalAlignment="Top" Width="159" IsDefault="True" Cursor="Hand" Grid.ColumnSpan="2" />
-        <TextBox x:Name="PasswordMaskBox" HorizontalAlignment="Left" Height="40" Margin="296,157,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Password" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" MouseLeftButtonDown="PasswordMaskBox_MouseDown" />
+        <TextBox x:Name="PasswordMaskBox" HorizontalAlignment="Left" Height="40" Margin="296,140,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Padding="10" Text="Password" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="14" MouseLeftButtonDown="PasswordMaskBox_MouseDown" />
+        <Rectangle Fill="#FF49A8DE" HorizontalAlignment="Left" Height="5" Margin="0,-5,0,0" Stroke="#FF49A8DE" VerticalAlignment="Top" Width="594" RenderTransformOrigin="0.5,0.5">
+            <Rectangle.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="-1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Rectangle.RenderTransform>
+        </Rectangle>
     </Grid>
 </Window>

@@ -39,7 +39,6 @@ namespace Admo.forms
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            DeviceNameField.Text = Environment.MachineName;
         }
 
         private async void btn1_Click(object sender, RoutedEventArgs e)
@@ -88,6 +87,11 @@ namespace Admo.forms
 
             PasswordMaskBox.Visibility = Visibility.Hidden;
             PasswordField.Focus();
+        }
+
+        private void DeviceNameField_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            DeviceNameField.Text = Environment.MachineName;
         }
 
         
