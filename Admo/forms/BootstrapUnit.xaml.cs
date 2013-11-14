@@ -32,6 +32,7 @@ namespace Admo.forms
         public BootstrapUnit()
         {
             InitializeComponent();
+            PasswordMaskBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordMaskBox_MouseDown), true);
 
             Loaded += OnLoaded;
         }
@@ -81,5 +82,14 @@ namespace Admo.forms
             }
             this.Cursor = Cursors.Arrow;
         }
+
+        private void PasswordMaskBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            PasswordMaskBox.Visibility = Visibility.Hidden;
+            PasswordField.Focus();
+        }
+
+        
     }
 }
