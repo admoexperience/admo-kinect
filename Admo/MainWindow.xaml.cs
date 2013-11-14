@@ -425,10 +425,14 @@ namespace Admo
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
 
             }
+           
             SocketServer.Stop();
            
             _closing = true;
-            _webServer.Close();
+            if (_webServer != null)
+            {
+                _webServer.Close();
+            }
             System.Windows.Application.Current.Shutdown();
         }
 

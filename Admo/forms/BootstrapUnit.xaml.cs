@@ -36,10 +36,21 @@ namespace Admo.forms
             
             InitializeComponent();
             PasswordMaskBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordMaskBox_MouseDown), true);
+            PasswordField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordField_Selected), true);
             DeviceNameField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(DeviceNameField_Selected), true);
+
+            UserNameTextField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(UserNameTextField_Selected), true);
+
             LoginBox.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Login_MouseUp), true);
 
+            Closed += BootstrapUnit_Closed;
             Loaded += OnLoaded;
+        }
+
+        private void BootstrapUnit_Closed(object sender, EventArgs e)
+        {
+           Application.Current.Shutdown();
+
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -134,20 +145,80 @@ namespace Admo.forms
 
         private void PasswordMaskBox_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            RemoveAllBorders();
             PasswordMaskBox.Visibility = Visibility.Hidden;
+
             PasswordField.Focus();
+            PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
+            PasswordField.BorderThickness = new Thickness(2);
+
+     
+
         }
 
         private void Login_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            RemoveAllBorders();
+
             Login();
         }
 
 
         private void DeviceNameField_Selected(object sender, MouseButtonEventArgs e)
         {
+            RemoveAllBorders();
             DeviceNameField.Text = Environment.MachineName;
+            setBorder(DeviceNameField);
+
+        }
+
+        private void RemoveAllBorders()
+        {
+
+            if (DeviceNameField.Text == "")
+            {
+                DeviceNameField.Text = "Device Name";
+            }
+            if (UserNameTextField.Text == "")
+            {
+                UserNameTextField.Text = "Email";
+            }
+            if (PasswordField.Password == "")
+            {
+                PasswordField.Password = "";
+            }
+            DeviceNameField.BorderThickness = new Thickness(0);
+            PasswordField.BorderThickness = new Thickness(0);
+            UserNameTextField.BorderThickness = new Thickness(0);
+        }
+
+        private void ResetifEmpty()
+        {
+          
+            DeviceNameField.BorderThickness = new Thickness(0);
+            PasswordField.BorderThickness = new Thickness(0);
+            UserNameTextField.BorderThickness = new Thickness(0);
+
+        }
+        private void setBorder(TextBox txBox)
+        {
+            txBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
+            txBox.BorderThickness = new Thickness(2);
+        }
+
+        private void UserNameTextField_Selected(object sender, MouseButtonEventArgs e)
+        {
+            RemoveAllBorders();
+            UserNameTextField.Text = "";
+            setBorder(UserNameTextField);
+        }
+
+        private void PasswordField_Selected(object sender, MouseButtonEventArgs e)
+        {
+            RemoveAllBorders();
+  
+            PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
+            PasswordField.BorderThickness = new Thickness(2);
         }
     }
 }
