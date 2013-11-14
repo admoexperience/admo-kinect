@@ -177,15 +177,16 @@ namespace Admo.forms
 
             if (DeviceNameField.Text == "")
             {
-                DeviceNameField.Text = "Device Name";
+                DeviceNameField.Text = "  Device Name";
             }
             if (UserNameTextField.Text == "")
             {
-                UserNameTextField.Text = "Email";
+                UserNameTextField.Text = "  Email";
             }
             if (PasswordField.Password == "")
             {
-                PasswordField.Password = "";
+                PasswordMaskBox.Visibility = Visibility.Visible;
+
             }
             DeviceNameField.BorderThickness = new Thickness(0);
             PasswordField.BorderThickness = new Thickness(0);
