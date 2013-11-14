@@ -119,13 +119,11 @@ namespace Admo.forms
             
             var link = new Hyperlink {IsEnabled = true};
             link.Inlines.Add("Sign Up");
-            link.NavigateUri = new Uri("https://cms.admoexperience.com/users/sign_in");
+            link.NavigateUri = new Uri("https://cms.admoexperience.com/users/sign_up");
             link.Click += link_Click;
           //  para.FontSize = 12;
-            para.Inlines.Add("Don't have an account?");
+            para.Inlines.Add("Don't have an account? ");
             para.Inlines.Add(link);
-
-         //   var hyperl = new Hyperlink { NavigateUri = new Uri("https://cms.admoexperience.com/users/sign_in") };
 
           //  hyperl.RequestNavigate += RequestNavigateHandler;
             // To handle all Hyperlinks in the RichTextBox
