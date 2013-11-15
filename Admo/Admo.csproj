@@ -192,6 +192,7 @@
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
     <Resource Include="resources\left-banner.png" />
+    <Resource Include="resources\LeftBannerInstaller.bmp" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
