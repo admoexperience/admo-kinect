@@ -61,6 +61,11 @@ namespace Admo
             SendToAll(ConvertToJson("swipeGesture", gesture));
         }
 
+        public static void SendImageFrame(String image)
+        {
+            SendToAll(ConvertToJson("userImage", image));
+        }
+
         public static void SendUpdatedConfig()
         {
             Logger.Debug("Sending updated config to clients");
