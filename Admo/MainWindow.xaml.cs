@@ -31,6 +31,8 @@ namespace Admo
         private KinectSensor _currentKinectSensor;
         public static int KinectElevationAngle = 0; //used in application handler
 
+        public static bool SilhouetteEnabled = true;
+
         //drawing variables
 
         /// <summary>
@@ -253,6 +255,7 @@ namespace Admo
 
         private void BackgroundRemovedFrameReadyHandler(object sender, BackgroundRemovedColorFrameReadyEventArgs e)
         {
+
             if (_closing) return;
 
             using (var backgroundRemovedFrame = e.OpenBackgroundRemovedColorFrame())
@@ -363,12 +366,14 @@ namespace Admo
                 }
                 else
                 {
-                    
-                    backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
-                    backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
-                    backgroundRemovedColorStream.ProcessSkeleton(allSkeletons, skeletonFrameData.Timestamp);
-                    backgroundRemovedColorStream.SetTrackedPlayer(first.TrackingId);
-                    
+                    //if silhouette is enable which means that the app is not using the webcam, then we need to use the backgroundremoval stream
+                    if (SilhouetteEnabled)
+                    {
+                        backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
+                        backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
+                        backgroundRemovedColorStream.ProcessSkeleton(allSkeletons, skeletonFrameData.Timestamp);
+                        backgroundRemovedColorStream.SetTrackedPlayer(first.TrackingId);
+                    }
                     GetDataForSocketServer(first);
 
                     //Map the skeletal coordinates to the video map
