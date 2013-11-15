@@ -11,7 +11,7 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static string Port = "5001";
-        private readonly Thread _listenThread;
+       // private readonly Thread _listenThread;
         private readonly HttpListener _listener;
 
         private readonly string _overridePath;
@@ -24,7 +24,7 @@ namespace Admo.classes
             _currentPath = Path.Combine(baseLocation, "current");
             var address = "https://+:" + Port + "/";
             // setup thread
-            _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
+           // _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
 
             // setup listener
             _listener = new HttpListener();
@@ -33,63 +33,76 @@ namespace Admo.classes
 
         public void Start()
         {
-            _listenThread.Start();
-        }
-
-
-        private void Worker()
-        {
-            // start listening
             _listener.Start();
 
-            // request -> response loop
-            while (_listener.IsListening)
+            Run();
+           // _listenThread.Start();
+        }
+           public void Run()
+        {
+            ThreadPool.QueueUserWorkItem((o) =>
             {
-                var context = _listener.GetContext();
-                var request = context.Request;
+               // Console.WriteLine("Webserver running...");
+                try
+                {
+                    while (_listener.IsListening)
+                    {
+                        ThreadPool.QueueUserWorkItem((c) =>
+                        {
+                            var context = _listener.GetContext();
+                            var request = context.Request;
 
-                /* respond to the request.
+                            ProcessRequest(request, context);
+                        });
+                    }
+                }
+                catch { } // suppress any exceptions
+            });
+        }
+
+        private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
+        {
+/* respond to the request.
                      * in this case it'll show "Server appears to be working".
                      * regardless of what file/path was requested.
                      */
-                var myRequest = request.Url.AbsolutePath;
-                if (request.RawUrl.EndsWith("/"))
-                {
-                    myRequest += "index.html";
-                }
-                if (myRequest.StartsWith("/"))
-                {
-                    myRequest = myRequest.Remove(0, 1);
-                }
+            var myRequest = request.Url.AbsolutePath;
+            if (request.RawUrl.EndsWith("/"))
+            {
+                myRequest += "index.html";
+            }
+            if (myRequest.StartsWith("/"))
+            {
+                myRequest = myRequest.Remove(0, 1);
+            }
 
-                //First try find it in the overide folder
-                var myPath = Path.Combine(_overridePath, myRequest);
+            //First try find it in the overide folder
+            var myPath = Path.Combine(_overridePath, myRequest);
 
-                //If the file was not overriden
-                if (!File.Exists(myPath))
-                {
-                    myPath = Path.Combine(_currentPath, myRequest);
-                }
+            //If the file was not overriden
+            if (!File.Exists(myPath))
+            {
+                myPath = Path.Combine(_currentPath, myRequest);
+            }
 
-                var mimeExtension = GetMimeType(myPath);
-                //TODO: handle files not found, 404
-                try
+            var mimeExtension = GetMimeType(myPath);
+            //TODO: handle files not found, 404
+            try
+            {
+                using (var response = context.Response)
                 {
-                    using (var response = context.Response)
+                    var file2Serve = File.ReadAllBytes(myPath);
+                    response.ContentType = mimeExtension;
+                    response.ContentLength64 = file2Serve.Length;
+                    using (var output = response.OutputStream)
                     {
-                        var file2Serve = File.ReadAllBytes(myPath);
-                        response.ContentType = mimeExtension;
-                        response.ContentLength64 = file2Serve.Length;
-                        using (var output = response.OutputStream)
-                        {
-                            output.Write(file2Serve, 0, file2Serve.Length);
-                        }
+                        output.Write(file2Serve, 0, file2Serve.Length);
                     }
                 }
-                catch (Exception)
-                {
-                    Logger.Debug("unable to process" + myPath);
-                }
+            }
+            catch (Exception)
+            {
+                Logger.Debug("unable to process" + myPath);
             }
         }
 
