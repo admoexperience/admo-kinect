@@ -11,7 +11,7 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static string Port = "5001";
-       // private readonly Thread _listenThread;
+        private readonly Thread _listenThread;
         private readonly HttpListener _listener;
 
         private readonly string _overridePath;
@@ -24,7 +24,7 @@ namespace Admo.classes
             _currentPath = Path.Combine(baseLocation, "current");
             var address = "https://+:" + Port + "/";
             // setup thread
-           // _listenThread = new Thread(Worker) {IsBackground = true, Priority = ThreadPriority.Normal};
+            _listenThread = new Thread(Run) { IsBackground = true, Priority = ThreadPriority.Normal };
 
             // setup listener
             _listener = new HttpListener();
@@ -35,29 +35,27 @@ namespace Admo.classes
         {
             _listener.Start();
 
-            Run();
-           // _listenThread.Start();
+            //Run();
+            _listenThread.Start();
         }
            public void Run()
         {
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
+        
                // Console.WriteLine("Webserver running...");
-                try
-                {
-                    while (_listener.IsListening)
-                    {
-                        ThreadPool.QueueUserWorkItem((c) =>
-                        {
-                            var context = _listener.GetContext();
-                            var request = context.Request;
+           // http://www.codehosting.net/blog/BlogEngine/post/Simple-C-Web-Server.aspx
+               while (_listener.IsListening)
+               {
+                   var context = _listener.GetContext();
+                   
+                       ThreadPool.QueueUserWorkItem((c) =>  ProcessRequest(context.Request, context));
+        
+                 //  context.Result.Response.OutputStream.Close();
+              
 
-                            ProcessRequest(request, context);
-                        });
-                    }
-                }
-                catch { } // suppress any exceptions
-            });
+        }
+
+                
+        
         }
 
         private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
@@ -97,7 +95,10 @@ namespace Admo.classes
                     using (var output = response.OutputStream)
                     {
                         output.Write(file2Serve, 0, file2Serve.Length);
+                        output.Close();
+                      //  output.
                     }
+          
                 }
             }
             catch (Exception)
@@ -108,7 +109,12 @@ namespace Admo.classes
 
         public void Close()
         {
+        
+           // _listener.Abort();
             _listener.Stop();
+            _listener.Close();
+            _listener.Abort();
+
         }
 
         private static string GetMimeType(string fileName)
