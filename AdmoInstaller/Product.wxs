@@ -16,6 +16,17 @@
       <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
       <Property Id="ARPPRODUCTICON" Value="Company.ico" />
       <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
+<WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)\AdmoInstaller\License.rtf" />
+
+<WixVariable Id="WixUIBannerBmp" Value="$(var.SolutionDir)\Admo\resources\left-banner.png" />
+      <WixVariable Id="WixUIDialogBmp" Value="$(var.SolutionDir)\Admo\resources\left-banner.png" />
+
+<WixVariable Id="WixUIExclamationIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+      <WixVariable Id="WixUIInfoIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+
+  <WixVariable Id="WixUINewIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+        <WixVariable Id="WixUIUpIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+
 
 
       <Directory Id="TARGETDIR" Name="SourceDir">
@@ -132,11 +143,19 @@
     </UI>
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch My Application Name" />
 
+       <CustomAction Id="LaunchCertification" 
+        FileKey="ADMOCERTMANAGER" 
+        ExeCommand=""          
+        Impersonate="yes" />
+                  
     <!-- Step 3: Include the custom action -->
     <Property Id="WixShellExecTarget" Value="[#ADMO.exe]" />
     <CustomAction Id="LaunchApplication" 
         FileKey="ADMO.EXE" 
-        ExeCommand=""          
-        Impersonate="yes" />
+        ExeCommand  =""
+        Execute     ="immediate"
+        Impersonate ="yes"
+        Return      ="asyncNoWait" />
+     
     </Product>
 </Wix>
