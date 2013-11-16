@@ -99,7 +99,6 @@ namespace Admo
         {
             
             Config.Init();
-            Config.UpdateConfigCache();
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
