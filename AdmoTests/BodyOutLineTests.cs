@@ -15,11 +15,11 @@ namespace AdmoTests
           var depthtest = new byte[307200];
           depthtest[300] = 1;
           var startPoint=ApplicationHandler.GetStartPixel(depthtest);
-          Assert.AreEqual(startPoint[1]+startPoint[0], 300);
+          Assert.AreEqual(0,startPoint[1]+startPoint[0]);
 
           depthtest = new byte[307200];
           startPoint = ApplicationHandler.GetStartPixel(depthtest);
-          Assert.AreEqual(startPoint[1] + startPoint[0], 0);
+          Assert.AreEqual(0,startPoint[1] + startPoint[0]);
 
       }
 

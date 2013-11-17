@@ -166,7 +166,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
+    <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\JsonHelper.cs" />
+    <Compile Include="Utilities\ShortCutHandler.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
@@ -202,6 +204,7 @@
     <Content Include="KinectBackgroundRemoval180_64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="resources\LeftBannerInstaller.bmp" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -250,10 +253,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="KinectInteraction170_32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="KinectInteraction170_64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
