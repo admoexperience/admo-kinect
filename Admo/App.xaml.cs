@@ -42,6 +42,12 @@ namespace Admo
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            var systeminfo = HardwareUtils.GetSystemInfo();
+            Logger.Debug("====HARDWAREINFO===");
+            Logger.Debug(String.Format("Manufacturer: {0}, Model: {1}, CPU: {2}",systeminfo.Manufacturer,systeminfo.Model,systeminfo.ProcessorType));
+            Logger.Debug(String.Format("OSVersion: {0}, Raw: {1}, Is64Bit: {2}",systeminfo.OsVersion,systeminfo.OsVersionRaw, systeminfo.Is64BitOperatingSystem));
+            Logger.Debug(String.Format("TotalMemory: {0}",Utils.BytesToHuman(systeminfo.TotalMemory)));
+            Logger.Debug("====HARDWAREINFO===");
             classes.Config.InitDirs();
             
             var mainWindow = new MainWindow();
