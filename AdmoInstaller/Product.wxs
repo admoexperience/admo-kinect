@@ -63,10 +63,10 @@
       />
       <CustomAction Id="DownloadRuntime" 
               Return="check" 
-               Execute="immediate" 
+               Execute="deferred" 
                BinaryKey="AdmoInstallerCustomAction.CA.dll" 
                DllEntry="DownLoadRuntime" 
-       Impersonate="yes" 
+       Impersonate="no" 
       />
       
 

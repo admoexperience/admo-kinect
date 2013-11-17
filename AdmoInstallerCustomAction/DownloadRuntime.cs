@@ -27,11 +27,13 @@ namespace AdmoInstallerCustomAction
                 var client = new WebClient();
                 client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(client_DownloadProgressChanged);
                 client.DownloadFileCompleted += new AsyncCompletedEventHandler(client_DownloadFileCompleted);
-                client.DownloadFileAsync(new Uri("http://admo-downloads.s3-website-eu-west-1.amazonaws.com/unit-installers/KinectRuntime-v1.8-Setup.exe"),
+                     client.DownloadFileAsync(new Uri("http://admo-downloads.s3-website-eu-west-1.amazonaws.com/unit-installers/KinectRuntime-v1.8-Setup.exe"),
+                //client.DownloadFileAsync(new Uri("http://silverserver/public/Admo/Installers/KinectRuntime-v1.8-Setup.exe"),
                     @"KinectRuntime-v1.8-Setup.exe");
             });
         bgThead.Start();
-            
+            //     client.DownloadFileAsync(new Uri("http://admo-downloads.s3-website-eu-west-1.amazonaws.com/unit-installers/KinectRuntime-v1.8-Setup.exe"),
+
         }
         void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -63,7 +65,7 @@ namespace AdmoInstallerCustomAction
                 }
             };
             p.Start();
-            p.WaitForExit();
+      //      p.WaitForExit();
             Close();
     
         }
