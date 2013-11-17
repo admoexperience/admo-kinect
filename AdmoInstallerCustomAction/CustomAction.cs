@@ -19,7 +19,7 @@ namespace AdmoInstallerCustomAction
             //To do put form with progress bar
             session.Log("Begin DownLoadRuntime");
             Debugger.Launch();
-            if (CheckInstalled("Kinect for Windows Runtime v1.8")) return ActionResult.Success;
+            if (CheckInstalled("Kinect")) return ActionResult.Success;
 
             session.Log("Begin Downloading");
             var form = new DownloadRuntime();
@@ -81,32 +81,34 @@ namespace AdmoInstallerCustomAction
 
         public static bool CheckInstalled(string cName)
         {
-            string displayName;
 
             string registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey);
-            if (key != null)
-            {
-                foreach (RegistryKey subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
-                {
-                    displayName = subkey.GetValue("DisplayName") as string;
-
-                    if (displayName != null && displayName.Contains(cName))
-                    {
-                        return true;
-                    }
-                }
-                key.Close();
-            }
+            if (CheckIfKeyPresentCheckInstalled(cName, key)) return true;
 
             registryKey = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
             key = Registry.LocalMachine.OpenSubKey(registryKey);
+            if (CheckIfKeyPresentCheckInstalled(cName, key)) return true;
+
+            registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            key = Registry.CurrentUser.OpenSubKey(registryKey);
+            if (CheckIfKeyPresentCheckInstalled(cName, key)) return true;
+
+            registryKey = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
+            key = Registry.CurrentUser.OpenSubKey(registryKey);
+            if (CheckIfKeyPresentCheckInstalled(cName, key)) return true;
+
+            return false;
+        }
+
+        private static bool CheckIfKeyPresentCheckInstalled(string cName, RegistryKey key)
+        {
             if (key != null)
             {
                 foreach (RegistryKey subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
                 {
-                    displayName = subkey.GetValue("DisplayName") as string;
-
+                    string displayName = subkey.GetValue("DisplayName") as string;
+                  //  displayName.Trim() == cName;
                     if (displayName != null && displayName.Contains(cName))
                     {
                         return true;
@@ -116,6 +118,5 @@ namespace AdmoInstallerCustomAction
             }
             return false;
         }
-
     }
 }
