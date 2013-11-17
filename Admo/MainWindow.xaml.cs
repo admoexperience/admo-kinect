@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
@@ -14,7 +12,6 @@ using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 
 using Microsoft.Kinect.Toolkit.BackgroundRemoval;
-using System.Windows.Forms;
 using NLog;
 
 namespace Admo
@@ -33,8 +30,6 @@ namespace Admo
         private readonly Skeleton[] allSkeletons = new Skeleton[SkeletonCount];
         private KinectSensor _currentKinectSensor;
         public static int KinectElevationAngle = 0; //used in application handler
-
-        public static bool SilhouetteEnabled = true;
 
         //drawing variables
 
@@ -375,7 +370,7 @@ namespace Admo
                 else
                 {
                     //if silhouette is enable which means that the app is not using the webcam, then we need to use the backgroundremoval stream
-                    if (SilhouetteEnabled)
+                    if (Config.SilhouetteEnabled())
                     {
                         backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
                         backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
