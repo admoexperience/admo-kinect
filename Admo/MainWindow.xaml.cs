@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
@@ -11,6 +12,7 @@ using Admo.classes.lib;
 using Admo.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
+using System.Windows.Forms;
 using NLog;
 
 namespace Admo
@@ -57,6 +59,8 @@ namespace Admo
         private double _angleChangeTime = Utils.GetCurrentTimeInSeconds();
         private WebServer _webServer;
 
+        private ShortCutHandler keyHandler;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -93,12 +97,14 @@ namespace Admo
 
         private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
+            
             Config.Init();
             Config.OptionChanged += OnConfigChange;
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
             _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
+            keyHandler = new ShortCutHandler(this);
 
             //start and stop old kinect sensor kinect sensor
             if (KinectSensor.KinectSensors.Count > 0)
@@ -123,6 +129,7 @@ namespace Admo
                 WindowState = (WindowState)FormWindowState.Minimized;
             }
         }
+
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
         {
