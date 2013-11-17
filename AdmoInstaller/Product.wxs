@@ -44,7 +44,7 @@
       <InstallExecuteSequence>
         <RemoveExistingProducts After="InstallInitialize" />
         <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
-        <Custom Action="DownloadRuntime" Before="NewerVersion"></Custom>
+        <Custom Action="DownloadRuntime" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
 
       <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
 
@@ -65,7 +65,7 @@
               Return="check" 
                Execute="immediate" 
                BinaryKey="AdmoInstallerCustomAction.CA.dll" 
-               DllEntry="DownLoadRuntimes" 
+               DllEntry="DownLoadRuntime" 
        Impersonate="yes" 
       />
       

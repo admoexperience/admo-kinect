@@ -6,6 +6,8 @@ using System.Net;
 using System.Text;
 using AdmoCertificateManager;
 using Microsoft.Deployment.WindowsInstaller;
+using Microsoft.Win32;
+
 
 namespace AdmoInstallerCustomAction
 {
@@ -14,30 +16,26 @@ namespace AdmoInstallerCustomAction
         [CustomAction]
         public static ActionResult DownLoadRuntime(Session session)
         {
-
-            Debugger.Launch();
-
+            //To do put form with progress bar
             session.Log("Begin DownLoadRuntime");
-            var client = new WebClient();
-            client.DownloadFile("http://admo-downloads.s3-website-eu-west-1.amazonaws.com/unit-installers/KinectRuntime-v1.8-Setup.exe", @"KinectRuntime-v1.8-Setup.exe");
+            Debugger.Launch();
+            if (CheckInstalled("Kinect for Windows Runtime v1.8")) return ActionResult.Success;
 
-            var p = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "KinectRuntime-v1.8-Setup.exe",
-                    Arguments = "",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                }
-            };
-            p.Start();
+            session.Log("Begin Downloading");
+            var form = new DownloadRuntime();
+            form.StartDownload();
+            form.ShowDialog();
+            session.Log("DownLoad Complete");
 
-        //    return p.StandardOutput.ReadToEnd();
-
+           
+            form.Dispose();
+            session.Log("Install Complete");
+            //    return p.StandardOutput.ReadToEnd();
 
             return ActionResult.Success;
         }
+
+
         [CustomAction]
         public static ActionResult LoadCertificates(Session session)
         {
@@ -79,6 +77,44 @@ namespace AdmoInstallerCustomAction
                 
             }
             return ActionResult.Success;
+        }
+
+        public static bool CheckInstalled(string cName)
+        {
+            string displayName;
+
+            string registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey);
+            if (key != null)
+            {
+                foreach (RegistryKey subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
+                {
+                    displayName = subkey.GetValue("DisplayName") as string;
+
+                    if (displayName != null && displayName.Contains(cName))
+                    {
+                        return true;
+                    }
+                }
+                key.Close();
+            }
+
+            registryKey = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
+            key = Registry.LocalMachine.OpenSubKey(registryKey);
+            if (key != null)
+            {
+                foreach (RegistryKey subkey in key.GetSubKeyNames().Select(keyName => key.OpenSubKey(keyName)))
+                {
+                    displayName = subkey.GetValue("DisplayName") as string;
+
+                    if (displayName != null && displayName.Contains(cName))
+                    {
+                        return true;
+                    }
+                }
+                key.Close();
+            }
+            return false;
         }
 
     }
