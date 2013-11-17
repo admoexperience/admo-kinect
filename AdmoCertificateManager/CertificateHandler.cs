@@ -13,18 +13,18 @@ namespace AdmoCertificateManager
         public X509Store CertStoerLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
         public readonly string Port;
         public const string DefaultPort = "5001";
-        public const string DefaultCertFile = "bundle.p12";
+        public const string DefaultCertFile = @"C:/Admo/bundle.p12";
         public const string DefaultPassword = "1234";
 
-        public X509Certificate2 AdmoCert
+        public X509Certificate2 AdmoCert;
+    
+        public X509Certificate2 GetAdmoCert()
         {
-            get
-            {
-                return new X509Certificate2(DefaultCertFile, DefaultPassword,
+             AdmoCert= new X509Certificate2(DefaultCertFile, DefaultPassword,
                     X509KeyStorageFlags.PersistKeySet |
-                    X509KeyStorageFlags.Exportable | 
+                    X509KeyStorageFlags.Exportable |
                     X509KeyStorageFlags.MachineKeySet);
-            }
+            return AdmoCert;
         }
 
         public CertificateHandler(String portNumber)

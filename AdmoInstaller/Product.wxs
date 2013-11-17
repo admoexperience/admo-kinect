@@ -16,6 +16,9 @@
           </RegistryKey>
         </Component>
       </DirectoryRef>
+      <Binary Id="AdmoInstallerCustomAction.CA.dll"
+           src="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
+      
       <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
       <Property Id="ARPPRODUCTICON" Value="Company.ico" />
       <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
@@ -34,22 +37,38 @@
 
 
       <Upgrade Id="$(var.UpgradeCode)">
-        <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
+        <UpgradeVersion Minimum="0.0.0" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
         <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED" />
       </Upgrade>
 
       <InstallExecuteSequence>
         <RemoveExistingProducts After="InstallInitialize" />
-        <Custom Action="NewerVersion" After="InstallInitialize">NEWERVERSIONDETECTED</Custom>
-        <Custom Action="LaunchCertification" After="NewerVersion">NEWERVERSIONDETECTED</Custom>
+        <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
+        <Custom Action="DownloadRuntime" Before="NewerVersion"></Custom>
+
+      <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
+
       </InstallExecuteSequence>
+       
+
 
       <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
-
-      <CustomAction Id="LaunchCertification"
-           FileKey="ADMOCERTMANAGER"
-           ExeCommand=""
-           Impersonate="yes" />
+<CustomAction Id="LoadCertificates" 
+              Return="check" 
+               Execute="deferred" 
+               BinaryKey="AdmoInstallerCustomAction.CA.dll" 
+               DllEntry="LoadCertificates" 
+       Impersonate="no" 
+              
+      />
+      <CustomAction Id="DownloadRuntime" 
+              Return="check" 
+               Execute="immediate" 
+               BinaryKey="AdmoInstallerCustomAction.CA.dll" 
+               DllEntry="DownLoadRuntimes" 
+       Impersonate="yes" 
+      />
+      
 
       <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />
@@ -103,6 +122,9 @@
               <Component Id="BUNDLEP12" DiskId="1" Guid="ABF68A0A-58BA-45FD-B192-3882019D4128">
                 <File Id="BUNDLEP12" Name="Bundle.p12" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\bundle.p12" />
               </Component>
+                      <Component Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" DiskId="1" Guid="19937F7C-F215-45E1-B52A-E7124A41D845" >
+                  <File Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" Name="AdmoInstallerCustomAction.CA.dll" Source="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
+                </Component>
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
@@ -111,6 +133,8 @@
                 <Component Id="DEFAULT.POD.ZIP" DiskId="1" Guid="272348B4-C6A4-4B3C-B193-4D9A17A0EBC9" >
                   <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
                 </Component>
+        
+              
               </Directory>
             </Directory>
             <Directory Id="DesktopFolder" />
@@ -146,16 +170,23 @@
         <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
         <ComponentRef Id="DEFAULT.POD.ZIP" />
+        <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />      
       </Feature>
-     
+      
+      
+      <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
+  <InstallUISequence>
+    <Custom Action="ExtraCustomActions" After="I"\\>NOT Installed</Custom>
+  </InstallUISequence>-->
 
         <PropertyRef Id="NETFRAMEWORK35" />
         <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
         <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
         <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
     
-<UI>
+    <UI>
         <UIRef Id="WixUI_Minimal" />
+       
         <Publish Dialog="ExitDialog" 
             Control="Finish" 
             Event="DoAction" 

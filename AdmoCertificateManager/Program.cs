@@ -17,7 +17,7 @@ namespace AdmoCertificateManager
 
             var certHandler = new CertificateHandler(portNumber);
 
-            var myCert = certHandler.AdmoCert;
+            var myCert = certHandler.GetAdmoCert();
             if (!myCert.HasPrivateKey)
                 Console.WriteLine("Certificate does not have a private key");
 
