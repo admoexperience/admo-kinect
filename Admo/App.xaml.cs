@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,8 @@ namespace Admo
     /// </summary>
     public partial class App : Application
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public App()
         {
             Dispatcher.UnhandledException += OnDispatcherUnhandledException;
@@ -39,9 +42,11 @@ namespace Admo
         }
 
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+       
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            var version = Assembly.GetEntryAssembly().GetName().Version;
+            Logger.Debug("Version: "+version);
             classes.Config.InitDirs();
             
             var mainWindow = new MainWindow();
