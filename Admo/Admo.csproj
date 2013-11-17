@@ -194,6 +194,7 @@
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
     <Resource Include="resources\left-banner.png" />
+    <Resource Include="resources\LeftBannerInstaller.bmp" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -242,10 +243,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="KinectInteraction170_32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="KinectInteraction170_64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
