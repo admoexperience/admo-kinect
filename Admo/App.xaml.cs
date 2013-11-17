@@ -6,12 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Admo.Api;
 using Admo.Api.Dto;
 using Admo.classes;
 using Admo.classes.lib;
 using Admo.forms;
 using Admo.Utilities;
+using Microsoft.CSharp.RuntimeBinder;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
@@ -23,11 +25,23 @@ namespace Admo
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Dispatcher.UnhandledException += OnDispatcherUnhandledException;
+        }
+
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            var errorMessage = string.Format("An unhandled exception occurred: {0}", e.Exception.Message);
+            Logger.Error(errorMessage,e.Exception);
+            Logger.Error(e.Exception);
+            e.Handled = true;
+        }
+
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private async void ApplicationStartup(object sender, StartupEventArgs e)
+        private void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            //
             classes.Config.InitDirs();
             
             var mainWindow = new MainWindow();

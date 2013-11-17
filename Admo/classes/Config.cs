@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Admo.Api;
+using Admo.Api.Dto;
 using Admo.classes.lib;
 using Admo.classes.stats;
 using Admo.Utilities;
@@ -64,14 +66,18 @@ namespace Admo.classes
             Api = new CmsApi(GetApiKey());
             _config = ReadConfig();
             UpdateConfigCache();
-            Pusher = new PushNotification
+            //Only connect to pubnub if the key is there
+            if (!String.IsNullOrEmpty(GetPubNubSubKey()))
             {
-                Channel = GetApiKey(), 
-                SubscribeKey = GetPubNubSubKey(),
-                OnConnection = OnPushNotificationConnection
-            };
-            Pusher.Connect();
-            
+                Pusher = new PushNotification
+                {
+                    Channel = GetApiKey(),
+                    SubscribeKey = GetPubNubSubKey(),
+                    OnConnection = OnPushNotificationConnection
+                };
+                Pusher.Connect();
+            }
+
 
 
             var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
@@ -195,6 +201,11 @@ namespace Admo.classes
 
         public static Boolean HasApiKey()
         {
+            var fileExsists = File.Exists(GetLocalConfig("ApiKey"));
+            if (!fileExsists)
+            {
+                return false;
+            }
             var apiKey = ReadLocalConfig("ApiKey");
             return !apiKey.Equals(String.Empty);
 
@@ -228,6 +239,10 @@ namespace Admo.classes
         private static Api.Dto.Config ReadConfig()
         {
             var cacheFile = GetCmsConfigCacheFile();
+            if (!File.Exists(cacheFile))
+            {
+                return new Api.Dto.Config();
+            }
             var temp = File.ReadAllText(cacheFile);
             return JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(temp);
         }
@@ -283,6 +298,25 @@ namespace Admo.classes
             SocketServer.SendUpdatedConfig();
 
             if (OptionChanged != null) OptionChanged();
+        }
+
+        public static void SetPodFile(string podFile)
+        {
+            _config.PodFile = podFile;
+            if (OptionChanged != null) OptionChanged();
+        }
+
+
+        public static List<PodApp> ListInstalledPods()
+        {
+            var list = Directory.GetFiles(GetPodLocation(), "*.pod.zip");
+            var apps = new List<PodApp>(list.Count());
+            apps.AddRange(list.Select(app => new PodApp
+            {
+                PodName = app
+            }));
+            apps.Sort((x, y) => String.CompareOrdinal(x.PodName, y.PodName));
+            return apps;
         }
 
 

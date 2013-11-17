@@ -4,12 +4,14 @@ namespace Admo.Api.Dto
 {
     public class PodApp : BaseApiResult
     {
-        public String Name { set; get; }
+        public string Name { set; get; }
 
-        public String UpdatedAt { set; get; }
+        public string UpdatedAt { set; get; }
 
-        public String PodChecksum { set; get; }
+        public string PodChecksum { set; get; }
 
-        public String PodUrl { set; get; }
+        public string PodUrl { set; get; }
+
+        public string PodName { get; set; }
     }
 }

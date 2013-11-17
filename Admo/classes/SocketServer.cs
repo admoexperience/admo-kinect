@@ -19,15 +19,14 @@ namespace Admo
         private static Boolean _serverRunning;
         private static WebSocketServer _server;
 
-        protected static List<IWebSocketConnection> AllSockets;
+        protected static List<IWebSocketConnection>  AllSockets = new List<IWebSocketConnection>();
         public static void StartServer()
 		{
             if (_serverRunning) return;
 
             Logger.Info("Starting SocketIOClient server");
             _server = new WebSocketServer("ws://localhost:1080");
-            AllSockets = new List<IWebSocketConnection>();
-            
+    
             _server.Start(socket =>
             {
                 socket.OnOpen = () =>
@@ -93,7 +92,11 @@ namespace Admo
 
         public static void Stop()
         {
-            _server.Dispose();
+
+            if (_serverRunning)
+            {
+                _server.Dispose();
+            }
             _serverRunning = false;
         }
 

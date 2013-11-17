@@ -128,6 +128,7 @@
     <Compile Include="classes\lib\commands\UpdatePods.cs" />
     <Compile Include="classes\lib\PushNotification.cs" />
     <Compile Include="Api\Dto\Pod.cs" />
+    <Compile Include="classes\lib\tasks\BrowserKeepAlive.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
@@ -163,8 +164,10 @@
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="Utilities\HardwareUtils.cs" />
-    <Compile Include="Utilities\JsonHelper.cs" />
     <Compile Include="Utilities\SoftwareUtils.cs" />
+    <Compile Include="Utilities\HotKey.cs" />
+    <Compile Include="Utilities\JsonHelper.cs" />
+    <Compile Include="Utilities\ShortCutHandler.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
@@ -194,6 +197,7 @@
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
     <Resource Include="resources\left-banner.png" />
+    <Resource Include="resources\LeftBannerInstaller.bmp" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -242,10 +246,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="KinectInteraction170_32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="KinectInteraction170_64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

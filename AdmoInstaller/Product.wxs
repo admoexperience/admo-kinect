@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?define Version = "!(bind.FileVersion.ADMO.EXE)"?>
+<?define UpgradeCode = "A316F201-11FB-42B3-9B30-A3481199EC4B" ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-    <Product Id="B9C7A594-1D15-4503-92CA-42E6137C949A" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc" UpgradeCode="2C4EB1BB-BFE5-48F8-B9DB-E6562E88CF1C">
+    <Product Id="*" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc" UpgradeCode="$(var.UpgradeCode)">
         <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200" Compressed="yes" />
         <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
       <DirectoryRef Id="TARGETDIR">
@@ -16,7 +19,37 @@
       <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
       <Property Id="ARPPRODUCTICON" Value="Company.ico" />
       <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
+<WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)\AdmoInstaller\License.rtf" />
 
+<WixVariable Id="WixUIBannerBmp" Value="$(var.SolutionDir)\Admo\resources\left-banner.png" />
+      <WixVariable Id="WixUIDialogBmp" Value="$(var.SolutionDir)\Admo\resources\LeftBannerInstaller.bmp" />
+
+<WixVariable Id="WixUIExclamationIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+      <WixVariable Id="WixUIInfoIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+
+  <WixVariable Id="WixUINewIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+        <WixVariable Id="WixUIUpIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+      <!--<MajorUpgrade
+        DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>-->
+
+
+      <Upgrade Id="$(var.UpgradeCode)">
+        <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
+        <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED" />
+      </Upgrade>
+
+      <InstallExecuteSequence>
+        <RemoveExistingProducts After="InstallInitialize" />
+        <Custom Action="NewerVersion" After="InstallInitialize">NEWERVERSIONDETECTED</Custom>
+        <Custom Action="LaunchCertification" After="NewerVersion">NEWERVERSIONDETECTED</Custom>
+      </InstallExecuteSequence>
+
+      <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
+
+      <CustomAction Id="LaunchCertification"
+           FileKey="ADMOCERTMANAGER"
+           ExeCommand=""
+           Impersonate="yes" />
 
       <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />
@@ -27,9 +60,6 @@
                         <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
-              <!--<Component Id="BackGroundResource" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
-                <File Id="ADMO.EXE.CONFIG" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\loading.html" />
-              </Component>-->
               <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
                 <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
               </Component>
@@ -76,7 +106,10 @@
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
-                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\resources\Loading.html" />
+                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\Loading.html" />
+                </Component>
+                <Component Id="DEFAULT.POD.ZIP" DiskId="1" Guid="272348B4-C6A4-4B3C-B193-4D9A17A0EBC9" >
+                  <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
                 </Component>
               </Directory>
             </Directory>
@@ -94,32 +127,52 @@
         </Directory>
 
       <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
-            <ComponentRef Id="ADMO.EXE" />
-            <ComponentRef Id="ADMO.EXE.CONFIG" />
-            <ComponentRef Id="FLECK.DLL" />
-            <ComponentRef Id="INPUTSIMULATOR.DLL" />
-            <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
-            <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
-            <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
-            <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
-            <ComponentRef Id="NLOG.CONFIG" />
-            <ComponentRef Id="NLOG.DLL" />
-            <ComponentRef Id="StartMenuShortcuts" />
-           <ComponentRef Id="RegistryEntries" />
-          <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
+        <ComponentRef Id="ADMO.EXE" />
+        <ComponentRef Id="ADMO.EXE.CONFIG" />
+        <ComponentRef Id="FLECK.DLL" />
+        <ComponentRef Id="INPUTSIMULATOR.DLL" />
+        <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
+        <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
+        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
+        <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
+        <ComponentRef Id="NLOG.CONFIG" />
+        <ComponentRef Id="NLOG.DLL" />
+        <ComponentRef Id="StartMenuShortcuts" />
+        <ComponentRef Id="RegistryEntries" />
+        <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
         <ComponentRef Id="BUNDLEP12" />
         <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
+        <ComponentRef Id="DEFAULT.POD.ZIP" />
       </Feature>
-        <InstallExecuteSequence>
-          <RemoveExistingProducts After="InstallInitialize"/>
-        </InstallExecuteSequence>
-        <UI />
+     
+
         <PropertyRef Id="NETFRAMEWORK35" />
         <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
         <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
         <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
+    
+<UI>
+        <UIRef Id="WixUI_Minimal" />
+        <Publish Dialog="ExitDialog" 
+            Control="Finish" 
+            Event="DoAction" 
+            Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Admo"   />
+      <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+
+                  
+    <!-- Step 3: Include the custom action -->
+    <Property Id="WixShellExecTarget" Value="[#ADMO.exe]" />
+    <CustomAction Id="LaunchApplication" 
+        FileKey="ADMO.EXE" 
+        ExeCommand  =""
+        Execute     ="immediate"
+        Impersonate ="yes"
+        Return      ="asyncNoWait" />
+     
     </Product>
 </Wix>
