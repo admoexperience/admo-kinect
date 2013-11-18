@@ -44,9 +44,10 @@
       <InstallExecuteSequence>
         <RemoveExistingProducts After="InstallInitialize" />
         <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
+        <Custom Action="LoadCertificates" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
         <Custom Action="DownloadRuntime" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
 
-      <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
+        <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
 
       </InstallExecuteSequence>
        

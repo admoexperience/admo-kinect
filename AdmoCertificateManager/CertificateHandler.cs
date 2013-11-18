@@ -13,7 +13,7 @@ namespace AdmoCertificateManager
         public X509Store CertStoerLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
         public readonly string Port;
         public const string DefaultPort = "5001";
-        public const string DefaultCertFile = @"C:/Admo/bundle.p12";
+        public const string DefaultCertFile = @"bundle.p12";
         public const string DefaultPassword = "1234";
 
         public X509Certificate2 AdmoCert;
@@ -61,7 +61,7 @@ namespace AdmoCertificateManager
 
         public string BindApp2Cert()
         {
-            return RunNetshCommand("http add sslcert ipport=0.0.0.0:" + Port +" "+
+            return RunNetshCommand("/C http add sslcert ipport=0.0.0.0:" + Port + " " +
                                "appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
                                AdmoCert.GetCertHashString());
         }
@@ -69,7 +69,7 @@ namespace AdmoCertificateManager
 
         public string DeleteOldCerts()
         {
-            return RunNetshCommand(@"http delete sslcert ipport=0.0.0.0:" + Port);
+            return RunNetshCommand(@"/C http delete sslcert ipport=0.0.0.0:" + Port);
         }
 
 
@@ -118,7 +118,8 @@ namespace AdmoCertificateManager
                     FileName = "netsh.exe",
                     Arguments = cmd,
                     UseShellExecute = false,
-                    RedirectStandardOutput = true
+                    RedirectStandardOutput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
             p.Start();
