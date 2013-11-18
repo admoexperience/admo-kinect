@@ -17,7 +17,7 @@
         </Component>
       </DirectoryRef>
       <Binary Id="AdmoInstallerCustomAction.CA.dll"
-           src="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
+           src="$(var.SolutionDir)AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
       
       <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
       <Property Id="ARPPRODUCTICON" Value="Company.ico" />
