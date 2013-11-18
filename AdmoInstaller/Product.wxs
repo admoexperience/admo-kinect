@@ -44,32 +44,33 @@
       <InstallExecuteSequence>
         <RemoveExistingProducts After="InstallInitialize" />
         <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
+        <Custom Action="PropertyAssign" Before="LoadCertificates"></Custom>
         <Custom Action="LoadCertificates" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
         <Custom Action="DownloadRuntime" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
-
-        <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
-
       </InstallExecuteSequence>
-       
+      <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
 
 
-      <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
-<CustomAction Id="LoadCertificates" 
-              Return="check" 
-               Execute="deferred" 
-               BinaryKey="AdmoInstallerCustomAction.CA.dll" 
-               DllEntry="LoadCertificates" 
-       Impersonate="no" 
+      <CustomAction Id='PropertyAssign' Property='LoadCertificates'
+        Value="InstallLoc=[INSTALLLOCATION]" />
+      <CustomAction Id="LoadCertificates"
+                    Return="check"
+                     Execute="deferred"
+                     BinaryKey="AdmoInstallerCustomAction.CA.dll"
+                     DllEntry="LoadCertificates"
+             Impersonate="no"
               
       />
-      <CustomAction Id="DownloadRuntime" 
-              Return="check" 
-               Execute="deferred" 
-               BinaryKey="AdmoInstallerCustomAction.CA.dll" 
-               DllEntry="DownLoadRuntime" 
-       Impersonate="no" 
+      <CustomAction Id="DownloadRuntime"
+              Return="check"
+               Execute="deferred"
+               BinaryKey="AdmoInstallerCustomAction.CA.dll"
+               DllEntry="DownLoadRuntime"
+       Impersonate="no"
       />
-      
+      <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
+
+
 
       <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles" />

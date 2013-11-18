@@ -40,7 +40,13 @@ namespace AdmoInstallerCustomAction
         public static ActionResult LoadCertificates(Session session)
         {
             Debugger.Launch();
-            session.Log("Begin LoadCertificates");
+            var installLoc = session.CustomActionData["InstallLoc"];
+            if (installLoc == "")
+            {
+                installLoc = @"C:\Admo";
+            }
+
+        session.Log("Begin LoadCertificates");
             const string portNumber = CertificateHandler.DefaultPort;
 
             ////Usage is AdmoCertificateManger.exe $PORT_NUMBER
@@ -49,7 +55,7 @@ namespace AdmoInstallerCustomAction
             try
             {
 
-                var myCert = certHandler.GetAdmoCert();
+                var myCert = certHandler.GetAdmoCert(installLoc);
                 if (!myCert.HasPrivateKey)
                     session.Log("Certificate does not have a private key");
 
