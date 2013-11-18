@@ -31,6 +31,14 @@ namespace Admo.Utilities
             _hotKeys.Add(CreateKey(Key.F10));
         }
 
+
+        public ~ShortCutHandler()
+        {
+            foreach (var key in _hotKeys)
+            {
+                key.Dispose();
+            }
+        }
         private HotKey CreateKey(Key x)
         {
             var hotKey = new HotKey(ModifierKeys.Control | ModifierKeys.Shift, x, _mainWindow);
