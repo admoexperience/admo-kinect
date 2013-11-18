@@ -311,7 +311,7 @@ namespace Admo.classes
                 {"vxml", "application/voicexml+xml"},
                 {"wav", "audio/x-wav"},
                 {"wbmp", "image/vnd.wap.wbmp"},
-                {"video/webm","video/webm"},
+                {"webm","video/webm"},
                 {"wbmxl", "application/vnd.wap.wbxml"},
                 {"wml", "text/vnd.wap.wml"},
                 {"wmlc", "application/vnd.wap.wmlc"},
