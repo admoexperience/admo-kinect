@@ -16,6 +16,9 @@
           </RegistryKey>
         </Component>
       </DirectoryRef>
+
+    
+
       <Binary Id="AdmoInstallerCustomAction.CA.dll"
            src="$(var.SolutionDir)AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
       
@@ -185,11 +188,14 @@
         <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
         <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
         <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
-    
-    <UI>
-        <UIRef Id="WixUI_Minimal" />
-       
-        <Publish Dialog="ExitDialog" 
+
+      
+
+        <UI>
+
+      <UIRef Id="WixUI_Minimal" />
+
+      <Publish Dialog="ExitDialog" 
             Control="Finish" 
             Event="DoAction" 
             Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
