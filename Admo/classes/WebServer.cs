@@ -45,15 +45,25 @@ namespace Admo.classes
            // http://www.codehosting.net/blog/BlogEngine/post/Simple-C-Web-Server.aspx
                while (_listener.IsListening)
                {
-                   var context = _listener.GetContext();
-                   
-                       ThreadPool.QueueUserWorkItem((c) =>  ProcessRequest(context.Request, context));
+                   try
+                   {
+                       var context = _listener.GetContext();
+                       ThreadPool.QueueUserWorkItem((c) => ProcessRequest(context.Request, context));
+                   }
+                   catch (Exception)
+                   {
+                     Logger.Error("Unable to process request");
+                   }
+                       
+                
+
+               
         
                  //  context.Result.Response.OutputStream.Close();
               
 
-        }
-
+               }
+               
                 
         
         }
@@ -112,8 +122,10 @@ namespace Admo.classes
         
            // _listener.Abort();
             _listener.Stop();
-            _listener.Close();
+
             _listener.Abort();
+                  _listener.Close();
+
 
         }
 
@@ -299,6 +311,7 @@ namespace Admo.classes
                 {"vxml", "application/voicexml+xml"},
                 {"wav", "audio/x-wav"},
                 {"wbmp", "image/vnd.wap.wbmp"},
+                {"webm","video/webm"},
                 {"wbmxl", "application/vnd.wap.wbxml"},
                 {"wml", "text/vnd.wap.wml"},
                 {"wmlc", "application/vnd.wap.wmlc"},
