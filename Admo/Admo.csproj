@@ -92,6 +92,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -166,6 +167,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
+    <Compile Include="Utilities\HardwareUtils.cs" />
+    <Compile Include="Utilities\SoftwareUtils.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\JsonHelper.cs" />
     <Compile Include="Utilities\ShortCutHandler.cs" />
