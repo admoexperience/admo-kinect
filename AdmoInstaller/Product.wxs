@@ -130,6 +130,16 @@
                       <Component Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" DiskId="1" Guid="19937F7C-F215-45E1-B52A-E7124A41D845" >
                   <File Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" Name="AdmoInstallerCustomAction.CA.dll" Source="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
                 </Component>
+
+              <Component Id="BACKGROUNDREMOVAL32DLL" DiskId="1" Guid="FABFC0E1-A984-49F0-97FE-4E12D00467A0">
+                <File Id="BACKGROUNDREMOVAL32DLL" Name="KinectBackgroundRemoval180_32.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_32.dll" />
+              </Component>
+              <Component Id="BACKGROUNDREMOVAL64DLL" DiskId="1" Guid="3B3CA4FC-E9D1-4A05-AF2A-BFA1BCC62FB0">
+                <File Id="BACKGROUNDREMOVAL64DLL" Name="KinectBackgroundRemoval180_64.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_64.dll" />
+              </Component>
+              <Component Id="BACKGROUNDREMOVALDLL" DiskId="1" Guid="3C913D97-CA04-4E0C-9D52-96D8C94446FD">
+                <File Id="BACKGROUNDREMOVALDLL" Name="Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" />
+              </Component>
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
@@ -175,7 +185,10 @@
         <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
         <ComponentRef Id="DEFAULT.POD.ZIP" />
-        <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />      
+<ComponentRef Id="BACKGROUNDREMOVAL32DLL" />
+ <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />  
+        <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
+        <ComponentRef Id="BACKGROUNDREMOVALDLL" />
       </Feature>
       
       

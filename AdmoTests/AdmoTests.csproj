@@ -61,6 +61,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Api\Dto\ConfigTest.cs" />
+    <Compile Include="BodyOutLineTests.cs" />
     <Compile Include="classes\lib\KinectLibTest.cs" />
     <Compile Include="classes\lib\PushNotificationTest.cs" />
     <Compile Include="CommandFactoryTest.cs" />
@@ -77,6 +78,9 @@
     <Compile Include="stats\StatsRequestTest.cs" />
     <Compile Include="stats\MixpanelTest.cs" />
     <Compile Include="stats\StatsEngineTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Admo\Admo.csproj">
