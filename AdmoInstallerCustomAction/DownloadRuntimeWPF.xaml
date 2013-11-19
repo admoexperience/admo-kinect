@@ -1,0 +1,38 @@
+﻿<Window x:Class="AdmoInstallerCustomAction.DownloadRuntimeWPF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AdmoSetup" Height="402" Width="600" FontFamily="Arial" FontSize="17" ResizeMode="NoResize">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="309*"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="93*"/>
+            <ColumnDefinition Width="98*"/>
+            <ColumnDefinition Width="88*"/>
+        </Grid.ColumnDefinitions>
+        <Image HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="252" Source="../Admo/resources/left-banner.png" Margin="0,0,0,-11"/>
+        <Rectangle Fill="#FF49A8DE" HorizontalAlignment="Left" Height="10" Margin="0,-5,0,0" Stroke="#FF49A8DE" VerticalAlignment="Top" Width="594" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="5">
+            <Rectangle.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="-1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+        <TextBox x:Name="LoginBox" HorizontalAlignment="Center" Height="40" Margin="294,297,0,0" 
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="112" VerticalContentAlignment="Center" BorderThickness="0" 
+                 HorizontalContentAlignment="Center" Text="Download" Foreground="White" Background="#49A8DE" FontSize="12" Grid.ColumnSpan="3" IsReadOnly="True" Cursor="Hand" MouseLeftButtonUp="DownloadStart_MouseUp"/>
+        <Label Grid.ColumnSpan="4" Content="Download KinectRuntime" FontSize="16" HorizontalAlignment="Left" Height="39" Margin="294,41,0,0" VerticalAlignment="Top" Width="212"/>
+        <RichTextBox x:Name="ErrorsField" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="28" Margin="294,237,0,0" VerticalAlignment="Top" Width="257" FontSize="10" BorderThickness="0" Foreground="#FF6D6E70" BorderBrush="{x:Null}">
+            <FlowDocument>
+                <Paragraph/>
+            </FlowDocument>
+        </RichTextBox>
+        <ProgressBar x:Name="ProgressBar1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="23" Margin="0,165,0,0" VerticalAlignment="Top" Width="222" Grid.Column="2"/>
+        <TextBlock x:Name="UnderLable" Grid.ColumnSpan="2" Grid.Column="2" HorizontalAlignment="Left" Height="22" Margin="0,188,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="140"/>
+    </Grid>
+
+</Window>
