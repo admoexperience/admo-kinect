@@ -50,16 +50,18 @@ namespace Admo
             Logger.Debug("====HARDWAREINFO===");
             classes.Config.InitDirs();
             
-            var mainWindow = new MainWindow();
-            var bootstrapWindow = new BootstrapUnit();
             var hasConfig = classes.Config.HasApiKey();
             if (hasConfig)
             {
+                var mainWindow = new MainWindow();
+
                 mainWindow.WindowState = WindowState.Minimized;
                 mainWindow.Show(); 
             }
             else
             {
+                var bootstrapWindow = new BootstrapUnit();
+
                 Logger.Info("ApiKey not found loading bootstrapscreen");
                 bootstrapWindow.Show();
             }
