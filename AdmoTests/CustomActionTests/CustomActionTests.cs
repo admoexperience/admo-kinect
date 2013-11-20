@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Admo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AdmoInstallerCustomAction;
 using System.Windows;
@@ -11,21 +12,19 @@ namespace AdmoTests.CustomActionTests
     {
  
         [TestMethod]
-        public void TestMethod1()
+        public void TestRunWPFOnSTAThread()
         {
           //Will have to use gui testing tools here
 
-            //ManualResetEvent syncEvent = new ManualResetEvent(false);
-            //Thread t = new Thread(() =>
-            //{
-            //    var app = new Application();
-            //    app.Run(new DownloadRuntimeWPF());
-            // //   syncEvent.Set();
-            //});
-            //t.SetApartmentState(ApartmentState.STA);
+            Thread t = new Thread(() =>
+            {
+                var app = new Application();
+                app.Run(new DownloadRuntimeWPF());
+            });
+            t.SetApartmentState(ApartmentState.STA);
 
-            //t.Start();
-            //t.Join(); 
+            t.Start();
+           t.Abort();
 
         }
     }
