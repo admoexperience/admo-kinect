@@ -42,7 +42,7 @@ namespace AdmoInstallerCustomAction
                 double bytesIn = double.Parse(e.BytesReceived.ToString());
                 double totalBytes = double.Parse(e.TotalBytesToReceive.ToString());
                 double percentage = bytesIn / totalBytes * 100;
-                label2.Text = "Downloaded " + e.BytesReceived + " of " + e.TotalBytesToReceive;
+                label2.Text = "Downloading " + e.BytesReceived + " of " + e.TotalBytesToReceive;
                 progressBar1.Value = int.Parse(Math.Truncate(percentage).ToString());
             });
         }

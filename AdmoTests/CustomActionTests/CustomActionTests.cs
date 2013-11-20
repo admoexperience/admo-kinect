@@ -12,7 +12,7 @@ namespace AdmoTests.CustomActionTests
     {
  
         [TestMethod]
-        public void TestRunWPFOnSTAThread()
+        public void TestRunWpfOnSTAThread()
         {
           //Will have to use gui testing tools here
 
@@ -24,7 +24,25 @@ namespace AdmoTests.CustomActionTests
             t.SetApartmentState(ApartmentState.STA);
 
             t.Start();
+      //     t.Join();
            t.Abort();
+
+        }
+        [TestMethod]
+        public void TestRunWpfOnSTAThreadPcStats()
+        {
+            //Will have to use gui testing tools here
+
+            Thread t = new Thread(() =>
+            {
+                var app = new Application();
+                app.Run(new CheckPCStats());
+            });
+            t.SetApartmentState(ApartmentState.STA);
+
+            t.Start();
+         //   t.Join();
+            t.Abort();
 
         }
     }
