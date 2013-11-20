@@ -66,7 +66,7 @@ namespace AdmoCertificateManager
 
         public string BindApp2Cert()
         {
-            return RunNetshCommand("/C http add sslcert ipport=0.0.0.0:" + Port + " " +
+            return RunNetshCommand("http add sslcert ipport=0.0.0.0:" + Port + " " +
                                "appid={74CE5CF2-1171-4AAC-935E-F3E1A0267AD8} certhash=" +
                                AdmoCert.GetCertHashString());
         }
@@ -74,7 +74,7 @@ namespace AdmoCertificateManager
 
         public string DeleteOldCerts()
         {
-            return RunNetshCommand(@"/C http delete sslcert ipport=0.0.0.0:" + Port);
+            return RunNetshCommand(@"http delete sslcert ipport=0.0.0.0:" + Port);
         }
 
 
@@ -124,10 +124,12 @@ namespace AdmoCertificateManager
                     Arguments = cmd,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow=true,
                 }
             };
             p.Start();
+
             return p.StandardOutput.ReadToEnd();
         }
 
