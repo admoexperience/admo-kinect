@@ -62,6 +62,7 @@
       <DependentUpon>DownloadRuntimeWPF.xaml</DependentUpon>
     </Compile>
     <Content Include="CustomAction.config" />
+    <Resource Include="resources\left-banner.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdmoCertificateManager\AdmoCertificateManager.csproj">
