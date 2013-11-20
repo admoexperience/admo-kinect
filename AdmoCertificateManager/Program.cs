@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 
 namespace AdmoCertificateManager
@@ -7,6 +8,10 @@ namespace AdmoCertificateManager
     {
         private static void Main(string[] args)
         {
+          
+           var tempLog= File.Create("CertManagerDebug.log");
+
+            var file = new StreamWriter(tempLog);           
             var portNumber = CertificateHandler.DefaultPort;
 
             //Usage is AdmoCertificateManger.exe $PORT_NUMBER
@@ -19,7 +24,7 @@ namespace AdmoCertificateManager
 
             var myCert = certHandler.GetAdmoCert();
             if (!myCert.HasPrivateKey)
-                Console.WriteLine("Certificate does not have a private key");
+                file.WriteLine("Certificate does not have a private key");
 
             certHandler.AddCertToStore();
             var authloc = certHandler.CheckIfInStore(certHandler.CertStoreAuth, myCert);
@@ -28,18 +33,20 @@ namespace AdmoCertificateManager
 
             if (authloc && localloc)
             {
-                Console.WriteLine("Certificate loaded");
+                file.WriteLine("Certificate loaded");
                 Thread.Sleep(1000);
-                Console.WriteLine(certHandler.DeleteOldCerts());
-                Console.WriteLine(certHandler.BindApp2Cert());
-                Console.WriteLine(certHandler.GrantPermissionToUseUrl());
+                file.WriteLine(certHandler.DeleteOldCerts());
+                file.WriteLine(certHandler.BindApp2Cert());
+                file.WriteLine(certHandler.GrantPermissionToUseUrl());
                 Thread.Sleep(2000);
             }
             else
             {
-                Console.WriteLine("Failed To load certificate " + authloc.ToString() + localloc.ToString());
+                file.WriteLine("Failed To load certificate " + authloc.ToString() + localloc.ToString());
                 Thread.Sleep(1000);
+               
             }
+            file.Close();
         }
     }
 }
