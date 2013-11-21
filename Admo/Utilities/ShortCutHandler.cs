@@ -32,7 +32,7 @@ namespace Admo.Utilities
         }
 
 
-        public ~ShortCutHandler()
+        ~ShortCutHandler()
         {
             foreach (var key in _hotKeys)
             {
