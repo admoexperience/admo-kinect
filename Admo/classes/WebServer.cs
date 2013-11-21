@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using NLog;
 
@@ -73,7 +74,9 @@ namespace Admo.classes
 
             if (myRequest.Contains("favicon.ico"))
             {
-                return;
+              //  FileNotFound(context);
+               
+                return; 
             }
             //First try find it in the overide folder
             var myPath = Path.Combine(_overridePath, myRequest);
@@ -93,12 +96,12 @@ namespace Admo.classes
             }
 
             var mimeExtension = GetMimeType(myPath);
-            //TODO: handle files not found, 404
             var response = context.Response;
 
             //try again
             if (!File.Exists(myPath))
             {
+                FileNotFound(context);
 
                 Logger.Debug("unable to load file file does not exist " + myPath + " ");
                 return;
@@ -159,7 +162,21 @@ namespace Admo.classes
             
         }
 
-   
+        private void FileNotFound( HttpListenerContext context)
+        {
+            context.Response.StatusCode = 404;
+            string html = "<b>File not found Error 404!</b>";
+            byte[] data = Encoding.UTF8.GetBytes(html);
+
+            context.Response.ContentType = "text/html";
+            context.Response.ContentLength64 = data.Length;
+
+            using (Stream output = context.Response.OutputStream)
+            {
+                output.Write(data, 0, data.Length);
+            }
+        }
+
 
         public void Close()
         {
