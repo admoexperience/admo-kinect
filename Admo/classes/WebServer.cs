@@ -70,52 +70,116 @@ namespace Admo.classes
 
         private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
         {
-/* respond to the request.
+            /* respond to the request.
                      * in this case it'll show "Server appears to be working".
                      * regardless of what file/path was requested.
                      */
+
             var myRequest = request.Url.AbsolutePath;
-            if (request.RawUrl.EndsWith("/"))
-            {
-                myRequest += "index.html";
-            }
+
             if (myRequest.StartsWith("/"))
             {
                 myRequest = myRequest.Remove(0, 1);
             }
 
+            if (myRequest.Contains("favicon.ico"))
+            {
+                return;
+            }
             //First try find it in the overide folder
             var myPath = Path.Combine(_overridePath, myRequest);
 
+
             //If the file was not overriden
+
+
             if (!File.Exists(myPath))
             {
                 myPath = Path.Combine(_currentPath, myRequest);
             }
 
+            if (request.RawUrl.EndsWith("/") || Directory.Exists(myPath))
+            {
+                myPath += "/index.html";
+            }
+
             var mimeExtension = GetMimeType(myPath);
             //TODO: handle files not found, 404
+            var response = context.Response;
+
+            //try again
+            if (!File.Exists(myPath))
+            {
+
+                Logger.Debug("unable to load file file does not exist " + myPath + " ");
+                return;
+            }
+
+
             try
             {
-                using (var response = context.Response)
+              
+
+                //  var  fs = File.Open(myPath, FileMode.Open, FileAccess.Read);
+
+                var file2Serve = File.ReadAllBytes(myPath);
+                response.ContentType = mimeExtension;
+
+                //Section required for streaming content
+                var range = context.Request.Headers["Range"];
+                var rangeBegin = 0;
+                var rangeEnd = file2Serve.Length;
+                if (range != null)
                 {
-                    var file2Serve = File.ReadAllBytes(myPath);
-                    response.ContentType = mimeExtension;
-                    response.ContentLength64 = file2Serve.Length;
-                    using (var output = response.OutputStream)
+                    string[] byteRange = range.Replace("bytes=", "").Split('-');
+                    Int32.TryParse(byteRange[0], out rangeBegin);
+                    //byte range can contain an empty which means to the end
+                    if (byteRange.Length > 1 && !string.IsNullOrEmpty(byteRange[1]))
                     {
-                        output.Write(file2Serve, 0, file2Serve.Length);
-                        output.Close();
-                      //  output.
+                        Int32.TryParse(byteRange[1], out rangeEnd);
                     }
-          
+                    context.Response.AddHeader("Connection", "keep-alive");
+                    context.Response.AddHeader("Content-Range",
+                        "bytes " + rangeBegin + "-" + (rangeEnd - 1) + "/" + file2Serve.Length);
+                    context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
+                    context.Response.AddHeader("Accept-Ranges", "bytes");
+
+                }
+                context.Response.ContentLength64 = rangeEnd - rangeBegin;
+
+                using (Stream s = context.Response.OutputStream)
+                {
+                    try
+                    {
+                        s.Write(file2Serve, rangeBegin, rangeEnd - rangeBegin);
+
+                    }
+                    catch (HttpListenerException hlistenEx)
+                    {
+
+                        Logger.Debug("HttpListener Error" + myPath + hlistenEx);
+                    }
+
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logger.Debug("unable to process" + myPath);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                Logger.Debug("Unable to server file" + myPath + e);
             }
+           
+
+                //      output.Write(file2Serve, 0, file2Serve.Length);
+
+                //  output.
+
+
+
+
+            
         }
+
+   
 
         public void Close()
         {
