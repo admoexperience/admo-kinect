@@ -50,7 +50,7 @@ namespace Admo.forms
         private void BootstrapUnit_Closed(object sender, EventArgs e)
         {
            Application.Current.Shutdown();
-
+      
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -141,7 +141,7 @@ namespace Admo.forms
                 Process.Start(e.Uri.ToString());
         }
 
-        private void PasswordMaskBox_MouseDown(object sender, MouseButtonEventArgs e)
+        private void PasswordMaskBox_MouseDown(object sender, RoutedEventArgs routedEventArgs)
         {
             RemoveAllBorders();
             PasswordMaskBox.Visibility = Visibility.Hidden;
@@ -162,7 +162,7 @@ namespace Admo.forms
         }
 
 
-        private void DeviceNameField_Selected(object sender, MouseButtonEventArgs e)
+        private void DeviceNameField_Selected(object sender, RoutedEventArgs routedEventArgs)
         {
             RemoveAllBorders();
             DeviceNameField.Text = Environment.MachineName;
@@ -205,17 +205,22 @@ namespace Admo.forms
             txBox.BorderThickness = new Thickness(2);
         }
 
-        private void UserNameTextField_Selected(object sender, MouseButtonEventArgs e)
+        private void UserNameTextField_Selected(object sender, RoutedEventArgs routedEventArgs)
         {
             RemoveAllBorders();
             UserNameTextField.Text = "";
             setBorder(UserNameTextField);
         }
 
-        private void PasswordField_Selected(object sender, MouseButtonEventArgs e)
+        private void PasswordField_Selected(object sender, RoutedEventArgs routedEventArgs)
         {
             RemoveAllBorders();
-  
+
+            if (PasswordMaskBox.IsVisible)
+            {
+                PasswordMaskBox.Visibility = Visibility.Hidden;
+            }
+
             PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
             PasswordField.BorderThickness = new Thickness(2);
         }

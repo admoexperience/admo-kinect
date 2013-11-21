@@ -3,6 +3,9 @@ using Admo.classes;
 using Admo.Utilities;
 using Microsoft.Kinect;
 using NLog;
+using System.Collections;
+using System.Globalization;
+using System.Text;
 
 namespace Admo
 {
@@ -12,8 +15,207 @@ namespace Admo
 
         //variables for changing the fov when using a webcam instead of the kinect rgb camera
 
-        private const int KinectFovHeight = 480;
-        private const int KinectFovWidth = 640;
+        public const int KinectFovHeight = Constants.KinectHeight;
+        public const int KinectFovWidth = Constants.KinectWidth;
+
+
+        public string GetUserOutline(byte[] userData)
+        {
+
+            if (userData == null) throw new ArgumentNullException("userData");
+
+            StringBuilder builder = new StringBuilder();
+
+            int width = 640;
+            int height = 480;
+
+            int stringCount = 0;
+
+            int pixelCount = 2500;
+
+            var startPixel = GetStartPixel(userData);
+            int[] currentPixel = new int[2];
+            int[] previousPixel = new int[2];
+            int[,] outlinePixels = new int [pixelCount,2];
+            int[,] blob = new int[3, 3];
+
+            int boundaries = 15;
+
+            int countIter = 0;
+
+            var vectorArray = "";
+
+            //get start pixel above head
+            //GetStartPixel(userData, height, width, startPixel);
+
+            outlinePixels[0, 0] = currentPixel[0] = startPixel[0];
+            outlinePixels[0, 1] = currentPixel[1] = startPixel[1] + 1;
+
+            //the previous pixel would be that of y + 1 - due to vertical upwards search
+            previousPixel[0] = currentPixel[0];
+            previousPixel[1] = currentPixel[1] + 1;
+
+            //generating svg
+            //http://raphaeljs.com/reference.html#Paper.path
+
+
+            builder.Append("M").Append(startPixel[0]).Append(",").Append(500).Append(" R");
+
+
+            for (int count = 1; count < pixelCount; count++)
+            {
+                int index = (currentPixel[1] - 1) * width + (currentPixel[0] - 1);
+
+                if (((currentPixel[1] + 1) > (Constants.KinectWidth - boundaries)) || ((currentPixel[1] - 1) < boundaries) || ((currentPixel[0] + 1) > (Constants.KinectWidth - boundaries)) || ((currentPixel[0] - 1) < boundaries))
+                {
+                    break;
+                }
+
+                for (int blobX = 0; blobX < 3; blobX++)
+                {
+                    for (int blobY = 0; blobY < 3; blobY++)
+                    {
+                        int tempIndex = index + blobY * width + blobX;
+                        try
+                        {
+                            blob[blobX, blobY] = userData[tempIndex];
+
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                        
+                    }
+                }
+
+                int[] previousPixelRelative = new int[2];
+                previousPixelRelative[0] = previousPixel[0] - currentPixel[0];
+                previousPixelRelative[1] = previousPixel[1] - currentPixel[1];
+
+                int[] nextPixelRelative = GetNextPixel(blob, previousPixelRelative);
+
+                int[] nextPixel = new int[2];
+                nextPixel[0] = nextPixelRelative[0] + currentPixel[0];
+                nextPixel[1] = nextPixelRelative[1] + currentPixel[1];
+
+                previousPixel = currentPixel;
+                currentPixel = nextPixel;
+
+                countIter++;
+
+                outlinePixels[countIter, 0] = currentPixel[0];
+                outlinePixels[countIter, 1] = currentPixel[1];
+
+                int delta = 15;
+
+                if ((countIter % delta) == 0)
+                {
+                    int temX = 0;
+                    int temY = 0;
+                    int iter = (int)(countIter / delta);
+                    iter = iter * delta;
+                    //Console.WriteLine(iter);
+
+                    for (int i = -delta; i < 1; i++)
+                    {
+                        temX = temX + outlinePixels[(i + iter), 0];
+                        temY = temY + outlinePixels[(i + iter), 1];
+                    }
+
+                    temX = temX / delta;
+                    temY = temY / delta;
+
+                    builder.Append(temX).Append(",").Append(temY).Append(" ");
+                }
+
+                int diffX = Math.Abs(currentPixel[0] - startPixel[0]);
+                int diffY = Math.Abs(currentPixel[1] - startPixel[1]);
+
+                //check whether current coordinate set is close to the start coordinate set - if so, exit the loop and close the vector
+                if ((diffX < 5) && (diffY < 5) && (count > 250))
+                {
+                    builder.Append("z");
+                    break;
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        public static int[] GetStartPixel(byte[] userData)
+        {
+            //To do loop other way round for speed
+            for (var ycoord = (Constants.KinectHeight - 1); ycoord >= 0; ycoord--)
+            {
+                for (var xcoord = (Constants.KinectWidth - 1); xcoord >= 0; xcoord--)
+                {
+                    int player = userData[ycoord * Constants.KinectWidth + xcoord];
+
+                    if ((xcoord > (Constants.KinectWidth - 5)) || (xcoord < 5) ||
+                        (ycoord > (Constants.KinectHeight - 5)) || (ycoord < 5))
+                    {
+                        player = 0;
+                    }
+
+                    if (player > 0)
+                    {
+                        int[] startPixel = { xcoord, ycoord };
+                        return startPixel;
+                    }
+                }
+            }
+            return new int[2];
+        }
+
+        //analyze 3x3 blog to find the next pixel for the vector
+        public int[] GetNextPixel(int[,] rightBlob, int[] previousPixelRelative)
+        {
+            int[] nextPixel = {0, 0};
+            int[,] list = { { -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 } };
+            int count = 0;
+            int check = 1;
+
+            //identify which one of the 8 surrounding pixel was the origin for the previous blob
+            for (count = 0; count < 8; count++)
+            {
+                if ((previousPixelRelative[0] == list[count, 0]) && (previousPixelRelative[1] == list[count, 1]))
+                {
+                    break;
+                }
+            }
+
+            //check which one of the 8 surrounding pixels will be the new center pixel
+            for (check = 1; check < 10; check++)
+            {
+                //start looking at n+1, where n is where the previous pixel was located
+                int index = check + count;
+
+                int[] pixel = {list[index, 0], list[index, 1] };
+                
+
+                if(rightBlob[(pixel[0] + 1), (pixel[1] +1)] > 0)
+                {
+                    index--;
+                    nextPixel[0] = list[index, 0];
+                    nextPixel[1] = list[index, 1];
+
+                    break;
+                }
+                else if (check == 9)
+                {
+                    nextPixel[0] = list[index, 0];
+                    nextPixel[1] = list[index, 1];
+                }
+            }
+
+            return nextPixel;
+        }
+
+
+
+
+
 
 
         //Skeletal coordinates in meters

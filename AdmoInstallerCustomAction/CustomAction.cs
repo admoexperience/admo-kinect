@@ -4,15 +4,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using AdmoCertificateManager;
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Win32;
-
+using System.Windows;
 
 namespace AdmoInstallerCustomAction
 {
     public class CustomActions
     {
+        [STAThread]
         [CustomAction]
         public static ActionResult DownLoadRuntime(Session session)
         {
@@ -20,19 +22,54 @@ namespace AdmoInstallerCustomAction
             session.Log("Begin DownLoadRuntime");
             Debugger.Launch();
             if (CheckInstalled("Kinect")) return ActionResult.Success;
-
             session.Log("Begin Downloading");
-            var form = new DownloadRuntime();
-            form.StartDownload();
-            form.ShowDialog();
+            var t = new Thread(() =>
+            {
+                var app = new Application();
+
+                app.Run(new DownloadRuntimeWPF());
+            });
+            t.SetApartmentState(ApartmentState.STA);
+
+            t.Start();
+            t.Join();
+            t.Abort();
             session.Log("DownLoad Complete");
 
-           
-            form.Dispose();
+          
             session.Log("Install Complete");
             //    return p.StandardOutput.ReadToEnd();
 
             return ActionResult.Success;
+        }
+
+         [STAThread]
+         [CustomAction]
+        public static ActionResult GetPcSpecs(Session session)
+        {
+            //To do put form with progress bar
+            session.Log("Begin GetPcSpecs");
+            Debugger.Launch();
+            //  if (CheckInstalled("Kinect")) return ActionResult.Success;
+            session.Log("Begin Downloading");
+            var t = new Thread(() =>
+            {
+                var app = new Application();
+
+                app.Run(new CheckPCStats());
+            });
+            t.SetApartmentState(ApartmentState.STA);
+
+            t.Start();
+            t.Join();
+             t.Abort();
+            // app.Run(new DownloadRuntimeWPF());
+            // form.ShowDialog();
+            session.Log("PC Spec Check Complete");
+            session.Log("Install Complete");
+            //    return p.StandardOutput.ReadToEnd();
+
+           return ActionResult.Success;
         }
 
 
@@ -46,7 +83,7 @@ namespace AdmoInstallerCustomAction
                 installLoc = @"C:\Admo";
             }
 
-        session.Log("Begin LoadCertificates");
+            session.Log("Begin LoadCertificates");
             const string portNumber = CertificateHandler.DefaultPort;
 
             ////Usage is AdmoCertificateManger.exe $PORT_NUMBER

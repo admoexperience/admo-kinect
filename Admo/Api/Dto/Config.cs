@@ -36,6 +36,7 @@ namespace Admo.Api.Dto
         public int FovCropTop { get; set; }
         public int FovCropLeft { get; set; }
         public int FovCropWidth { get; set; }
+        public bool SilhouetteEnabled { get; set; }
 
 
         public Config()
@@ -58,6 +59,7 @@ namespace Admo.Api.Dto
             FovCropTop = 56;
             FovCropLeft = 52;
             FovCropWidth = 547;
+            SilhouetteEnabled = true;
         }
     }
 }

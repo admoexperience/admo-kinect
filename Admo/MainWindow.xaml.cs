@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
@@ -12,7 +10,8 @@ using Admo.classes.lib;
 using Admo.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
-using System.Windows.Forms;
+
+using Microsoft.Kinect.Toolkit.BackgroundRemoval;
 using NLog;
 
 namespace Admo
@@ -39,6 +38,8 @@ namespace Admo
         /// </summary>
         private WriteableBitmap _colorBitmap;
 
+        //background removal stream
+        private BackgroundRemovedColorStream backgroundRemovedColorStream;
         //face tracking variables
 
         /// <summary>
@@ -65,8 +66,9 @@ namespace Admo
         {
             InitializeComponent();
             Loaded += OnLoaded;
-            this.Closing += WindowClosing;
+            this.Closed += WindowClosing;
         }
+
 
         public void OnConfigChange()
         {
@@ -155,6 +157,14 @@ namespace Admo
                     Log.Warn("old sensor active");
                     args.OldSensor.DepthStream.Disable();
                     args.OldSensor.SkeletonStream.Disable();
+
+                    // Create the background removal stream to process the data and remove background, and initialize it.
+                    if (null != backgroundRemovedColorStream)
+                    {
+                        //backgroundRemovedColorStream.BackgroundRemovedFrameReady -= BackgroundRemovedFrameReadyHandler;
+                        backgroundRemovedColorStream.Dispose();
+                        backgroundRemovedColorStream = null;
+                    }
                 }
                 catch (InvalidOperationException)
                 {
@@ -167,20 +177,29 @@ namespace Admo
             {
                 try
                 {
+                    backgroundRemovedColorStream = new BackgroundRemovedColorStream(args.NewSensor);
+                    backgroundRemovedColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30, DepthImageFormat.Resolution640x480Fps30);
+                    
                     //set depthstream and skeletal tracking options
+                    args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+                    args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.DepthStream.Range = DepthRange.Default;
                     args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                     args.NewSensor.SkeletonStream.Enable(parameters);
 
+                    
+
+                    backgroundRemovedColorStream.BackgroundRemovedFrameReady += BackgroundRemovedFrameReadyHandler;
+                    
                     args.NewSensor.AllFramesReady += SensorAllFramesReady;
 
-                    args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+                    
 
 
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
-                        args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+                        //args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                         _colorImage = new byte[args.NewSensor.ColorStream.FramePixelDataLength];
                     }
 
@@ -190,7 +209,9 @@ namespace Admo
                     _colorBitmap = new WriteableBitmap(args.NewSensor.ColorStream.FrameWidth,
                                                        args.NewSensor.ColorStream.FrameHeight, 96.0, 96.0,
                                                        PixelFormats.Bgr32, null);
-
+                    
+                    
+                    
                     if (Config.IsDevMode())
                     {
                         // Set the image we display to point to the bitmap where we'll put the image data
@@ -235,6 +256,66 @@ namespace Admo
             }
         }
 
+        private void BackgroundRemovedFrameReadyHandler(object sender, BackgroundRemovedColorFrameReadyEventArgs e)
+        {
+
+            if (_closing) return;
+
+            using (var backgroundRemovedFrame = e.OpenBackgroundRemovedColorFrame())
+            {
+                if (backgroundRemovedFrame != null)
+                {                    
+
+                    byte[] backgroundImage = backgroundRemovedFrame.GetRawPixelData();
+                    int width = backgroundRemovedFrame.Width;
+                    int height = backgroundRemovedFrame.Height;
+
+                    byte [] userOutlineArray = new byte[width * height];                    
+
+                    int add = (width * 200 + width / 2) * 4;
+
+                    int boundaries = 20;
+
+                    for (int tel = 0; tel < (width * height * 4); tel = tel + 4)
+                    {
+                        int indexY = (int)((tel/4) / width);
+                        int indexX = (int)((tel/4) % width);
+                        /*
+                        int indexX = (tel / 4) % width; 
+                        int indexY = (tel / 4) / width;
+                        */
+
+                        if (backgroundImage[tel + 3] > 50)
+                        {
+                            //do not write user pixels if not in at the boundaries
+                            if ((indexX < boundaries) || (indexX > (width - boundaries)) || (indexY < boundaries) || (indexY > (height - boundaries)))
+                            {
+                                userOutlineArray[tel / 4] = 0;
+                            }
+                            else
+                            {
+                                userOutlineArray[tel / 4] = 1;
+                            }
+
+                        }
+                        else
+                        {
+                            //no user
+                            userOutlineArray[tel / 4] = 0;
+                        }
+
+                    }
+
+                    String userVector = _applicationHandler.GetUserOutline(userOutlineArray);
+                    
+                    SocketServer.SendImageFrame(userVector);
+                }
+
+                
+            }
+            
+        }
+
         private void SensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             if (_closing) return;
@@ -242,43 +323,42 @@ namespace Admo
 
             DepthImageFrame depthFrame = null;
             SkeletonFrame skeletonFrameData = null;
+            ColorImageFrame colorFrame = null;
 
             try
             {
                 depthFrame = e.OpenDepthImageFrame();
                 skeletonFrameData = e.OpenSkeletonFrame();
+                colorFrame = e.OpenColorImageFrame();
 
                 if (Config.IsDevMode())
                 {
-                    ColorImageFrame colorFrame = e.OpenColorImageFrame();
-
                     if (colorFrame == null)
                     {
                         return;
                     }
                     else
                     {
-                        DisplayVideo(colorFrame);
+                        //DisplayVideo(colorFrame);
                     }
                 }
 
-                if (depthFrame == null || skeletonFrameData == null)
+                if (depthFrame == null || skeletonFrameData == null || colorFrame == null)
                 {
                     return;
                 }
-
-                //Get a skeleton
 
                 //get closest skeleton
                 skeletonFrameData.CopySkeletonDataTo(allSkeletons);
                 var first = KinectLib.GetPrimarySkeleton(allSkeletons);
 
+                var rawDepthData = new short[depthFrame.PixelDataLength];
+                depthFrame.CopyPixelDataTo(rawDepthData);
+
                 //check whether there is a user/skeleton
                 if (first == null)
-                {
-                    var rawDepthData = new short[depthFrame.PixelDataLength];
+                {                   
 
-                    depthFrame.CopyPixelDataTo(rawDepthData);
                     //check whether there is a user in fov who's skeleton has not yet been registered
 
                     var kinectState = _applicationHandler.FindPlayer(rawDepthData, depthFrame.Height, depthFrame.Width);
@@ -289,10 +369,19 @@ namespace Admo
                 }
                 else
                 {
+                    //if silhouette is enable which means that the app is not using the webcam, then we need to use the backgroundremoval stream
+                    if (Config.SilhouetteEnabled())
+                    {
+                        backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
+                        backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
+                        backgroundRemovedColorStream.ProcessSkeleton(allSkeletons, skeletonFrameData.Timestamp);
+                        backgroundRemovedColorStream.SetTrackedPlayer(first.TrackingId);
+                    }
                     GetDataForSocketServer(first);
 
                     //Map the skeletal coordinates to the video map
                     MapSkeletonToVideo(first);
+
                 }
             }
             finally
@@ -305,6 +394,11 @@ namespace Admo
                 if (skeletonFrameData != null)
                 {
                     skeletonFrameData.Dispose();
+                }
+
+                if (colorFrame != null)
+                {
+                    colorFrame.Dispose();
                 }
             }
         }
@@ -424,23 +518,31 @@ namespace Admo
             Canvas.SetTop(element, point.Y - element.Height / 2);
         }
 
-        private void WindowClosing(object sender, CancelEventArgs e)
+        private void WindowClosing(object sender, EventArgs e)
         {
             Log.Info("Shutting down server");
             if (_sensorChooser!= null &&_sensorChooser.Kinect != null)
             {
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
-
+            }
+            KinectLib.StopKinectSensor(_sensorChooser.Kinect);
+            //need to stop backgroundremovedcolour stream - it not working...
+            if (null != this.backgroundRemovedColorStream)
+            {
+                this.backgroundRemovedColorStream.Dispose();
+                this.backgroundRemovedColorStream = null;
             }
            
             SocketServer.Stop();
            
             _closing = true;
+
             if (_webServer != null)
             {
                 _webServer.Close();
             }
             System.Windows.Application.Current.Shutdown();
+
         }
 
         public long LastHitTime { get; set; }

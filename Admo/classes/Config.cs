@@ -379,5 +379,10 @@ namespace Admo.classes
         {
             return _config.FovCropWidth;
         }
+
+        public static bool SilhouetteEnabled()
+        {
+            return _config.SilhouetteEnabled;
+        }
     }
 }
