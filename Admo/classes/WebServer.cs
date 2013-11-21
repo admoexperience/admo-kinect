@@ -34,14 +34,12 @@ namespace Admo.classes
         public void Start()
         {
             _listener.Start();
-
-            //Run();
             _listenThread.Start();
         }
            public void Run()
         {
-        
-               // Console.WriteLine("Webserver running...");
+            Logger.Info("Starting webserver");
+           
            // http://www.codehosting.net/blog/BlogEngine/post/Simple-C-Web-Server.aspx
                while (_listener.IsListening)
                {
@@ -54,26 +52,17 @@ namespace Admo.classes
                    {
                      Logger.Error("Unable to process request");
                    }
-                       
-                
-
-               
-        
-                 //  context.Result.Response.OutputStream.Close();
-              
-
+                      
                }
-               
-                
-        
+              
         }
 
         private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
         {
             /* respond to the request.
-                     * in this case it'll show "Server appears to be working".
-                     * regardless of what file/path was requested.
-                     */
+            * in this case it'll show "Server appears to be working".
+            * regardless of what file/path was requested.
+            */
 
             var myRequest = request.Url.AbsolutePath;
 
@@ -131,7 +120,7 @@ namespace Admo.classes
                 var rangeEnd = file2Serve.Length;
                 if (range != null)
                 {
-                    string[] byteRange = range.Replace("bytes=", "").Split('-');
+                   var byteRange = range.Replace("bytes=", "").Split('-');
                     Int32.TryParse(byteRange[0], out rangeBegin);
                     //byte range can contain an empty which means to the end
                     if (byteRange.Length > 1 && !string.IsNullOrEmpty(byteRange[1]))
@@ -167,15 +156,6 @@ namespace Admo.classes
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 Logger.Debug("Unable to server file" + myPath + e);
             }
-           
-
-                //      output.Write(file2Serve, 0, file2Serve.Length);
-
-                //  output.
-
-
-
-
             
         }
 
@@ -188,9 +168,7 @@ namespace Admo.classes
             _listener.Stop();
 
             _listener.Abort();
-                  _listener.Close();
-
-
+            _listener.Close();
         }
 
         private static string GetMimeType(string fileName)
