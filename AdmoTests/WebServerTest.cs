@@ -47,6 +47,19 @@ namespace AdmoTests
             Assert.AreEqual(@"<b>TestFile</b>", GetStringFromStream(response));
         }
 
+        [TestMethod]
+        public void TestStageredRequest()
+        {
+            //  string sURL;
+            var url = "https://localhost:5001/testFile.html";
+            //WbRequest wrGETURL;
+            var webrequest = (HttpWebRequest)WebRequest.Create(url);
+            webrequest.AddRange(8,20);
+            var response = (HttpWebResponse)webrequest.GetResponse();
+
+            Assert.AreEqual(12, response.ContentLength);
+        }
+
 
         [TestMethod]
         public void TestFileNotFound()
