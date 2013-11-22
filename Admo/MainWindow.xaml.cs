@@ -57,7 +57,7 @@ namespace Admo
         private readonly GestureDetection _gestureDetectionLeft = new GestureDetection();
 
         private ApplicationHandler _applicationHandler;
-        private double _angleChangeTime = Utils.GetCurrentTimeInSeconds();
+        private double _angleChangeTime = 0;
         private WebServer _webServer;
 
         private ShortCutHandler keyHandler;
