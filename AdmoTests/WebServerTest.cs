@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Admo.classes;
 namespace AdmoTests
@@ -21,14 +23,56 @@ namespace AdmoTests
         }
 
         [TestMethod]
-        public void TestHttpRequest()
+        public void TestHttpRequestPlain()
         {
             //  string sURL;
             var url = "https://localhost:5001";
             //WbRequest wrGETURL;
             var webrequest = (HttpWebRequest)WebRequest.Create(url);
-            string target = string.Empty;
+  
             var response = (HttpWebResponse)webrequest.GetResponse();
+           
+            Assert.AreEqual(@"<b>Simple IndexFile</b>",GetStringFromStream(response));
+        }
+        [TestMethod]
+        public void TestHttpRequest()
+        {
+            //  string sURL;
+            var url = "https://localhost:5001/testFile.html";
+            //WbRequest wrGETURL;
+            var webrequest = (HttpWebRequest)WebRequest.Create(url);
+
+            var response = (HttpWebResponse)webrequest.GetResponse();
+
+            Assert.AreEqual(@"<b>TestFile</b>", GetStringFromStream(response));
+        }
+
+
+        [TestMethod]
+        public void TestFileNotFound()
+        {
+            //  string sURL;
+            var url = "https://localhost:5001/amissingfile.html";
+            //WbRequest wrGETURL;
+            var webrequest = (HttpWebRequest)WebRequest.Create(url);
+            try
+            {
+                var response = (HttpWebResponse)webrequest.GetResponse();
+            }
+            catch (WebException e )
+            {
+                var str = e.Message;
+
+                Assert.AreEqual("The remote server returned an error: (404) Not Found.", e.Message);
+            }
+        
+
+        }
+
+
+        public static string GetStringFromStream(HttpWebResponse response)
+    {
+             var target = string.Empty;
 
             try
             {
@@ -47,8 +91,8 @@ namespace AdmoTests
                 response.Close();
             }
 
-            Assert.AreEqual(@"<b>Simple IndexFile</b>",target);
-        }
+            return target;
+    }
 
         [ClassCleanup]
         public static void CloseWebserver()
