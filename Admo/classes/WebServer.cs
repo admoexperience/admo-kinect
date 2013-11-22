@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using NLog;
 
@@ -34,14 +35,12 @@ namespace Admo.classes
         public void Start()
         {
             _listener.Start();
-
-            //Run();
             _listenThread.Start();
         }
            public void Run()
         {
-        
-               // Console.WriteLine("Webserver running...");
+            Logger.Info("Starting webserver");
+           
            // http://www.codehosting.net/blog/BlogEngine/post/Simple-C-Web-Server.aspx
                while (_listener.IsListening)
                {
@@ -54,68 +53,189 @@ namespace Admo.classes
                    {
                      Logger.Error("Unable to process request");
                    }
-                       
-                
-
-               
-        
-                 //  context.Result.Response.OutputStream.Close();
-              
-
+                      
                }
-               
-                
-        
+              
         }
 
-        private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
+        private async void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
         {
-/* respond to the request.
-                     * in this case it'll show "Server appears to be working".
-                     * regardless of what file/path was requested.
-                     */
+            /* respond to the request.
+            * in this case it'll show "Server appears to be working".
+            * regardless of what file/path was requested.
+            */
+
             var myRequest = request.Url.AbsolutePath;
-            if (request.RawUrl.EndsWith("/"))
-            {
-                myRequest += "index.html";
-            }
+
             if (myRequest.StartsWith("/"))
             {
                 myRequest = myRequest.Remove(0, 1);
             }
 
+            if (myRequest.Contains("favicon.ico"))
+            {
+              FileNotFound(context);
+               
+                return; 
+            }
             //First try find it in the overide folder
             var myPath = Path.Combine(_overridePath, myRequest);
 
+
             //If the file was not overriden
+
+
             if (!File.Exists(myPath))
             {
                 myPath = Path.Combine(_currentPath, myRequest);
             }
 
+            if (request.RawUrl.EndsWith("/") || Directory.Exists(myPath))
+            {
+                myPath += "/index.html";
+            }
+
             var mimeExtension = GetMimeType(myPath);
-            //TODO: handle files not found, 404
+            var response = context.Response;
+
+            //try again
+            if (!File.Exists(myPath))
+            {
+                FileNotFound(context);
+
+                Logger.Debug("unable to load file file does not exist " + myPath + " ");
+                return;
+            }
+
+
             try
             {
-                using (var response = context.Response)
+
+
+                //  var  fs = File.Open(myPath, FileMode.Open, FileAccess.Read);
+                var fi = new FileInfo(myPath);
+
+                var size = (int)fi.Length;
+                //fi.Delete();
+
+                using (var fs = File.OpenRead(myPath))
                 {
-                    var file2Serve = File.ReadAllBytes(myPath);
+                    
+           
+              
+                    //var file2Serve = File.ReadAllBytes(myPath);
                     response.ContentType = mimeExtension;
-                    response.ContentLength64 = file2Serve.Length;
-                    using (var output = response.OutputStream)
+
+                    //Section required for streaming content
+                    var range = context.Request.Headers["Range"];
+                    var rangeBegin = 0;
+                    var rangeEnd = size;
+                    if (range != null)
                     {
-                        output.Write(file2Serve, 0, file2Serve.Length);
-                        output.Close();
-                      //  output.
+                        var byteRange = range.Replace("bytes=", "").Split('-');
+                        Int32.TryParse(byteRange[0], out rangeBegin);
+                        //byte range can contain an empty which means to the end
+                        if (byteRange.Length > 1 && !string.IsNullOrEmpty(byteRange[1]))
+                        {
+                            Int32.TryParse(byteRange[1], out rangeEnd);
+                        }
+                        context.Response.AddHeader("Connection", "keep-alive");
+                 //       context.Response.AddHeader("Content-Range",
+                        //     "bytes " + rangeBegin + "-" + (rangeEnd - 1) + "/" + size);
+                        context.Response.StatusCode = (int) HttpStatusCode.PartialContent;
+                        context.Response.AddHeader("Accept-Ranges", "bytes");
+
                     }
-          
+
+                    // context.Response.ContentLength64 = rangeEnd - rangeBegin;
+
+
+                  //  byte[] buffer = new byte[64*1024];
+                    int read;
+                    int totalRead = 0;
+                //    int readOffset = rangeBegin;
+                    int lenghtToRead = 64 * 1024;
+                    response.ContentLength64 = rangeEnd - rangeBegin;
+                    if ((totalRead + 64 * 1024) > rangeEnd - rangeBegin)
+                    {
+                        lenghtToRead = rangeEnd - rangeBegin - totalRead;
+                    }
+                    byte[] buffer = new byte[lenghtToRead];
+                    while ( ( read = fs.Read(buffer, 0, lenghtToRead)) > 0)
+                    {
+                      //  readOffset = 0;
+                   
+                       response.AddHeader("Content-Range",
+                            "bytes " + (rangeBegin + totalRead) + "-" + (rangeBegin + totalRead+ read - 1) + "/" + size);
+                       totalRead += read;
+
+                        if ((totalRead + buffer.Length) > rangeEnd - rangeBegin)
+                        {
+                            lenghtToRead = rangeEnd - rangeBegin - totalRead;
+                        }
+
+                        try
+                        {
+
+
+                            response.OutputStream.Write(buffer, 0, read);
+                            response.OutputStream.Flush(); //seems to have no effect
+
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+
+                    }
+                fs.Close();
                 }
+                
+
+                //      output.Write(file2Serve, 0, file2Serve.Length);
+
+                //  output.
+        
+
+                //using (Stream s = context.Response.OutputStream)
+                //{
+                //    try
+                //    {
+                //        s.Write(file2Serve, rangeBegin, rangeEnd - rangeBegin);
+
+                //    }
+                //    catch (HttpListenerException hlistenEx)
+                //    {
+
+                //     //   Logger.Debug("HttpListener Error" + myPath + hlistenEx);
+                //    }
+
+                //}
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logger.Debug("unable to process" + myPath);
+                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                Logger.Debug("Unable to server file" + myPath + e);
+            }
+
+            
+        }
+
+        private void FileNotFound( HttpListenerContext context)
+        {
+            context.Response.StatusCode = 404;
+            string html = "<b>File not found Error 404!</b>";
+            byte[] data = Encoding.UTF8.GetBytes(html);
+
+            context.Response.ContentType = "text/html";
+            context.Response.ContentLength64 = data.Length;
+
+            using (Stream output = context.Response.OutputStream)
+            {
+                output.Write(data, 0, data.Length);
             }
         }
+
 
         public void Close()
         {
@@ -124,9 +244,7 @@ namespace Admo.classes
             _listener.Stop();
 
             _listener.Abort();
-                  _listener.Close();
-
-
+            _listener.Close();
         }
 
         private static string GetMimeType(string fileName)
