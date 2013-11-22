@@ -58,7 +58,7 @@ namespace Admo.classes
               
         }
 
-        private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
+        private async void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
         {
             /* respond to the request.
             * in this case it'll show "Server appears to be working".
@@ -74,7 +74,7 @@ namespace Admo.classes
 
             if (myRequest.Contains("favicon.ico"))
             {
-              //  FileNotFound(context);
+              FileNotFound(context);
                
                 return; 
             }
@@ -110,55 +110,114 @@ namespace Admo.classes
 
             try
             {
-              
+
 
                 //  var  fs = File.Open(myPath, FileMode.Open, FileAccess.Read);
+                var fi = new FileInfo(myPath);
 
-                var file2Serve = File.ReadAllBytes(myPath);
-                response.ContentType = mimeExtension;
+                var size = (int)fi.Length;
+                //fi.Delete();
 
-                //Section required for streaming content
-                var range = context.Request.Headers["Range"];
-                var rangeBegin = 0;
-                var rangeEnd = file2Serve.Length;
-                if (range != null)
+                using (var fs = File.OpenRead(myPath))
                 {
-                   var byteRange = range.Replace("bytes=", "").Split('-');
-                    Int32.TryParse(byteRange[0], out rangeBegin);
-                    //byte range can contain an empty which means to the end
-                    if (byteRange.Length > 1 && !string.IsNullOrEmpty(byteRange[1]))
-                    {
-                        Int32.TryParse(byteRange[1], out rangeEnd);
-                    }
-                    context.Response.AddHeader("Connection", "keep-alive");
-                    context.Response.AddHeader("Content-Range",
-                        "bytes " + rangeBegin + "-" + (rangeEnd - 1) + "/" + file2Serve.Length);
-                    context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
-                    context.Response.AddHeader("Accept-Ranges", "bytes");
+                    
+           
+              
+                    //var file2Serve = File.ReadAllBytes(myPath);
+                    response.ContentType = mimeExtension;
 
+                    //Section required for streaming content
+                    var range = context.Request.Headers["Range"];
+                    var rangeBegin = 0;
+                    var rangeEnd = size;
+                    if (range != null)
+                    {
+                        var byteRange = range.Replace("bytes=", "").Split('-');
+                        Int32.TryParse(byteRange[0], out rangeBegin);
+                        //byte range can contain an empty which means to the end
+                        if (byteRange.Length > 1 && !string.IsNullOrEmpty(byteRange[1]))
+                        {
+                            Int32.TryParse(byteRange[1], out rangeEnd);
+                        }
+                        context.Response.AddHeader("Connection", "keep-alive");
+                 //       context.Response.AddHeader("Content-Range",
+                        //     "bytes " + rangeBegin + "-" + (rangeEnd - 1) + "/" + size);
+                        context.Response.StatusCode = (int) HttpStatusCode.PartialContent;
+                        context.Response.AddHeader("Accept-Ranges", "bytes");
+
+                    }
+
+                    // context.Response.ContentLength64 = rangeEnd - rangeBegin;
+
+
+                  //  byte[] buffer = new byte[64*1024];
+                    int read;
+                    int totalRead = 0;
+                //    int readOffset = rangeBegin;
+                    int lenghtToRead = 64 * 1024;
+                    response.ContentLength64 = rangeEnd - rangeBegin;
+                    if ((totalRead + 64 * 1024) > rangeEnd - rangeBegin)
+                    {
+                        lenghtToRead = rangeEnd - rangeBegin - totalRead;
+                    }
+                    byte[] buffer = new byte[lenghtToRead];
+                    while ( ( read = fs.Read(buffer, 0, lenghtToRead)) > 0)
+                    {
+                      //  readOffset = 0;
+                   
+                       response.AddHeader("Content-Range",
+                            "bytes " + (rangeBegin + totalRead) + "-" + (rangeBegin + totalRead+ read - 1) + "/" + size);
+                       totalRead += read;
+
+                        if ((totalRead + buffer.Length) > rangeEnd - rangeBegin)
+                        {
+                            lenghtToRead = rangeEnd - rangeBegin - totalRead;
+                        }
+
+                        try
+                        {
+
+
+                            response.OutputStream.Write(buffer, 0, read);
+                            response.OutputStream.Flush(); //seems to have no effect
+
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+
+                    }
+                fs.Close();
                 }
-                context.Response.ContentLength64 = rangeEnd - rangeBegin;
+                
 
-                using (Stream s = context.Response.OutputStream)
-                {
-                    try
-                    {
-                        s.Write(file2Serve, rangeBegin, rangeEnd - rangeBegin);
+                //      output.Write(file2Serve, 0, file2Serve.Length);
 
-                    }
-                    catch (HttpListenerException hlistenEx)
-                    {
+                //  output.
+        
 
-                        Logger.Debug("HttpListener Error" + myPath + hlistenEx);
-                    }
+                //using (Stream s = context.Response.OutputStream)
+                //{
+                //    try
+                //    {
+                //        s.Write(file2Serve, rangeBegin, rangeEnd - rangeBegin);
 
-                }
+                //    }
+                //    catch (HttpListenerException hlistenEx)
+                //    {
+
+                //     //   Logger.Debug("HttpListener Error" + myPath + hlistenEx);
+                //    }
+
+                //}
             }
             catch (Exception e)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 Logger.Debug("Unable to server file" + myPath + e);
             }
+
             
         }
 
