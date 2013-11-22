@@ -45,6 +45,9 @@ namespace AdmoTests
             var response = (HttpWebResponse)webrequest.GetResponse();
 
             Assert.AreEqual(@"<b>TestFile</b>", GetStringFromStream(response));
+
+            Assert.AreEqual(response.Headers["Content-Range"], "bytes 0-14/15");
+            Assert.AreEqual(response.Headers["Content-Type"], "text/html");
         }
 
         [TestMethod]
@@ -58,8 +61,11 @@ namespace AdmoTests
             var response = (HttpWebResponse)webrequest.GetResponse();
 
             Assert.AreEqual(12, response.ContentLength);
-        }
 
+            Assert.AreEqual(response.Headers["Content-Range"],"bytes 8-19/15");
+            Assert.AreEqual(response.Headers["Content-Type"], "text/html");
+
+        }
 
         [TestMethod]
         public void TestFileNotFound()
