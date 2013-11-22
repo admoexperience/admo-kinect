@@ -60,5 +60,10 @@ namespace Admo.Utilities
             var num = Math.Round(bytes / Math.Pow(1024, place), 1);
             return (Math.Sign(byteCount) * num) + suf[place];
         }
+
+        public static bool CheckifAngleCanChange(double angleChangeTime, double getCurrentTimeInSeconds)
+        {
+            return ((getCurrentTimeInSeconds - angleChangeTime) > 1);
+        }
     }
 }

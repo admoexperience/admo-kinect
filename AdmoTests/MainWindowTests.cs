@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows;
 using Admo;
+using Admo.Utilities;
 using AdmoInstallerCustomAction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -32,11 +33,8 @@ namespace AdmoTests
         public void KinectAngleChange()
         {
 
-            var window = new MainWindow();
-            var canChange=window.CheckifAngleCanChange(5, 10);
-
-            Assert.AreEqual(canChange,false);
-
+            Assert.AreEqual(false, Utils.CheckifAngleCanChange(1, 1.1));
+            Assert.AreEqual(true, Utils.CheckifAngleCanChange(2, 4));
             
 
         }

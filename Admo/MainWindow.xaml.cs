@@ -68,6 +68,7 @@ namespace Admo
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
         }
+        
 
         public bool CheckifAngleCanChange(int kinectElevationAngle,double currentTime)
         {
@@ -81,7 +82,9 @@ namespace Admo
         {
             KinectElevationAngle = Config.GetElevationAngle();
 
-            if (CheckifAngleCanChange(KinectElevationAngle, Utils.GetCurrentTimeInSeconds()))
+            if (_currentKinectSensor != null &&  //Only changed if exists //Only changed if running
+                 _currentKinectSensor.IsRunning && _currentKinectSensor.ElevationAngle != KinectElevationAngle &&   
+                 Utils.CheckifAngleCanChange(_angleChangeTime, Utils.GetCurrentTimeInSeconds()))
             {
                 _angleChangeTime = Utils.GetCurrentTimeInSeconds();
                 _currentKinectSensor.ElevationAngle = KinectElevationAngle;
