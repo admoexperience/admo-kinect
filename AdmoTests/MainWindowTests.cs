@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AdmoTests
 {
     [TestClass]
-    public class CloseWindowTest
+    public class MainWindowTests
     {
         [TestMethod]
         public void OpenAndAbortMainWindow()
@@ -25,6 +25,19 @@ namespace AdmoTests
             //     t.Join();
             
             t.Abort();
+
+        }
+        [STAThread]
+        [TestMethod]
+        public void KinectAngleChange()
+        {
+
+            var window = new MainWindow();
+            var canChange=window.CheckifAngleCanChange(5, 10);
+
+            Assert.AreEqual(canChange,false);
+
+            
 
         }
     }
