@@ -58,7 +58,7 @@ namespace Admo.classes
               
         }
 
-        private async void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
+        private void ProcessRequest(HttpListenerRequest request, HttpListenerContext context)
         {
             /* respond to the request.
             * in this case it'll show "Server appears to be working".
@@ -81,9 +81,7 @@ namespace Admo.classes
             //First try find it in the overide folder
             var myPath = Path.Combine(_overridePath, myRequest);
 
-
             //If the file was not overriden
-
 
             if (!File.Exists(myPath))
             {
@@ -107,12 +105,9 @@ namespace Admo.classes
                 return;
             }
 
-
             try
             {
 
-
-                //  var  fs = File.Open(myPath, FileMode.Open, FileAccess.Read);
                 var fi = new FileInfo(myPath);
 
                 var size = (int)fi.Length;
@@ -120,10 +115,6 @@ namespace Admo.classes
 
                 using (var fs = File.OpenRead(myPath))
                 {
-                    
-           
-              
-                    //var file2Serve = File.ReadAllBytes(myPath);
                     response.ContentType = mimeExtension;
 
                     //Section required for streaming content
@@ -140,31 +131,24 @@ namespace Admo.classes
                             Int32.TryParse(byteRange[1], out rangeEnd);
                         }
                         context.Response.AddHeader("Connection", "keep-alive");
-                 //       context.Response.AddHeader("Content-Range",
-                        //     "bytes " + rangeBegin + "-" + (rangeEnd - 1) + "/" + size);
                         context.Response.StatusCode = (int) HttpStatusCode.PartialContent;
                         context.Response.AddHeader("Accept-Ranges", "bytes");
-
                     }
 
-                    // context.Response.ContentLength64 = rangeEnd - rangeBegin;
 
-
-                  //  byte[] buffer = new byte[64*1024];
                     int read;
-                    int totalRead = 0;
-                //    int readOffset = rangeBegin;
-                    int lenghtToRead = 64 * 1024;
+                    var totalRead = 0;
+
+                    var lenghtToRead = 64 * 1024;
                     response.ContentLength64 = rangeEnd - rangeBegin;
                     if ((totalRead + 64 * 1024) > rangeEnd - rangeBegin)
                     {
                         lenghtToRead = rangeEnd - rangeBegin - totalRead;
                     }
-                    byte[] buffer = new byte[lenghtToRead];
+                    var buffer = new byte[lenghtToRead];
                     while ( ( read = fs.Read(buffer, 0, lenghtToRead)) > 0)
                     {
-                      //  readOffset = 0;
-                   
+                
                        response.AddHeader("Content-Range",
                             "bytes " + (rangeBegin + totalRead) + "-" + (rangeBegin + totalRead+ read - 1) + "/" + size);
                        totalRead += read;
@@ -176,11 +160,8 @@ namespace Admo.classes
 
                         try
                         {
-
-
                             response.OutputStream.Write(buffer, 0, read);
-                            response.OutputStream.Flush(); //seems to have no effect
-
+                            response.OutputStream.Flush(); 
                         }
                         catch (Exception e)
                         {
@@ -191,26 +172,6 @@ namespace Admo.classes
                 fs.Close();
                 }
                 
-
-                //      output.Write(file2Serve, 0, file2Serve.Length);
-
-                //  output.
-        
-
-                //using (Stream s = context.Response.OutputStream)
-                //{
-                //    try
-                //    {
-                //        s.Write(file2Serve, rangeBegin, rangeEnd - rangeBegin);
-
-                //    }
-                //    catch (HttpListenerException hlistenEx)
-                //    {
-
-                //     //   Logger.Debug("HttpListener Error" + myPath + hlistenEx);
-                //    }
-
-                //}
             }
             catch (Exception e)
             {
@@ -239,8 +200,7 @@ namespace Admo.classes
 
         public void Close()
         {
-        
-           // _listener.Abort();
+       
             _listener.Stop();
 
             _listener.Abort();
