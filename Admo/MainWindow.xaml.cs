@@ -80,7 +80,7 @@ namespace Admo
                 //Ignore resharper
 
                 if (_currentKinectSensor.ElevationAngle != KinectElevationAngle &&
-                    (_angleChangeTime - Utils.GetCurrentTimeInSeconds()) > 1)
+                    (Utils.GetCurrentTimeInSeconds()-_angleChangeTime) > 1)
                 {
                     _angleChangeTime = Utils.GetCurrentTimeInSeconds();
                     _currentKinectSensor.ElevationAngle = KinectElevationAngle;
