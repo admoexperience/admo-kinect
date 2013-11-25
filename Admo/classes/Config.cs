@@ -85,7 +85,7 @@ namespace Admo.classes
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
 
-            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken());
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
@@ -365,6 +365,11 @@ namespace Admo.classes
         public static Boolean IsCalibrationActive()
         {
             return _config.CalibrationActive;
+        }
+
+        public static string GetUnitName()
+        {
+            return _config.Name;
         }
 
         public static int GetFovCropTop()
