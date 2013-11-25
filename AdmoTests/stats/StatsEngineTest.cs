@@ -16,7 +16,7 @@ namespace AdmoTests.stats
         {
             Config.IsOnline = false;
             var datacache = CreateDb();
-            var statsEngine = new StatsEngine(datacache, new Mixpanel("na","na"));
+            var statsEngine = new StatsEngine(datacache, new Mixpanel("na","na","na"));
             var s = new StatRequest
             {
                 Event = "test",

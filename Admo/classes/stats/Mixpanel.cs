@@ -9,23 +9,27 @@ namespace Admo.classes.stats
 {
     public class Mixpanel
     {
-        public readonly String Token;
-        public readonly String ApiKey;
-        public const String BaseUrl = "https://api.mixpanel.com";
-        public const String ImportUri = "/import/";
-        public const String TrackUri = "/track/";
+        public readonly string Token;
+        public readonly string ApiKey;
+        public readonly string UnitName;
+        public const string BaseUrl = "https://api.mixpanel.com";
+        public const string ImportUri = "/import/";
+        public const string TrackUri = "/track/";
         public Boolean Debug = false;
 
-        public Mixpanel(String apiKey, String token)
+        public Mixpanel(string apiKey, string token, string unitName)
         {
             ApiKey = apiKey;
             Token = token;
+            UnitName = unitName;
         }
 
         public String FormatRequestForTrack(StatRequest request)
         {
             //Embed the trackingtoken
             request.Properties.Add("token",Token);
+            //Reference the unit which it was tracked on
+            request.Properties.Add("unitName", UnitName);
             var url = BaseUrl + TrackUri + "?"+
                 "data=" + request.AsBase64();
             if (Debug)
