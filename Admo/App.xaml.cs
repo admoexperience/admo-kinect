@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,8 @@ namespace Admo
     /// </summary>
     public partial class App : Application
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public App()
         {
             Dispatcher.UnhandledException += OnDispatcherUnhandledException;
@@ -39,11 +42,14 @@ namespace Admo
         }
 
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+       
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
             var systeminfo = HardwareUtils.GetSystemInfo();
             Logger.Debug("====HARDWAREINFO===");
+            Version version = Assembly.GetEntryAssembly().GetName().Version;
+             Logger.Debug("Version: "+version);
+
             Logger.Debug(String.Format("Manufacturer: {0}, Model: {1}, CPU: {2}",systeminfo.Manufacturer,systeminfo.Model,systeminfo.ProcessorType));
             Logger.Debug(String.Format("OSVersion: {0}, Raw: {1}, Is64Bit: {2}",systeminfo.OsVersion,systeminfo.OsVersionRaw, systeminfo.Is64BitOperatingSystem));
             Logger.Debug(String.Format("TotalMemory: {0}",Utils.BytesToHuman(systeminfo.TotalMemory)));

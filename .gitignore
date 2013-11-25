@@ -35,3 +35,5 @@ StyleCopViolations.xml
 *.trx
 *.vsp
 *.psess
+#Stores the version info that is generated at build time
+Admo/Properties/VersionInfo.cs
