@@ -71,7 +71,7 @@
     <Compile Include="CommandFactoryTest.cs" />
     <Compile Include="CustomActionTests\CustomActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CloseWindowTest.cs" />
+    <Compile Include="MainWindowTests.cs" />
     <Compile Include="Utilities\JsonHelperTest.cs" />
     <Compile Include="Utilities\HardwareUtilsTest.cs" />
     <Compile Include="Utilities\SoftwareUntilsTest.cs" />

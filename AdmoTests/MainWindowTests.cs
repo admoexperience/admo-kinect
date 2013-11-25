@@ -2,13 +2,14 @@
 using System.Threading;
 using System.Windows;
 using Admo;
+using Admo.Utilities;
 using AdmoInstallerCustomAction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AdmoTests
 {
     [TestClass]
-    public class CloseWindowTest
+    public class MainWindowTests
     {
         [TestMethod]
         public void OpenAndAbortMainWindow()
@@ -27,5 +28,6 @@ namespace AdmoTests
             t.Abort();
 
         }
+      
     }
 }

@@ -57,7 +57,7 @@ namespace Admo
         private readonly GestureDetection _gestureDetectionLeft = new GestureDetection();
 
         private ApplicationHandler _applicationHandler;
-        private double _angleChangeTime = Utils.GetCurrentTimeInSeconds();
+        private double _angleChangeTime = 0;
         private WebServer _webServer;
 
         private ShortCutHandler keyHandler;
@@ -68,24 +68,19 @@ namespace Admo
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
         }
-
-
+        
         public void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();
 
-            if (_currentKinectSensor != null && _currentKinectSensor.IsRunning)
+            if (_currentKinectSensor != null &&  //Only changed if exists //Only changed if running
+                 _currentKinectSensor.IsRunning && _currentKinectSensor.ElevationAngle != KinectElevationAngle &&   
+                 Utils.CheckifAngleCanChange(_angleChangeTime, Utils.GetCurrentTimeInSeconds()))
             {
-                //Required because kinect angle can only be changed once per second
-                //Ignore resharper
-
-                if (_currentKinectSensor.ElevationAngle != KinectElevationAngle &&
-                    (_angleChangeTime - Utils.GetCurrentTimeInSeconds()) > 1)
-                {
-                    _angleChangeTime = Utils.GetCurrentTimeInSeconds();
-                    _currentKinectSensor.ElevationAngle = KinectElevationAngle;
-                }
+                _angleChangeTime = Utils.GetCurrentTimeInSeconds();
+                _currentKinectSensor.ElevationAngle = KinectElevationAngle;
             }
+    
 
             if (Config.IsCalibrationActive())
             {
