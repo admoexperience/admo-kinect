@@ -69,15 +69,6 @@ namespace Admo
             this.Closed += WindowClosing;
         }
         
-
-        public bool CheckifAngleCanChange(int kinectElevationAngle,double currentTime)
-        {
-            return (_currentKinectSensor != null &&  //Only changed if exists
-                 _currentKinectSensor.IsRunning &&   //Only changed if running
-                _currentKinectSensor.ElevationAngle != KinectElevationAngle &&  //Only changed if needed
-                    (currentTime - _angleChangeTime) > 1); //Only be changed once per second
-        }
-
         public void OnConfigChange()
         {
             KinectElevationAngle = Config.GetElevationAngle();

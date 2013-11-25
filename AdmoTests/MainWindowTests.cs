@@ -28,15 +28,6 @@ namespace AdmoTests
             t.Abort();
 
         }
-        [STAThread]
-        [TestMethod]
-        public void KinectAngleChange()
-        {
-
-            Assert.AreEqual(false, Utils.CheckifAngleCanChange(1, 1.1));
-            Assert.AreEqual(true, Utils.CheckifAngleCanChange(2, 4));
-            
-
-        }
+      
     }
 }
