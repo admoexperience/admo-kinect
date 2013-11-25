@@ -68,6 +68,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Microsoft.Kinect.Toolkit.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Kinect.Toolkit.BackgroundRemoval">
+      <HintPath>..\lib\Microsoft.Kinect.Toolkit.BackgroundRemoval.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Kinect.Toolkit.Controls, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Microsoft.Kinect.Toolkit.Controls.dll</HintPath>
@@ -89,6 +92,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -128,6 +132,7 @@
     <Compile Include="classes\lib\PushNotification.cs" />
     <Compile Include="Api\Dto\Pod.cs" />
     <Compile Include="classes\lib\tasks\BrowserKeepAlive.cs" />
+    <Compile Include="classes\Constants.cs" />
     <Compile Include="classes\stats\DataCache.cs" />
     <Compile Include="classes\WebServer.cs" />
     <Compile Include="classes\InternKinectState.cs" />
@@ -163,6 +168,8 @@
     </Compile>
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="Utilities\HardwareUtils.cs" />
+    <Compile Include="Utilities\SoftwareUtils.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\JsonHelper.cs" />
     <Compile Include="Utilities\ShortCutHandler.cs" />
@@ -195,6 +202,12 @@
     <Resource Include="resources\background.png" />
     <Resource Include="resources\Icon.ico" />
     <Resource Include="resources\left-banner.png" />
+    <Content Include="KinectBackgroundRemoval180_32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="KinectBackgroundRemoval180_64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="resources\LeftBannerInstaller.bmp" />
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

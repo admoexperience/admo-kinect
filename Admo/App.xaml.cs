@@ -45,20 +45,28 @@ namespace Admo
        
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            var version = Assembly.GetEntryAssembly().GetName().Version;
-            Logger.Debug("Version: "+version);
+            var systeminfo = HardwareUtils.GetSystemInfo();
+            Logger.Debug("====HARDWAREINFO===");
+             Logger.Debug("Version: "+version);
+
+            Logger.Debug(String.Format("Manufacturer: {0}, Model: {1}, CPU: {2}",systeminfo.Manufacturer,systeminfo.Model,systeminfo.ProcessorType));
+            Logger.Debug(String.Format("OSVersion: {0}, Raw: {1}, Is64Bit: {2}",systeminfo.OsVersion,systeminfo.OsVersionRaw, systeminfo.Is64BitOperatingSystem));
+            Logger.Debug(String.Format("TotalMemory: {0}",Utils.BytesToHuman(systeminfo.TotalMemory)));
+            Logger.Debug("====HARDWAREINFO===");
             classes.Config.InitDirs();
             
-            var mainWindow = new MainWindow();
-            var bootstrapWindow = new BootstrapUnit();
             var hasConfig = classes.Config.HasApiKey();
             if (hasConfig)
             {
+                var mainWindow = new MainWindow();
+
                 mainWindow.WindowState = WindowState.Minimized;
                 mainWindow.Show(); 
             }
             else
             {
+                var bootstrapWindow = new BootstrapUnit();
+
                 Logger.Info("ApiKey not found loading bootstrapscreen");
                 bootstrapWindow.Show();
             }
