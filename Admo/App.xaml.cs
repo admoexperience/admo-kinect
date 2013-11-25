@@ -47,6 +47,7 @@ namespace Admo
         {
             var systeminfo = HardwareUtils.GetSystemInfo();
             Logger.Debug("====HARDWAREINFO===");
+            Version version = Assembly.GetEntryAssembly().GetName().Version;
              Logger.Debug("Version: "+version);
 
             Logger.Debug(String.Format("Manufacturer: {0}, Model: {1}, CPU: {2}",systeminfo.Manufacturer,systeminfo.Model,systeminfo.ProcessorType));
