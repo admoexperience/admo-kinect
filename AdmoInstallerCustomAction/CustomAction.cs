@@ -20,7 +20,9 @@ namespace AdmoInstallerCustomAction
         {
             //To do put form with progress bar
             session.Log("Begin DownLoadRuntime");
+#if DEBUG
             Debugger.Launch();
+#endif
             if (CheckInstalled("Kinect")) return ActionResult.Success;
             session.Log("Begin Downloading");
             var t = new Thread(() =>
@@ -43,13 +45,14 @@ namespace AdmoInstallerCustomAction
             return ActionResult.Success;
         }
 
-         [STAThread]
-         [CustomAction]
+        [CustomAction]
         public static ActionResult GetPcSpecs(Session session)
         {
             //To do put form with progress bar
             session.Log("Begin GetPcSpecs");
+#if DEBUG
             Debugger.Launch();
+#endif
             //  if (CheckInstalled("Kinect")) return ActionResult.Success;
             session.Log("Begin Downloading");
             var t = new Thread(() =>
@@ -76,7 +79,10 @@ namespace AdmoInstallerCustomAction
         [CustomAction]
         public static ActionResult LoadCertificates(Session session)
         {
+
+#if DEBUG
             Debugger.Launch();
+#endif
             var installLoc = session.CustomActionData["InstallLoc"];
             if (installLoc == "")
             {
