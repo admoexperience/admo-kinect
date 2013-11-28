@@ -77,5 +77,3 @@ PUSHD Release
     ECHO|SET /p=,"md5":"%MD5_CHECKSUM%" >> version.json
     ECHO|SET /p=} >> version.json
 POPD ..
-
-:END
