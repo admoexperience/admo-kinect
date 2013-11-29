@@ -60,7 +60,6 @@ namespace Admo
         private double _angleChangeTime = 0;
         private WebServer _webServer;
 
-        private ShortCutHandler keyHandler;
 
         public MainWindow()
         {
@@ -101,7 +100,6 @@ namespace Admo
             LifeCycle.ActivateTimers();
             _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
-            keyHandler = new ShortCutHandler(this);
 
             //start and stop old kinect sensor kinect sensor
             if (KinectSensor.KinectSensors.Count > 0)

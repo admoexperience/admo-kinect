@@ -172,7 +172,6 @@
     <Compile Include="Utilities\SoftwareUtils.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\JsonHelper.cs" />
-    <Compile Include="Utilities\ShortCutHandler.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
