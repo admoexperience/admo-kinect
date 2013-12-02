@@ -1,6 +1,6 @@
 ﻿using System;
 using Admo.Api.Dto;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AdmoTests.Api.Dto

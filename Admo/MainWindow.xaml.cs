@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
 using Admo.classes.lib;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 
@@ -77,7 +77,15 @@ namespace Admo
                  Utils.CheckifAngleCanChange(_angleChangeTime, Utils.GetCurrentTimeInSeconds()))
             {
                 _angleChangeTime = Utils.GetCurrentTimeInSeconds();
-                _currentKinectSensor.ElevationAngle = KinectElevationAngle;
+
+                try
+                {
+                    _currentKinectSensor.ElevationAngle = KinectElevationAngle;
+                }
+                catch
+                {
+                    Log.Debug("Unable  to change kinect elevation Angle " + KinectElevationAngle);
+                }
             }
     
 

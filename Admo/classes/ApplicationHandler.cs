@@ -1,6 +1,6 @@
 ﻿using System;
 using Admo.classes;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.Kinect;
 using NLog;
 using System.Collections;

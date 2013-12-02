@@ -19,7 +19,7 @@ using Admo.classes;
 using Admo.classes.lib;
 using Admo.Api;
 using Admo.Api.Dto;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using NLog;
 
 namespace Admo.forms

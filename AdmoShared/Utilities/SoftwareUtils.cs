@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Win32;
 
-namespace Admo.Utilities
+namespace AdmoShared.Utilities
 {
     public class SoftwareUtils
     {

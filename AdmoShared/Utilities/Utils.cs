@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Admo.Utilities
+namespace AdmoShared.Utilities
 {
     public class Utils
     {
