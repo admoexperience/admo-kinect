@@ -163,16 +163,11 @@
     <Compile Include="classes\lib\tasks\CheckInTask.cs" />
     <Compile Include="classes\lib\tasks\ScreenshotTask.cs" />
     <Compile Include="classes\LifeCycle.cs" />
-    <Compile Include="classes\MouseDriver.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="Utilities\HardwareUtils.cs" />
     <Compile Include="Utilities\SoftwareUtils.cs" />
-    <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\JsonHelper.cs" />
-    <Compile Include="Utilities\ShortCutHandler.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
