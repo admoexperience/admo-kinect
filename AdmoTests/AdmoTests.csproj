@@ -96,6 +96,10 @@
       <Project>{072b058c-5fbc-4283-8b6d-64e4a2b541c9}</Project>
       <Name>AdmoInstallerCustomAction</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AdmoShared\AdmoShared.csproj">
+      <Project>{1c9a2990-4463-4dbd-bcae-c0a97e482254}</Project>
+      <Name>AdmoShared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Admo\Admo.csproj">
       <Project>{88f33ebf-abec-4f4f-ad1c-f3ab64e9ea9a}</Project>
       <Name>Admo</Name>

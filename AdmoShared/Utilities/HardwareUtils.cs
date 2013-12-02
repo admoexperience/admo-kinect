@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 
-namespace AdmoInstallerCustomAction
+namespace Admo.Utilities
 {
     public class HardwareUtils
     {
