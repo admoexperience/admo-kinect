@@ -22,6 +22,7 @@ namespace Admo
         /// Gets usert outline from an image that has undergone background removal
         /// </summary>
         /// <param name="userData">Raw bytes of RGBA 640*480 image that has undergon background removal</param>
+        /// <returns >A svg path string of the user outline</returns>
         public string GetUserOutline(byte[] userData)
         {
 
@@ -149,6 +150,7 @@ namespace Admo
         /// Get fist pixel of a person
         /// </summary>
         /// <param name="userData">Raw depth data</param>
+        /// <returns >The start pixels</returns>
         public static int[] GetStartPixel(byte[] userData)
         {
             //To do loop other way round for speed
@@ -179,6 +181,7 @@ namespace Admo
         /// </summary>
         /// <param name="rightBlob"></param>
         /// <param name="previousPixelRelative"></param>
+        /// <returns >The next pixels</returns>
         public int[] GetNextPixel(int[,] rightBlob, int[] previousPixelRelative)
         {
             int[] nextPixel = {0, 0};
@@ -226,8 +229,9 @@ namespace Admo
         /// Find a possible person in the depth image
         /// </summary>
         /// <param name="rawDepthData">The skeleton from the kinect</param>
-        /// <param name="height">The coordinate mapper</param>
-        /// <param name="width">The coordinate mapper</param>
+        /// <param name="height">The kinect height in pixels</param>
+        /// <param name="width">The kinect width in pixels</param>        
+        /// <returns >The kinect state with the head coordianted</returns>
         public KinectState FindPlayer(short[] rawDepthData, int height, int width)
         {
 
@@ -321,6 +325,7 @@ namespace Admo
         /// </summary>
         /// <param name="first">The skeleton from the kinect</param>
         /// <param name="cm">The coordinate mapper</param>
+        /// <returns >Send the kinect state to the socket server</returns>
         public void Manage_Skeletal_Data(Skeleton first, CoordinateMapper cm)
         {
             int mode = GetStage(first.Joints[JointType.Head].Position.X);
@@ -421,6 +426,7 @@ namespace Admo
         /// </summary>
         /// <param name="pos">A point on the skeleton</param>
         /// <param name="colorImagePoint">The ColorImagePoint image from a point on the skeleton</param>
+        /// <returns >Scaled position</returns>
         public static Position ScaleCoordinates(SkeletonPoint pos, ColorImagePoint colorImagePoint)
         {
             var admoPos = new Position
@@ -456,6 +462,7 @@ namespace Admo
         /// Determines the user stage from the head X cooridinate
         /// </summary>
         /// <param name="headX">The X coordinate of the skeletons head</param>
+        /// <returns >The current stage</returns>
         public int GetStage(float headX)
         {
             int mode = 1;
@@ -503,6 +510,7 @@ namespace Admo
         /// <param name="current">The current unfiltered value</param>
         /// <param name="filter">The previous filtered value</param>
         /// <param name="alpha">The degree of filtering</param>
+        /// <returns >Filtered value</returns>
         public static float ExponentialWheightedMovingAverage(float current, float filter, float alpha)
         {
 
@@ -515,6 +523,7 @@ namespace Admo
         /// <param name="currState">The current unfiltered value</param>
         /// <param name="filteredState">The previous filtered value</param>
         /// <param name="filterConst">The degree of filtering</param>
+        ///<returns >Filtered values</returns>
         public static InternKinectState FilterState(InternKinectState currState, InternKinectState filteredState, float filterConst)
         {
             currState.HandLeft = FilterPoint(currState.HandLeft, filteredState.HandLeft, filterConst);
@@ -534,6 +543,7 @@ namespace Admo
         /// <param name="currPoint">The current unfiltered value</param>
         /// <param name="filteredPoint">The previous filtered value</param>
         /// <param name="filterConst">The degree of filtering</param>
+        /// <returns >Filtered values</returns>
         public static SkeletonPoint FilterPoint(SkeletonPoint currPoint, SkeletonPoint filteredPoint, float filterConst)
         {
             currPoint.X = ExponentialWheightedMovingAverage(currPoint.X, filteredPoint.X, filterConst);
