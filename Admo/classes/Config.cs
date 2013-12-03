@@ -19,9 +19,9 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly bool RunningFacetracking = false;
-        
+
         private static CmsApi Api { get; set; }
-    
+
         public static Boolean IsOnline = false;
 
         public static PushNotification Pusher;
@@ -29,6 +29,7 @@ namespace Admo.classes
         //Event handler when a config option changed.
         //Currently can't pick up which config event changed.
         public static event ConfigOptionChanged OptionChanged;
+
         public delegate void ConfigOptionChanged();
 
 
@@ -51,7 +52,7 @@ namespace Admo.classes
             }
             baseDir.CreateSubdirectory("analytics");
             baseDir.CreateSubdirectory("pods");
-            baseDir.CreateSubdirectory(Path.Combine("webserver","current"));
+            baseDir.CreateSubdirectory(Path.Combine("webserver", "current"));
             baseDir.CreateSubdirectory(Path.Combine("webserver", "override"));
         }
 
@@ -78,15 +79,15 @@ namespace Admo.classes
                 Pusher.Connect();
             }
 
-            var result=Api.RegisterDeviceVersion();
+
 
             var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
 
-            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
-            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(), GetUnitName());
+            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
             //Async task to download pods in the background
@@ -106,7 +107,7 @@ namespace Admo.classes
 
         public static void NewWebContent(String file)
         {
-            Logger.Debug("New server data "+ file);
+            Logger.Debug("New server data " + file);
             SocketServer.SendReloadEvent();
         }
 
@@ -136,7 +137,7 @@ namespace Admo.classes
 
         public static int GetScreenshotInterval()
         {
-            return _config.ScreenshotInterval;  
+            return _config.ScreenshotInterval;
         }
 
 
@@ -148,7 +149,7 @@ namespace Admo.classes
                 return podFile;
             }
 
-            return Path.Combine(GetPodLocation(),_config.PodFile);  
+            return Path.Combine(GetPodLocation(), _config.PodFile);
         }
 
         public static String GetLaunchUrl()
@@ -166,17 +167,17 @@ namespace Admo.classes
 
         public static int GetElevationAngle()
         {
-            return _config.KinectElevation;  
+            return _config.KinectElevation;
         }
 
         public static String GetMixpanelApiToken()
         {
-            return _config.Analytics.MixpanelApiToken;  
+            return _config.Analytics.MixpanelApiToken;
         }
 
         public static String GetMixpanelApiKey()
         {
-            return _config.Analytics.MixpanelApiKey;  
+            return _config.Analytics.MixpanelApiKey;
         }
 
         public static String GetLocalConfig(String config)
@@ -251,7 +252,7 @@ namespace Admo.classes
         {
             var cacheFile = GetCmsConfigCacheFile();
             var temp = File.ReadAllText(cacheFile);
-            var obj = (JObject)JsonConvert.DeserializeObject(temp);
+            var obj = (JObject) JsonConvert.DeserializeObject(temp);
             return obj;
         }
 
@@ -260,17 +261,26 @@ namespace Admo.classes
 
             var obj = GetJsonConfig();
             var optionValue = obj["config"][option];
-            var val =  optionValue == null ? string.Empty : optionValue.ToString().Trim();
+            var val = optionValue == null ? string.Empty : optionValue.ToString().Trim();
             return val;
         }
 
         public static void CheckIn()
         {
             Api.CheckIn();
-            
+
         }
 
-        public static async void UpdateConfigCache()
+        public static void CheckInVersion()
+        {
+
+            if (!Config.IsDevMode())
+            {
+                var result = Api.RegisterDeviceVersion();
+            }
+        }
+
+    public static async void UpdateConfigCache()
         {
             try
             {

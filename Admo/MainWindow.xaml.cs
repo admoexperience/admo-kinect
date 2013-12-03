@@ -104,6 +104,7 @@ namespace Admo
             
             Config.Init();
             Config.OptionChanged += OnConfigChange;
+            Config.CheckInVersion();
             SocketServer.StartServer();
             LifeCycle.ActivateTimers();
             _applicationHandler = new ApplicationHandler();

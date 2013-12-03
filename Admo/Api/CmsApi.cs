@@ -92,14 +92,15 @@ namespace Admo.Api
             var assembly = Assembly.GetExecutingAssembly();
             var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             string version = fvi.FileVersion;
+
             var clientVersion = new ClientVersion
                 {
-                    Number=version,
-                    CreatedAt = DateTime.Now.ToString()
+                    Number=version
                 };
+            httpClient.DefaultRequestHeaders.Add("Api-Key", _apiKey);
 
             // Send the request to the server
-            var response = await httpClient.PostAsync(BaseUri + "unit/client_version.json", new StringContent(
+            var response = await httpClient.PostAsync(CmsUrl + "client_version.json", new StringContent(
                 Utils.ConvertToJson(clientVersion),
                 Encoding.UTF8,
                 "application/json"));
