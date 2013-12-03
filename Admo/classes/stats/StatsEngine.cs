@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using NLog;
 using Newtonsoft.Json;
 

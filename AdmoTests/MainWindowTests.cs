@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Windows;
 using Admo;
-using Admo.Utilities;
 using AdmoInstallerCustomAction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

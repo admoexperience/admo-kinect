@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Timers;
 using Admo.classes.lib.tasks;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using NLog;
 
 namespace Admo.classes

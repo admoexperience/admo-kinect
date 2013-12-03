@@ -1,5 +1,5 @@
 ﻿using System;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AdmoTests.Utilities

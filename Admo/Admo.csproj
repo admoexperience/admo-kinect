@@ -165,10 +165,6 @@
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\SocketServer.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
-    <Compile Include="Utilities\HardwareUtils.cs" />
-    <Compile Include="Utilities\SoftwareUtils.cs" />
-    <Compile Include="Utilities\JsonHelper.cs" />
-    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
     </Compile>
@@ -265,6 +261,10 @@
     <ProjectReference Include="..\AdmoCertificateManager\AdmoCertificateManager.csproj">
       <Project>{94556b6a-074e-4026-a3d8-20ed2c6f1a89}</Project>
       <Name>AdmoCertificateManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AdmoShared\AdmoShared.csproj">
+      <Project>{1c9a2990-4463-4dbd-bcae-c0a97e482254}</Project>
+      <Name>AdmoShared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

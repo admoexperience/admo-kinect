@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <?define Version = "!(bind.FileVersion.ADMO.EXE)"?>
 <?define UpgradeCode = "A316F201-11FB-42B3-9B30-A3481199EC4B" ?>
 
@@ -151,6 +151,10 @@
               <Component Id="BACKGROUNDREMOVALDLL" DiskId="1" Guid="3C913D97-CA04-4E0C-9D52-96D8C94446FD">
                 <File Id="BACKGROUNDREMOVALDLL" Name="Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" />
               </Component>
+              <Component Id="ADMOSHAREDDLL" DiskId="1" Guid="C3DDE65C-9643-44E3-AE42-DA8417BD6772">
+                <File Id="ADMOSHAREDDLL" Name="AdmoShared.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoShared.dll" />
+              </Component>
+
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
@@ -196,13 +200,12 @@
         <ComponentRef Id="ADMOCERTMANAGER" />
         <ComponentRef Id="LOADING.HTML" />
         <ComponentRef Id="DEFAULT.POD.ZIP" />
-<ComponentRef Id="BACKGROUNDREMOVAL32DLL" />
- <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />  
+        <ComponentRef Id="BACKGROUNDREMOVAL32DLL" />
+        <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />  
         <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
         <ComponentRef Id="BACKGROUNDREMOVALDLL" />
-      </Feature>
-      
-      
+        <ComponentRef Id="ADMOSHAREDDLL"/>
+       </Feature>      
       <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
   <InstallUISequence>
     <Custom Action="ExtraCustomActions" After="I"\\>NOT Installed</Custom>

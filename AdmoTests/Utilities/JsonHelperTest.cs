@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Admo.Api;
 using Admo.Api.Dto;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AdmoTests.Utilities

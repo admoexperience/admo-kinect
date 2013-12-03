@@ -4,7 +4,7 @@ using System.Linq;
 /**
  * Class used to store cache of stats objects before we process them.
  */
-using Admo.Utilities;
+using AdmoShared.Utilities;
 
 namespace Admo.classes.stats
 {

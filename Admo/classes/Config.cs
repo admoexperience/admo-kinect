@@ -7,7 +7,7 @@ using Admo.Api;
 using Admo.Api.Dto;
 using Admo.classes.lib;
 using Admo.classes.stats;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

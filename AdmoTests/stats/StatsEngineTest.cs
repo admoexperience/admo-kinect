@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Admo.classes;
 using Admo.classes.stats;
-using Admo.Utilities;
+using AdmoShared.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AdmoTests.stats
