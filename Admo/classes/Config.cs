@@ -78,7 +78,7 @@ namespace Admo.classes
                 Pusher.Connect();
             }
 
-
+            var result=Api.RegisterDeviceVersion();
 
             var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
             pod.StartWatcher();
@@ -267,6 +267,7 @@ namespace Admo.classes
         public static void CheckIn()
         {
             Api.CheckIn();
+            
         }
 
         public static async void UpdateConfigCache()

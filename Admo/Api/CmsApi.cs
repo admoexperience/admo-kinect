@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Admo.Api.Dto;
@@ -83,5 +85,30 @@ namespace Admo.Api
             var responseAsString = await response.Content.ReadAsStringAsync();
             return responseAsString;
         }
+
+        public async Task<String> RegisterDeviceVersion()
+        {
+            var httpClient = new HttpClient();
+            var assembly = Assembly.GetExecutingAssembly();
+            var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            string version = fvi.FileVersion;
+            var clientVersion = new ClientVersion
+                {
+                    Number=version,
+                    CreatedAt = DateTime.Now.ToString()
+                };
+
+            // Send the request to the server
+            var response = await httpClient.PostAsync(BaseUri + "unit/client_version.json", new StringContent(
+                Utils.ConvertToJson(clientVersion),
+                Encoding.UTF8,
+                "application/json"));
+
+            //Just send the username/password with out the device
+
+            var responseAsString = await response.Content.ReadAsStringAsync();
+            return responseAsString;
+        }
+
     }
 }
