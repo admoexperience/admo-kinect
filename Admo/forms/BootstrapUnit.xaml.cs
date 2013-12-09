@@ -33,7 +33,6 @@ namespace Admo.forms
 
         public BootstrapUnit()
         {
-            
             InitializeComponent();
             PasswordMaskBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordMaskBox_MouseDown), true);
             PasswordField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordField_Selected), true);
@@ -50,23 +49,39 @@ namespace Admo.forms
         private void BootstrapUnit_Closed(object sender, EventArgs e)
         {
            Application.Current.Shutdown();
-      
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            var doc = new FlowDocument();
+            ErrorsField.Document = doc;
+            ErrorsField.IsReadOnly = true;
+            ErrorsField.IsDocumentEnabled = true;
+
+            Paragraph para = new Paragraph();
+            doc.Blocks.Add(para);
+            //  para.FontSize = 12;
+            para.Inlines.Add("Set to (local) if you dont want to sign up");
         }
 
         private async void Login()
         {
-
-     
-           
             Cursor = Cursors.Wait;
             var username = UserNameTextField.Text;
             var password = PasswordField.Password;
             var device = DeviceNameField.Text;
-            var api = new CmsAccountApi
+            var baseUrl = CmsUrl.Text;
+            if (baseUrl == "  Cloud service location")
+            {
+                baseUrl = "https://cms.admoexperience.com/api/v1";
+            }
+
+            if (device == "  Cloud service location")
+            {
+                device = Environment.MachineName;
+            }
+
+            var api = new CmsAccountApi(CmsUrl.Text)
                 {
                     Email = username,
                     Password = password
@@ -78,8 +93,8 @@ namespace Admo.forms
                 if (!unit.ContainsErrors())
                 {
                     File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), unit.ApiKey);
-
-                    var unitApi = new CmsApi(unit.ApiKey);
+                    File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), unit.ApiKey);
+                    var unitApi = new CmsApi(unit.ApiKey, baseUrl);
                     var stringval = await unitApi.GetConfig();
                     File.WriteAllText(classes.Config.GetCmsConfigCacheFile(), stringval);
                     var main = new MainWindow();
@@ -129,6 +144,7 @@ namespace Admo.forms
             // To handle all Hyperlinks in the RichTextBox
             ErrorsField.AddHandler(Hyperlink.RequestNavigateEvent,
                new RequestNavigateEventHandler(RequestNavigateHandler));
+            CmsUrl.Visibility = Visibility.Visible;
         }
 
         private void link_Click(object sender, RoutedEventArgs e)
@@ -149,8 +165,6 @@ namespace Admo.forms
             PasswordField.Focus();
             PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
             PasswordField.BorderThickness = new Thickness(2);
-
-     
 
         }
 
@@ -189,6 +203,7 @@ namespace Admo.forms
             DeviceNameField.BorderThickness = new Thickness(0);
             PasswordField.BorderThickness = new Thickness(0);
             UserNameTextField.BorderThickness = new Thickness(0);
+            CmsUrl.BorderThickness = new Thickness(0);
         }
 
         private void ResetifEmpty()
@@ -197,6 +212,7 @@ namespace Admo.forms
             DeviceNameField.BorderThickness = new Thickness(0);
             PasswordField.BorderThickness = new Thickness(0);
             UserNameTextField.BorderThickness = new Thickness(0);
+            CmsUrl.BorderThickness = new Thickness(0);
 
         }
         private void setBorder(TextBox txBox)
@@ -223,6 +239,13 @@ namespace Admo.forms
 
             PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
             PasswordField.BorderThickness = new Thickness(2);
+        }
+
+        private void CmsUrl_Selected(object sender, RoutedEventArgs e)
+        {
+            RemoveAllBorders();
+            CmsUrl.Text = "https://cms.admoexperience.com/api/v1";
+            setBorder(CmsUrl);
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Admo.classes
 
         public static void Init()
         {
-            Api = new CmsApi(GetApiKey());
+            Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
             _config = ReadConfig();
             UpdateConfigCache();
             //Only connect to pubnub if the key is there
@@ -91,6 +91,16 @@ namespace Admo.classes
 
             //Async task to download pods in the background
             UpdatePods();
+        }
+
+        private static string GetBaseCmsUrl()
+        {
+            var apiKey = ReadLocalConfig("BaseCmsUrl");
+            if (apiKey.Equals(String.Empty))
+            {
+                throw new Exception("BaseCMS not found please add it to [" + GetLocalConfig("ApiKey") + "] using ");
+            }
+            return apiKey;
         }
 
         public static void OnPushNotificationConnection(Boolean online)
@@ -232,7 +242,7 @@ namespace Admo.classes
         {
             var x = GetJsonConfig()["config"] as JObject;
             x.Add("apiKey", GetApiKey());
-            x.Add("cmsUri", CmsApi.CmsUrl);
+            x.Add("cmsUri", Api.CmsUrl);
             return x;
         }
 
