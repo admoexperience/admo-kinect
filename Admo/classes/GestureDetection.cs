@@ -51,6 +51,11 @@ namespace Admo.classes
         private bool _movedFromPreviousArea = false;
 
         //manage gestures
+        /// <summary>
+        /// Performs a exponential wheigthed moving average xhat(k)=x(k)*alpha+x(k-1)*(1-alpha)
+        /// </summary>
+        /// <param name="mycoords">Struct containing the values nescessary to perform swipe detection</param>
+        /// <returns >String containing SwipeToRight or SwipeToLeft or empty</returns>
         public string DetectSwipe(HandHead mycoords)
         {
             int count = 0;
