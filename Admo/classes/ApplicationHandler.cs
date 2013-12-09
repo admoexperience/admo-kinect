@@ -177,7 +177,7 @@ namespace Admo
         }
 
         /// <summary>
-        /// analyze 3x3 blog to find the next pixel for the vector
+        /// analyze 3x3 block to find the next pixel for the vector
         /// </summary>
         /// <param name="rightBlob"></param>
         /// <param name="previousPixelRelative"></param>
