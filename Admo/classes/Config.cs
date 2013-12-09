@@ -95,12 +95,12 @@ namespace Admo.classes
 
         private static string GetBaseCmsUrl()
         {
-            var apiKey = ReadLocalConfig("BaseCmsUrl");
-            if (apiKey.Equals(String.Empty))
+            if (!File.Exists(Path.Combine(GetBaseConfigPath(), "BaseCmsUrl" + ".txt")))
             {
-                throw new Exception("BaseCMS not found please add it to [" + GetLocalConfig("ApiKey") + "] using ");
+                return "https://cms.admoexperience.com/api/v1";
             }
-            return apiKey;
+            var apiKey = ReadLocalConfig("BaseCmsUrl");
+            return apiKey.Equals(String.Empty) ? "https://cms.admoexperience.com/api/v1" : apiKey;
         }
 
         public static void OnPushNotificationConnection(Boolean online)
