@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Windows;
 using Admo.Api;
 using Admo.Api.Dto;
 using Admo.classes.lib;
 using Admo.classes.stats;
+using Admo.forms;
 using AdmoShared.Utilities;
 using NLog;
 using Newtonsoft.Json;
@@ -63,15 +66,19 @@ namespace Admo.classes
 
         public static void Init()
         {
-            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
-            pod.StartWatcher();
-            pod.Changed += NewWebContent;
-            OptionChanged += pod.OnConfigChange;
+            
 
             if (GetBaseCmsUrl()=="local")
             {
 
+                Thread t = new Thread(() =>
+                {
+                    var app = new Application();
+                    app.Run(new OfflineConfig());
+                });
+                t.SetApartmentState(ApartmentState.STA);
 
+                t.Start();
                 return; 
             }
 
@@ -92,9 +99,15 @@ namespace Admo.classes
 
         
 
+
             var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
+
+            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
+            pod.StartWatcher();
+            pod.Changed += NewWebContent;
+            OptionChanged += pod.OnConfigChange;
 
             //Async task to download pods in the background
             UpdatePods();
@@ -223,6 +236,19 @@ namespace Admo.classes
             return !apiKey.Equals(String.Empty);
 
         }
+
+        public static Boolean IsBaseCmsUrlLocal()
+        {
+            var fileExsists = File.Exists(GetLocalConfig("BaseCmsUrl"));
+            if (!fileExsists)
+            {
+                return false;
+            }
+            var apiKey = ReadLocalConfig("BaseCmsUrl");
+            return apiKey.Equals("local");
+
+        }
+
 
         private static String GetPubNubSubKey()
         {

@@ -81,6 +81,15 @@ namespace Admo.forms
                 device = Environment.MachineName;
             }
 
+            File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
+            if (baseUrl=="local")
+            {
+                //open straight away if local config is used
+                var main = new MainWindow();
+                main.Show();
+                Close();
+            }
+
             var api = new CmsAccountApi(baseUrl)
                 {
                     Email = username,
@@ -93,7 +102,6 @@ namespace Admo.forms
                 if (!unit.ContainsErrors())
                 {
                     File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), unit.ApiKey);
-                    File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
                     var unitApi = new CmsApi(unit.ApiKey, baseUrl);
                     var stringval = await unitApi.GetConfig();
                     File.WriteAllText(classes.Config.GetCmsConfigCacheFile(), stringval);
