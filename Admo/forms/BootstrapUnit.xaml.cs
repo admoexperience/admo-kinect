@@ -81,7 +81,7 @@ namespace Admo.forms
                 device = Environment.MachineName;
             }
 
-            var api = new CmsAccountApi(CmsUrl.Text)
+            var api = new CmsAccountApi(baseUrl)
                 {
                     Email = username,
                     Password = password
@@ -93,7 +93,7 @@ namespace Admo.forms
                 if (!unit.ContainsErrors())
                 {
                     File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), unit.ApiKey);
-                    File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), unit.ApiKey);
+                    File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
                     var unitApi = new CmsApi(unit.ApiKey, baseUrl);
                     var stringval = await unitApi.GetConfig();
                     File.WriteAllText(classes.Config.GetCmsConfigCacheFile(), stringval);
@@ -103,7 +103,6 @@ namespace Admo.forms
                 }
                 else
                 {
-
                     Logger.Error("Error: "+ unit.Error);
                     ErrorsField.Document.Blocks.Clear();
                     ErrorsField.Document.Blocks.Add(new Paragraph(new Run("errors: " + unit.Error)));
@@ -244,6 +243,7 @@ namespace Admo.forms
         private void CmsUrl_Selected(object sender, RoutedEventArgs e)
         {
             RemoveAllBorders();
+
             CmsUrl.Text = "https://cms.admoexperience.com/api/v1";
             setBorder(CmsUrl);
         }

@@ -63,6 +63,18 @@ namespace Admo.classes
 
         public static void Init()
         {
+            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
+            pod.StartWatcher();
+            pod.Changed += NewWebContent;
+            OptionChanged += pod.OnConfigChange;
+
+            if (GetBaseCmsUrl()=="local")
+            {
+
+
+                return; 
+            }
+
             Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
             _config = ReadConfig();
             UpdateConfigCache();
@@ -78,12 +90,7 @@ namespace Admo.classes
                 Pusher.Connect();
             }
 
-
-
-            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
-            pod.StartWatcher();
-            pod.Changed += NewWebContent;
-            OptionChanged += pod.OnConfigChange;
+        
 
             var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
@@ -112,20 +119,16 @@ namespace Admo.classes
             Api.CheckIn();
         }
 
-
-
         public static void NewWebContent(String file)
         {
             Logger.Debug("New server data "+ file);
             SocketServer.SendReloadEvent();
         }
 
-
         public static string GetWebServerBasePath()
         {
             return _config.WebServerBasePath;
         }
-
 
         //Production mode by default.
         public static Boolean IsDevMode()

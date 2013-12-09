@@ -114,6 +114,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="forms\OfflineConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -164,6 +168,9 @@
     <Compile Include="classes\lib\tasks\ScreenshotTask.cs" />
     <Compile Include="classes\LifeCycle.cs" />
     <Compile Include="classes\SocketServer.cs" />
+    <Compile Include="forms\OfflineConfig.xaml.cs">
+      <DependentUpon>OfflineConfig.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="forms\BootstrapUnit.xaml.cs">
       <DependentUpon>BootstrapUnit.xaml</DependentUpon>
