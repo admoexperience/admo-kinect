@@ -84,6 +84,8 @@ namespace Admo.forms
             File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
             if (baseUrl=="local")
             {
+                File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"000000000000000000000");
+
                 //open straight away if local config is used
                 var main = new MainWindow();
                 main.Show();

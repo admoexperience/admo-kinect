@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using Admo.Api;
@@ -67,24 +68,14 @@ namespace Admo.classes
         public static void Init()
         {
             
-
-            if (GetBaseCmsUrl()=="local")
-            {
-
-                Thread t = new Thread(() =>
-                {
-                    var app = new Application();
-                    app.Run(new OfflineConfig());
-                });
-                t.SetApartmentState(ApartmentState.STA);
-
-                t.Start();
-                return; 
-            }
-
             Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
             _config = ReadConfig();
-            UpdateConfigCache();
+            if (GetBaseCmsUrl() != "local")
+            {
+                UpdateAndGetConfigCache();
+            }
+            
+            
             //Only connect to pubnub if the key is there
             if (!String.IsNullOrEmpty(GetPubNubSubKey()))
             {
@@ -113,7 +104,7 @@ namespace Admo.classes
             UpdatePods();
         }
 
-        private static string GetBaseCmsUrl()
+        public static string GetBaseCmsUrl()
         {
             if (!File.Exists(Path.Combine(GetBaseConfigPath(), "BaseCmsUrl" + ".txt")))
             {
@@ -128,7 +119,8 @@ namespace Admo.classes
             IsOnline = online;
             if (!online) return;
             StatsEngine.ProcessOfflineCache();
-            UpdateConfigCache();
+            UpdateAndGetConfigCache();
+          //  UpdateConfigCache();
             Api.CheckIn();
         }
 
@@ -234,7 +226,6 @@ namespace Admo.classes
             }
             var apiKey = ReadLocalConfig("ApiKey");
             return !apiKey.Equals(String.Empty);
-
         }
 
         public static Boolean IsBaseCmsUrlLocal()
@@ -246,7 +237,6 @@ namespace Admo.classes
             }
             var apiKey = ReadLocalConfig("BaseCmsUrl");
             return apiKey.Equals("local");
-
         }
 
 
@@ -308,36 +298,23 @@ namespace Admo.classes
             Api.CheckIn();
         }
 
-        public static async void UpdateConfigCache()
+        public static void UpdateConfigCache(string jsonConfig)
         {
             try
             {
-                Logger.Debug("Updating config");
-
-                var responseAsString = await Api.GetConfig();
-                //test its valid json
-                _config = JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(responseAsString);
-                var cacheFile = GetCmsConfigCacheFile();
-                try
-                {
-                    File.WriteAllText(cacheFile, responseAsString);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Failed to write cache file for [" + "App" + "] to disk", e);
-                }
+                File.WriteAllText(GetCmsConfigCacheFile(), jsonConfig);
             }
             catch (Exception e)
             {
-                //Happens when the unit is offline
-                Logger.Warn("Unable to update the cacheconfig file",e);
+                Logger.Error("Failed to write cache file for [" + "App" + "] to disk", e);
             }
-            
+            _config = ReadConfig();
 
             SocketServer.SendUpdatedConfig();
 
             if (OptionChanged != null) OptionChanged();
         }
+      
 
         public static void SetPodFile(string podFile)
         {
@@ -427,6 +404,27 @@ namespace Admo.classes
         public static bool SilhouetteEnabled()
         {
             return _config.SilhouetteEnabled;
+        }
+
+        public static async void UpdateAndGetConfigCache()
+        {
+            try
+            {
+                Logger.Debug("Updating config");
+
+                var responseAsString = await Api.GetConfig();
+                //test its valid json
+                _config = JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(responseAsString);
+             //   var cacheFile = GetCmsConfigCacheFile();
+                UpdateConfigCache(responseAsString);
+            }
+            catch (Exception e)
+            {
+                //Happens when the unit is offline
+                Logger.Warn("Unable to update the cacheconfig file", e);
+            }
+
+           
         }
     }
 }

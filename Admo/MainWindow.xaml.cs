@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
 using Admo.classes.lib;
+using Admo.forms;
 using AdmoShared.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
@@ -66,10 +67,18 @@ namespace Admo
             InitializeComponent();
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
+
+            if (Config.GetBaseCmsUrl() == "local")
+            {
+
+                var offlineConfig = new OfflineConfig(this);
+                offlineConfig.Show();
+            }
         }
         
         public void OnConfigChange()
         {
+            
             KinectElevationAngle = Config.GetElevationAngle();
 
             if (_currentKinectSensor != null &&  //Only changed if exists //Only changed if running
