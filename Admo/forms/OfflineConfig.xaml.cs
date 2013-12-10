@@ -41,6 +41,17 @@ namespace Admo.forms
             Int32.TryParse(KinectElevation.Text, out kinectElevation);
             bool silhouetteEnabled;
             Boolean.TryParse(SilhouetteEnabled.Text, out silhouetteEnabled);
+            string podFile;
+            if (File.Exists(PodFle.Text))
+            {
+                podFile = PodFle.Text;
+            }
+            else
+            {
+                 var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var path = Path.GetDirectoryName(exeLocation);
+                podFile = Path.Combine(path, "resources", "default.pod.zip");
+            }
             var config = new Api.Dto.Config()
             {
                 Environment = Environment.Text,
@@ -49,9 +60,9 @@ namespace Admo.forms
                 FovCropTop = fovCropTop,
                 KinectElevation = kinectElevation,
                 TransformSmoothingType = SmoothingType.Text,
-                SilhouetteEnabled = silhouetteEnabled
-                //PodFile = PodFle.Text,
-                //WebServerBasePath = WebServerPath.Text,
+                SilhouetteEnabled = silhouetteEnabled,
+                PodFile = podFile,
+                WebServerBasePath = WebServerPath.Text.Replace("%APP_DATA%", System.Environment.SpecialFolder.LocalApplicationData.ToString()),
                 //WebUiServer = WebUiServer.Text
             };
 
