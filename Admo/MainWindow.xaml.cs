@@ -68,9 +68,8 @@ namespace Admo
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
 
-            if (Config.GetBaseCmsUrl() == "local")
+            if (Config.IsBaseCmsUrlLocal())
             {
-
                 var offlineConfig = new OfflineConfig();
                 offlineConfig.Show();
             }
@@ -96,7 +95,6 @@ namespace Admo
                     Log.Debug("Unable  to change kinect elevation Angle " + KinectElevationAngle);
                 }
             }
-    
 
             if (Config.IsCalibrationActive())
             {

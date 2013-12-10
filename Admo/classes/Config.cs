@@ -70,7 +70,7 @@ namespace Admo.classes
             
             Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
             _config = ReadConfig();
-            if (GetBaseCmsUrl() != "local")
+            if (!IsBaseCmsUrlLocal())
             {
                 UpdateAndGetConfigCache();
             }
@@ -217,7 +217,7 @@ namespace Admo.classes
             return apiKey;
         }
 
-        public static Boolean HasApiKey()
+        public static bool HasApiKey()
         {
             var fileExsists = File.Exists(GetLocalConfig("ApiKey"));
             if (!fileExsists)
@@ -228,7 +228,7 @@ namespace Admo.classes
             return !apiKey.Equals(String.Empty);
         }
 
-        public static Boolean IsBaseCmsUrlLocal()
+        public static bool IsBaseCmsUrlLocal()
         {
             var fileExsists = File.Exists(GetLocalConfig("BaseCmsUrl"));
             if (!fileExsists)
