@@ -29,6 +29,7 @@ namespace Admo.forms
             DeviceNameField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(DeviceNameField_Selected), true);
 
             UserNameTextField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(UserNameTextField_Selected), true);
+            LocalStart.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(LocalStart_MouseUp), true);
 
             LoginBox.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Login_MouseUp), true);
 
@@ -250,7 +251,14 @@ namespace Admo.forms
 
         private void LocalStart_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), @"local");
+
+            File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"");
+
+            //open straight away if local config is used
+            var main = new MainWindow();
+            main.Show();
+            Close();
         }
     }
 }
