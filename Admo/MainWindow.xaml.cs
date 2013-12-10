@@ -200,10 +200,7 @@ namespace Admo
                     backgroundRemovedColorStream.BackgroundRemovedFrameReady += BackgroundRemovedFrameReadyHandler;
                     
                     args.NewSensor.AllFramesReady += SensorAllFramesReady;
-
                     
-
-
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {

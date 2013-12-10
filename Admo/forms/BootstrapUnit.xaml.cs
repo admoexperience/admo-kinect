@@ -84,7 +84,7 @@ namespace Admo.forms
             File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
             if (baseUrl=="local")
             {
-                File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"000000000000000000000");
+                File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"");
 
                 //open straight away if local config is used
                 var main = new MainWindow();
@@ -254,7 +254,7 @@ namespace Admo.forms
         {
             RemoveAllBorders();
 
-            CmsUrl.Text = "https://cms.admoexperience.com/api/v1";
+            CmsUrl.Text = Admo.classes.Config.DefaultCmsApiUrl;
             setBorder(CmsUrl);
         }
     }

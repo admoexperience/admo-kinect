@@ -23,7 +23,7 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly bool RunningFacetracking = false;
-        
+        public const string DefaultCmsApiUrl = "https://cms.admoexperience.com/api/v1";
         private static CmsApi Api { get; set; }
     
         public static Boolean IsOnline = false;
@@ -108,10 +108,10 @@ namespace Admo.classes
         {
             if (!File.Exists(Path.Combine(GetBaseConfigPath(), "BaseCmsUrl" + ".txt")))
             {
-                return "https://cms.admoexperience.com/api/v1";
+                return DefaultCmsApiUrl;
             }
             var apiKey = ReadLocalConfig("BaseCmsUrl");
-            return apiKey.Equals(String.Empty) ? "https://cms.admoexperience.com/api/v1" : apiKey;
+            return apiKey.Equals(String.Empty) ? DefaultCmsApiUrl : apiKey;
         }
 
         public static void OnPushNotificationConnection(Boolean online)
