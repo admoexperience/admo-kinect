@@ -24,6 +24,18 @@ namespace Admo.forms
         public OfflineConfig()
         {
             InitializeComponent();
+
+            Environment.Text = classes.Config.GetEnvironment();
+            WebUiServer.Text = classes.Config.GetWebServer();
+            WebServerPath.Text = classes.Config.GetPodFile();
+            KinectElevation.Text = classes.Config.GetElevationAngle().ToString();
+            SmoothingType.Text = classes.Config.GetTransformSmoothType();
+            FovCropTop.Text = classes.Config.GetFovCropTop().ToString();
+            FovCropLeft.Text = classes.Config.GetFovCropLeft().ToString();
+            FovCropWidth.Text = classes.Config.GetFovCropWidth().ToString();
+            SilhouetteEnabled.Text = classes.Config.SilhouetteEnabled().ToString();
+
+
             LoginBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(LoginBox_OnMouseLeftButtonDown), true);
 
         }

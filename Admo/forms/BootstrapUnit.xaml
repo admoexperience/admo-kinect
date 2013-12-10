@@ -34,6 +34,7 @@
             </FlowDocument>
         </RichTextBox>
         <TextBox x:Name="CmsUrl" HorizontalAlignment="Left" Height="40" Margin="294,246,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" VerticalContentAlignment="Center" Text="  Cloud service location" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" GotFocus="CmsUrl_Selected" Grid.ColumnSpan="5" BorderThickness="0" Visibility="Visible" />
+        <TextBox x:Name="LocalStart" HorizontalAlignment="Center" Height="40" Margin="36,324,38,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="112" VerticalContentAlignment="Center" BorderThickness="0" HorizontalContentAlignment="Center" Text="Login" Foreground="White" Background="#49A8DE" FontSize="12" Grid.ColumnSpan="2"  IsReadOnly="True" MouseLeftButtonUp="LocalStart_MouseUp" Cursor="Hand" Grid.Column="3"/>
     </Grid>
 
 </Window>

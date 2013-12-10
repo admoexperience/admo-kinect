@@ -73,26 +73,23 @@ namespace Admo.classes
             if (!IsBaseCmsUrlLocal())
             {
                 UpdateAndGetConfigCache();
-            }
-            
-            
-            //Only connect to pubnub if the key is there
-            if (!String.IsNullOrEmpty(GetPubNubSubKey()))
-            {
-                Pusher = new PushNotification
+
+                //Only connect to pubnub if the key is there
+                if (!String.IsNullOrEmpty(GetPubNubSubKey()))
                 {
-                    Channel = GetApiKey(),
-                    SubscribeKey = GetPubNubSubKey(),
-                    OnConnection = OnPushNotificationConnection
-                };
-                Pusher.Connect();
+                    Pusher = new PushNotification
+                    {
+                        Channel = GetApiKey(),
+                        SubscribeKey = GetPubNubSubKey(),
+                        OnConnection = OnPushNotificationConnection
+                    };
+                    Pusher.Connect();
+                } 
+
             }
 
-        
-
-
-            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
-            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(), GetUnitName());
+            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
             var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
@@ -425,6 +422,11 @@ namespace Admo.classes
             }
 
            
+        }
+
+        public static string GetEnvironment()
+        {
+            return _config.Environment;
         }
     }
 }
