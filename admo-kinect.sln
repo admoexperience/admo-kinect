@@ -14,7 +14,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "AdmoInstaller", "AdmoInstal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdmoInstallerCustomAction", "AdmoInstallerCustomAction\AdmoInstallerCustomAction.csproj", "{072B058C-5FBC-4283-8B6D-64E4A2B541C9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{58B8A559-2A72-4E75-8D47-51539BB4AC9C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Licenses", "Licenses", "{58B8A559-2A72-4E75-8D47-51539BB4AC9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdmoShared", "AdmoShared\AdmoShared.csproj", "{1C9A2990-4463-4DBD-BCAE-C0A97E482254}"
 EndProject
