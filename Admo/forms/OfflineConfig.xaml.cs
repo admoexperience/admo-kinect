@@ -20,16 +20,24 @@ namespace Admo.forms
 
     public partial class OfflineConfig : Window
     {
-        private MainWindow _mainWindow;
-        public OfflineConfig(MainWindow mw )
+     
+        public OfflineConfig()
         {
-            _mainWindow = mw;
             InitializeComponent();
             LoginBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(LoginBox_OnMouseLeftButtonDown), true);
 
         }
 
         private void LoginBox_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+
+            var x = JsonHelper.ConvertToUnderScore(GetConfigObj());
+            //File.WriteAllText(Path.Combine(classes.Config.GetBaseConfigPath(), "configcache.json"),x);
+            classes.Config.UpdateConfigCache(x);
+        }
+
+        public ConfigWrapper GetConfigObj()
         {
             int fovCropLeft;
             Int32.TryParse(FovCropLeft.Text, out fovCropLeft);
@@ -41,17 +49,14 @@ namespace Admo.forms
             Int32.TryParse(KinectElevation.Text, out kinectElevation);
             bool silhouetteEnabled;
             Boolean.TryParse(SilhouetteEnabled.Text, out silhouetteEnabled);
-            string podFile;
-            if (File.Exists(PodFle.Text))
+            string podFile = PodFle.Text.Replace("%APP_DATA%", System.Environment.SpecialFolder.LocalApplicationData.ToString());
+            if (!File.Exists(podFile))
             {
-                podFile = PodFle.Text;
-            }
-            else
-            {
-                 var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 var path = Path.GetDirectoryName(exeLocation);
                 podFile = Path.Combine(path, "resources", "default.pod.zip");
             }
+
             var config = new Api.Dto.Config()
             {
                 Environment = Environment.Text,
@@ -63,18 +68,14 @@ namespace Admo.forms
                 SilhouetteEnabled = silhouetteEnabled,
                 PodFile = podFile,
                 WebServerBasePath = WebServerPath.Text.Replace("%APP_DATA%", System.Environment.SpecialFolder.LocalApplicationData.ToString()),
-                //WebUiServer = WebUiServer.Text
+                WebUiServer = WebUiServer.Text
             };
 
-            var conWrapper = new ConfigWrapper()
+            return new ConfigWrapper()
             {
                 Config = config
             };
-            var x = JsonHelper.ConvertToUnderScore(conWrapper);
-            //File.WriteAllText(Path.Combine(classes.Config.GetBaseConfigPath(), "configcache.json"),x);
-            classes.Config.UpdateConfigCache(x);
         }
-
      
     }
 

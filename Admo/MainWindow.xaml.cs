@@ -71,7 +71,7 @@ namespace Admo
             if (Config.GetBaseCmsUrl() == "local")
             {
 
-                var offlineConfig = new OfflineConfig(this);
+                var offlineConfig = new OfflineConfig();
                 offlineConfig.Show();
             }
         }
