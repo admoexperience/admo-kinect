@@ -407,7 +407,10 @@ namespace Admo
                 }
             }
         }
-
+        /// <summary>
+        /// Performs gesture decection and transforms the skeleton data to be usable by the browser
+        /// </summary>
+        /// <param name="first">The current skeleton</param>
         private void GetDataForSocketServer(Skeleton first)
         {
             //swipe gesture detection

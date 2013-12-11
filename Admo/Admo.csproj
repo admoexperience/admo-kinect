@@ -39,6 +39,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\Admo.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -87,6 +88,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\NLog.Targets.Syslog.dll</HintPath>
     </Reference>
+    <Reference Include="OpenCV.Net">
+      <HintPath>..\lib\OpenCV.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -132,6 +136,7 @@
     </Compile>
     <Compile Include="classes\ApplicationHandler.cs" />
     <Compile Include="Api\CmsAccountApi.cs" />
+    <Compile Include="classes\BodyOutline.cs" />
     <Compile Include="classes\lib\commands\UpdatePods.cs" />
     <Compile Include="classes\lib\PushNotification.cs" />
     <Compile Include="Api\Dto\Pod.cs" />
@@ -146,9 +151,6 @@
     <Compile Include="classes\TheHacks.cs" />
     <Compile Include="classes\DataContainer.cs" />
     <Compile Include="classes\GestureDetection.cs" />
-    <Compile Include="classes\KeyboardDriver.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="classes\KinectState.cs" />
     <Compile Include="classes\Config.cs" />
     <Compile Include="Api\CmsApi.cs" />
@@ -207,6 +209,27 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="resources\LeftBannerInstaller.bmp" />
+    <Content Include="opencv_calib3d246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_core246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_highgui246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_imgproc246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_objdetect246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_photo246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opencv_video246.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\loading.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
