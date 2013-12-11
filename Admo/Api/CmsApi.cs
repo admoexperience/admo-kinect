@@ -15,14 +15,16 @@ namespace Admo.Api
 {
     public class CmsApi
     {
-        public const String BaseUri = "https://cms.admoexperience.com/api/v1";
-        public const String CmsUrl = BaseUri +"/unit/";
+        public readonly string BaseUri = "https://cms.admoexperience.com/api/v1";
+        public readonly string CmsUrl; 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly String _apiKey;
+        private readonly string _apiKey;
 
-        public CmsApi(String apiKey)
+        public CmsApi(string apiKey,string baseUri)
         {
             _apiKey = apiKey;
+            BaseUri = baseUri;
+            CmsUrl = BaseUri + "/unit/";
         }
 
         public async void CheckIn()
@@ -39,15 +41,15 @@ namespace Admo.Api
             }
         }
 
-        public async Task<String> GetConfig()
+        public async Task<string> GetConfig()
         {
             return await GetUrlContent(CmsUrl + "config.json");
         }
 
-        public async Task<String> PostScreenShot(Image img)
+        public async Task<string> PostScreenShot(Image img)
         {
             var httpClient = new HttpClient();
-            const string url = CmsUrl + "screenshot.json";
+            string url = CmsUrl + "screenshot.json";
             // httpClient.DefaultRequestHeaders.TransferEncodingChunked = true;
             httpClient.DefaultRequestHeaders.Add("Api-Key", _apiKey);
 
@@ -69,7 +71,7 @@ namespace Admo.Api
             return JsonHelper.ConvertFromApiRequest<List<PodApp>>(json);
         }
 
-        private async Task<String> GetUrlContent(String url)
+        private async Task<string> GetUrlContent(string url)
         {
             var httpClient = new HttpClient();
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);

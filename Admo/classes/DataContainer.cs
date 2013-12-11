@@ -8,7 +8,7 @@
  */
 namespace Admo.classes
 {
-    class DataContainer
+    public class DataContainer
     {
         public String Type { get; set; }
         public Object Data { get; set; }

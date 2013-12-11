@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows;
 using Admo.Api;
 using Admo.Api.Dto;
 using Admo.classes.lib;
 using Admo.classes.stats;
+using Admo.forms;
 using AdmoShared.Utilities;
 using NLog;
 using Newtonsoft.Json;
@@ -19,7 +23,7 @@ namespace Admo.classes
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly bool RunningFacetracking = false;
-        
+        public const string DefaultCmsApiUrl = "https://cms.admoexperience.com/api/v1";
         private static CmsApi Api { get; set; }
     
         public static Boolean IsOnline = false;
@@ -63,34 +67,48 @@ namespace Admo.classes
 
         public static void Init()
         {
-            Api = new CmsApi(GetApiKey());
+            
+            Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
             _config = ReadConfig();
-            UpdateConfigCache();
-            //Only connect to pubnub if the key is there
-            if (!String.IsNullOrEmpty(GetPubNubSubKey()))
+            if (!IsBaseCmsUrlLocal())
             {
-                Pusher = new PushNotification
+                UpdateAndGetConfigCache();
+
+                //Only connect to pubnub if the key is there
+                if (!String.IsNullOrEmpty(GetPubNubSubKey()))
                 {
-                    Channel = GetApiKey(),
-                    SubscribeKey = GetPubNubSubKey(),
-                    OnConnection = OnPushNotificationConnection
-                };
-                Pusher.Connect();
+                    Pusher = new PushNotification
+                    {
+                        Channel = GetApiKey(),
+                        SubscribeKey = GetPubNubSubKey(),
+                        OnConnection = OnPushNotificationConnection
+                    };
+                    Pusher.Connect();
+                } 
+
             }
 
-
+            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(), GetUnitName());
+            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
+            StatsEngine = new StatsEngine(dataCache, mixpanel);
 
             var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
 
-            var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(),GetUnitName());
-            var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(),"analytics"));
-            StatsEngine = new StatsEngine(dataCache, mixpanel);
-
             //Async task to download pods in the background
             UpdatePods();
+        }
+
+        public static string GetBaseCmsUrl()
+        {
+            if (!File.Exists(Path.Combine(GetBaseConfigPath(), "BaseCmsUrl" + ".txt")))
+            {
+                return DefaultCmsApiUrl;
+            }
+            var apiKey = ReadLocalConfig("BaseCmsUrl");
+            return apiKey.Equals(String.Empty) ? DefaultCmsApiUrl : apiKey;
         }
 
         public static void OnPushNotificationConnection(Boolean online)
@@ -98,11 +116,10 @@ namespace Admo.classes
             IsOnline = online;
             if (!online) return;
             StatsEngine.ProcessOfflineCache();
-            UpdateConfigCache();
+            UpdateAndGetConfigCache();
+          //  UpdateConfigCache();
             Api.CheckIn();
         }
-
-
 
         public static void NewWebContent(String file)
         {
@@ -110,12 +127,10 @@ namespace Admo.classes
             SocketServer.SendReloadEvent();
         }
 
-
         public static string GetWebServerBasePath()
         {
             return _config.WebServerBasePath;
         }
-
 
         //Production mode by default.
         public static Boolean IsDevMode()
@@ -199,7 +214,7 @@ namespace Admo.classes
             return apiKey;
         }
 
-        public static Boolean HasApiKey()
+        public static bool HasApiKey()
         {
             var fileExsists = File.Exists(GetLocalConfig("ApiKey"));
             if (!fileExsists)
@@ -208,8 +223,19 @@ namespace Admo.classes
             }
             var apiKey = ReadLocalConfig("ApiKey");
             return !apiKey.Equals(String.Empty);
-
         }
+
+        public static bool IsBaseCmsUrlLocal()
+        {
+            var fileExsists = File.Exists(GetLocalConfig("BaseCmsUrl"));
+            if (!fileExsists)
+            {
+                return false;
+            }
+            var apiKey = ReadLocalConfig("BaseCmsUrl");
+            return apiKey.Equals("local");
+        }
+
 
         private static String GetPubNubSubKey()
         {
@@ -232,7 +258,7 @@ namespace Admo.classes
         {
             var x = GetJsonConfig()["config"] as JObject;
             x.Add("apiKey", GetApiKey());
-            x.Add("cmsUri", CmsApi.CmsUrl);
+            x.Add("cmsUri", Api.CmsUrl);
             return x;
         }
 
@@ -269,36 +295,23 @@ namespace Admo.classes
             Api.CheckIn();
         }
 
-        public static async void UpdateConfigCache()
+        public static void UpdateConfigCache(string jsonConfig)
         {
             try
             {
-                Logger.Debug("Updating config");
-
-                var responseAsString = await Api.GetConfig();
-                //test its valid json
-                _config = JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(responseAsString);
-                var cacheFile = GetCmsConfigCacheFile();
-                try
-                {
-                    File.WriteAllText(cacheFile, responseAsString);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Failed to write cache file for [" + "App" + "] to disk", e);
-                }
+                File.WriteAllText(GetCmsConfigCacheFile(), jsonConfig);
             }
             catch (Exception e)
             {
-                //Happens when the unit is offline
-                Logger.Warn("Unable to update the cacheconfig file",e);
+                Logger.Error("Failed to write cache file for [" + "App" + "] to disk", e);
             }
-            
+            _config = ReadConfig();
 
             SocketServer.SendUpdatedConfig();
 
             if (OptionChanged != null) OptionChanged();
         }
+      
 
         public static void SetPodFile(string podFile)
         {
@@ -388,6 +401,32 @@ namespace Admo.classes
         public static bool SilhouetteEnabled()
         {
             return _config.SilhouetteEnabled;
+        }
+
+        public static async void UpdateAndGetConfigCache()
+        {
+            try
+            {
+                Logger.Debug("Updating config");
+
+                var responseAsString = await Api.GetConfig();
+                //test its valid json
+                _config = JsonHelper.ConvertFromApiRequest<Api.Dto.Config>(responseAsString);
+             //   var cacheFile = GetCmsConfigCacheFile();
+                UpdateConfigCache(responseAsString);
+            }
+            catch (Exception e)
+            {
+                //Happens when the unit is offline
+                Logger.Warn("Unable to update the cacheconfig file", e);
+            }
+
+           
+        }
+
+        public static string GetEnvironment()
+        {
+            return _config.Environment;
         }
     }
 }
