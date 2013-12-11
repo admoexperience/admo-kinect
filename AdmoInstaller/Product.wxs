@@ -95,6 +95,9 @@
                         <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
+              <Component Id="REMOVEFILES" Guid="FE53ACAD-9F4A-48DB-95F8-FCFBEE2B4E82">
+                <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
+              </Component>
               <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
                 <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
               </Component>
@@ -244,7 +247,8 @@
         <ComponentRef Id="OPENCVOBJDETECT" />
         <ComponentRef Id="OPENCVPHOTO" />
         <ComponentRef Id="OPENCVVIDEO" />
-       </Feature>      
+        <ComponentRef Id="REMOVEFILES"/>
+      </Feature>      
       <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
   <InstallUISequence>
     <Custom Action="ExtraCustomActions" After="I"\\>NOT Installed</Custom>
