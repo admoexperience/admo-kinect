@@ -158,10 +158,7 @@
               <Component Id="OPENCVNEDDLL" DiskId="1" Guid="9073BDE5-1FA3-4A99-9E29-3DD2379FC685">
                 <File Id="OPENCVNEDDLL" Name="OpenCV.Net.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.dll" />
               </Component>
-              <Component Id="OPENCVNETXML" DiskId="1" Guid="057F67B4-3069-4402-9F16-619E5B2D27F5">
-                <File Id="OPENCVNETXML" Name="OpenCV.Net.xml" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.xml" />
-              </Component>
-
+      
               <Component Id="OPENCVCALIB" DiskId="1" Guid="40D00F97-27F4-4F8A-9D7B-2C751364924E">
                 <File Id="OPENCVCALIB" Name="opencv_calib3d246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_calib3d246.dll" />
               </Component>
@@ -239,7 +236,6 @@
         <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
         <ComponentRef Id="BACKGROUNDREMOVALDLL" />
         <ComponentRef Id="ADMOSHAREDDLL"/>
-        <ComponentRef Id="OPENCVNETXML" />
         <ComponentRef Id="OPENCVCALIB" />
         <ComponentRef Id="OPENCVNEDDLL" />
         <ComponentRef Id="OPENCVCORE" />
