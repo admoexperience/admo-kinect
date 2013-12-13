@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Admo.classes;
 using Admo.classes.lib;
+using Admo.forms;
 using AdmoShared.Utilities;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
@@ -66,10 +67,17 @@ namespace Admo
             InitializeComponent();
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
+
+            if (Config.IsBaseCmsUrlLocal())
+            {
+                var offlineConfig = new OfflineConfig();
+                offlineConfig.Show();
+            }
         }
         
         public void OnConfigChange()
         {
+            
             KinectElevationAngle = Config.GetElevationAngle();
 
             if (_currentKinectSensor != null &&  //Only changed if exists //Only changed if running
@@ -87,7 +95,6 @@ namespace Admo
                     Log.Debug("Unable  to change kinect elevation Angle " + KinectElevationAngle);
                 }
             }
-    
 
             if (Config.IsCalibrationActive())
             {
@@ -194,10 +201,7 @@ namespace Admo
                     backgroundRemovedColorStream.BackgroundRemovedFrameReady += BackgroundRemovedFrameReadyHandler;
                     
                     args.NewSensor.AllFramesReady += SensorAllFramesReady;
-
                     
-
-
                     //only enable RGB camera if facetracking or dev-mode is enabled
                     if (Config.RunningFacetracking || Config.IsDevMode())
                     {
@@ -404,7 +408,10 @@ namespace Admo
                 }
             }
         }
-
+        /// <summary>
+        /// Performs gesture decection and transforms the skeleton data to be usable by the browser
+        /// </summary>
+        /// <param name="first">The current skeleton</param>
         private void GetDataForSocketServer(Skeleton first)
         {
             //swipe gesture detection

@@ -4,7 +4,7 @@
     {
         public override void Perform()
         {
-            Config.UpdateConfigCache();
+            Config.UpdateAndGetConfigCache();
         }
 
     }

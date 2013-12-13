@@ -15,18 +15,22 @@ namespace Admo.Api
     {
 
         //CmsApi.BaseUri+
-        public const String AccountsUri = CmsApi.BaseUri+"/account";
+        public readonly string AccountsUri;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public String Email {get; set;}
-        public String Password { get; set; }
+        public string Email {get; set;}
+        public string Password { get; set; }
 
+        public CmsAccountApi(string accountUri)
+        {
+            AccountsUri = accountUri+"/account";
+        }
 
-        public async Task<String> RegisterDevice(String name)
+        public async Task<string> RegisterDevice(string name)
         {
             var httpClient = new HttpClient();
 
-            var dict = new Dictionary<String, String>
+            var dict = new Dictionary<string, string>
                 {
                     {"email", Email},
                     {"password",Password},
@@ -45,7 +49,7 @@ namespace Admo.Api
             return responseAsString;
         }
 
-        public async Task<String> RegisterDevice()
+        public async Task<string> RegisterDevice()
         {
             var httpClient = new HttpClient();
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, AccountsUri + "/register_unit.json");

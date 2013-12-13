@@ -95,6 +95,9 @@
                         <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
                     </File>
                 </Component>
+              <Component Id="REMOVEFILES" Guid="FE53ACAD-9F4A-48DB-95F8-FCFBEE2B4E82">
+                <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
+              </Component>
               <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
                 <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
               </Component>
@@ -155,6 +158,35 @@
                 <File Id="ADMOSHAREDDLL" Name="AdmoShared.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoShared.dll" />
               </Component>
 
+              <Component Id="OPENCVNEDDLL" DiskId="1" Guid="9073BDE5-1FA3-4A99-9E29-3DD2379FC685">
+                <File Id="OPENCVNEDDLL" Name="OpenCV.Net.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.dll" />
+              </Component>
+      
+              <Component Id="OPENCVCALIB" DiskId="1" Guid="40D00F97-27F4-4F8A-9D7B-2C751364924E">
+                <File Id="OPENCVCALIB" Name="opencv_calib3d246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_calib3d246.dll" />
+              </Component>
+              <Component Id="OPENCVCORE" DiskId="1" Guid="8C583B18-BA7A-4409-87FB-579EF5E11A32">
+                <File Id="OPENCVCORE" Name="opencv_core246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_core246.dll" />
+              </Component>
+
+
+              <Component Id="OPENCVGUI" DiskId="1" Guid="C63CF7F9-CC3D-48F4-9288-C08076B89705">
+                <File Id="OPENCVGUI" Name="opencv_highgui246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_highgui246.dll" />
+              </Component>
+              <Component Id="OPENCVIMPROC" DiskId="1" Guid="C175C76F-E406-422A-B24B-2F2B7CB0FDF1">
+                <File Id="OPENCVIMPROC" Name="opencv_imgproc246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_imgproc246.dll" />
+              </Component>
+
+              <Component Id="OPENCVOBJDETECT" DiskId="1" Guid="A534DDB8-7FF0-466E-9425-756C46F13188">
+                <File Id="OPENCVOBJDETECT" Name="opencv_objdetect246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_objdetect246.dll" />
+              </Component>
+              <Component Id="OPENCVPHOTO" DiskId="1" Guid="C0FEC80D-74D1-4668-87C2-89796032CCB1">
+                <File Id="OPENCVPHOTO" Name="opencv_photo246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_photo246.dll" />
+              </Component>
+
+              <Component Id="OPENCVVIDEO" DiskId="1" Guid="CB1441A9-8A7B-44C6-B41B-F55B68E99988">
+                <File Id="OPENCVVIDEO" Name="opencv_video246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_video246.dll" />
+              </Component>
               
               <Directory Id="ResourceLoc" Name="resources">
                 <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
@@ -164,6 +196,8 @@
                   <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
                 </Component>
         
+                
+                
               
               </Directory>
             </Directory>
@@ -205,7 +239,16 @@
         <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
         <ComponentRef Id="BACKGROUNDREMOVALDLL" />
         <ComponentRef Id="ADMOSHAREDDLL"/>
-       </Feature>      
+        <ComponentRef Id="OPENCVCALIB" />
+        <ComponentRef Id="OPENCVNEDDLL" />
+        <ComponentRef Id="OPENCVCORE" />
+        <ComponentRef Id="OPENCVGUI" />
+        <ComponentRef Id="OPENCVIMPROC" />
+        <ComponentRef Id="OPENCVOBJDETECT" />
+        <ComponentRef Id="OPENCVPHOTO" />
+        <ComponentRef Id="OPENCVVIDEO" />
+        <ComponentRef Id="REMOVEFILES"/>
+      </Feature>      
       <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
   <InstallUISequence>
     <Custom Action="ExtraCustomActions" After="I"\\>NOT Installed</Custom>

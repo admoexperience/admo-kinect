@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Admo.classes;
-using Admo.classes.lib;
 using Admo.Api;
 using Admo.Api.Dto;
 using AdmoShared.Utilities;
@@ -33,13 +23,13 @@ namespace Admo.forms
 
         public BootstrapUnit()
         {
-            
             InitializeComponent();
             PasswordMaskBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordMaskBox_MouseDown), true);
             PasswordField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PasswordField_Selected), true);
             DeviceNameField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(DeviceNameField_Selected), true);
 
             UserNameTextField.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(UserNameTextField_Selected), true);
+            LocalStart.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(LocalStart_MouseUp), true);
 
             LoginBox.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Login_MouseUp), true);
 
@@ -50,23 +40,50 @@ namespace Admo.forms
         private void BootstrapUnit_Closed(object sender, EventArgs e)
         {
            Application.Current.Shutdown();
-      
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            var doc = new FlowDocument();
+            ErrorsField.Document = doc;
+            ErrorsField.IsReadOnly = true;
+            ErrorsField.IsDocumentEnabled = true;
+
+            Paragraph para = new Paragraph();
+            doc.Blocks.Add(para);
+            //  para.FontSize = 12;
+            para.Inlines.Add("Set to (local) if you dont want to sign up");
         }
 
         private async void Login()
         {
-
-     
-           
             Cursor = Cursors.Wait;
             var username = UserNameTextField.Text;
             var password = PasswordField.Password;
             var device = DeviceNameField.Text;
-            var api = new CmsAccountApi
+            var baseUrl = CmsUrl.Text;
+            if (baseUrl == "  Cloud service location")
+            {
+                baseUrl = "https://cms.admoexperience.com/api/v1";
+            }
+
+            if (device == "  Cloud service location")
+            {
+                device = Environment.MachineName;
+            }
+
+            File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), baseUrl);
+            if (baseUrl=="local")
+            {
+                File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"");
+
+                //open straight away if local config is used
+                var main = new MainWindow();
+                main.Show();
+                Close();
+            }
+
+            var api = new CmsAccountApi(baseUrl)
                 {
                     Email = username,
                     Password = password
@@ -78,8 +95,7 @@ namespace Admo.forms
                 if (!unit.ContainsErrors())
                 {
                     File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), unit.ApiKey);
-
-                    var unitApi = new CmsApi(unit.ApiKey);
+                    var unitApi = new CmsApi(unit.ApiKey, baseUrl);
                     var stringval = await unitApi.GetConfig();
                     File.WriteAllText(classes.Config.GetCmsConfigCacheFile(), stringval);
                     var main = new MainWindow();
@@ -88,7 +104,6 @@ namespace Admo.forms
                 }
                 else
                 {
-
                     Logger.Error("Error: "+ unit.Error);
                     ErrorsField.Document.Blocks.Clear();
                     ErrorsField.Document.Blocks.Add(new Paragraph(new Run("errors: " + unit.Error)));
@@ -129,6 +144,7 @@ namespace Admo.forms
             // To handle all Hyperlinks in the RichTextBox
             ErrorsField.AddHandler(Hyperlink.RequestNavigateEvent,
                new RequestNavigateEventHandler(RequestNavigateHandler));
+            CmsUrl.Visibility = Visibility.Visible;
         }
 
         private void link_Click(object sender, RoutedEventArgs e)
@@ -149,8 +165,6 @@ namespace Admo.forms
             PasswordField.Focus();
             PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
             PasswordField.BorderThickness = new Thickness(2);
-
-     
 
         }
 
@@ -189,6 +203,7 @@ namespace Admo.forms
             DeviceNameField.BorderThickness = new Thickness(0);
             PasswordField.BorderThickness = new Thickness(0);
             UserNameTextField.BorderThickness = new Thickness(0);
+            CmsUrl.BorderThickness = new Thickness(0);
         }
 
         private void ResetifEmpty()
@@ -197,6 +212,7 @@ namespace Admo.forms
             DeviceNameField.BorderThickness = new Thickness(0);
             PasswordField.BorderThickness = new Thickness(0);
             UserNameTextField.BorderThickness = new Thickness(0);
+            CmsUrl.BorderThickness = new Thickness(0);
 
         }
         private void setBorder(TextBox txBox)
@@ -223,6 +239,26 @@ namespace Admo.forms
 
             PasswordField.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#49A8DE"));
             PasswordField.BorderThickness = new Thickness(2);
+        }
+
+        private void CmsUrl_Selected(object sender, RoutedEventArgs e)
+        {
+            RemoveAllBorders();
+
+            CmsUrl.Text = Admo.classes.Config.DefaultCmsApiUrl;
+            setBorder(CmsUrl);
+        }
+
+        private void LocalStart_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            File.WriteAllText(classes.Config.GetLocalConfig("BaseCmsUrl"), @"local");
+
+            File.WriteAllText(classes.Config.GetLocalConfig("ApiKey"), @"");
+
+            //open straight away if local config is used
+            var main = new MainWindow();
+            main.Show();
+            Close();
         }
     }
 }
