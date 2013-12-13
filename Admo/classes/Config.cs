@@ -88,11 +88,7 @@ namespace Admo.classes
                 } 
 
             }
-            else
-            {
-                Api = new CmsApi("", GetBaseCmsUrl());
-
-            }
+           
 
             var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(), GetUnitName());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
@@ -266,9 +262,14 @@ namespace Admo.classes
             if (!IsBaseCmsUrlLocal())
             {
                 x.Add("apiKey", GetApiKey());
-
+                x.Add("cmsUri", Api.CmsUrl);
             }
-            x.Add("cmsUri", Api.CmsUrl);
+            else
+            {
+                x.Add("cmsUri", "local");
+            }
+
+        
             return x;
         }
 
