@@ -29,7 +29,8 @@ namespace Admo.forms
             classes.Config.UpdateAndGetConfigCache();
             Environment.Text = classes.Config.GetEnvironment();
             WebUiServer.Text = classes.Config.GetWebServer();
-            WebServerPath.Text = classes.Config.GetPodFile();
+            WebServerPath.Text = classes.Config.GetWebServerBasePath();
+            PodFle.Text = classes.Config.GetPodFile();
             KinectElevation.Text = classes.Config.GetElevationAngle().ToString();
             SmoothingType.Text = classes.Config.GetTransformSmoothType();
             FovCropTop.Text = classes.Config.GetFovCropTop().ToString();

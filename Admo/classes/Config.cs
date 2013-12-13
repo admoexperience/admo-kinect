@@ -94,7 +94,7 @@ namespace Admo.classes
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
-            var pod = new PodWatcher(GetPodFile(), Path.GetDirectoryName(_config.WebServerBasePath));
+            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
