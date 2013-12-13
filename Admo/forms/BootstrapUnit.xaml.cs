@@ -39,7 +39,7 @@ namespace Admo.forms
 
         private void BootstrapUnit_Closed(object sender, EventArgs e)
         {
-           Application.Current.Shutdown();
+         Application.Current.Shutdown();
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -258,7 +258,8 @@ namespace Admo.forms
             //open straight away if local config is used
             var main = new MainWindow();
             main.Show();
-            Close();
+            this.Hide();
+         
         }
     }
 }
