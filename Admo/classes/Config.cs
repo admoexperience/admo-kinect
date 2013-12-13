@@ -304,14 +304,17 @@ namespace Admo.classes
 
         public static void CheckIn()
         {
-            Api.CheckIn();
+            if (!IsBaseCmsUrlLocal())
+            {
+                Api.CheckIn();
+            }
 
         }
 
         public static void CheckInVersion()
         {
 
-            if (!Config.IsDevMode())
+            if (!IsDevMode()&&!IsBaseCmsUrlLocal())
             {
                 var result = Api.RegisterDeviceVersion();
             }
