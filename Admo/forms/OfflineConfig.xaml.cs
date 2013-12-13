@@ -25,6 +25,8 @@ namespace Admo.forms
         {
             InitializeComponent();
 
+
+            classes.Config.UpdateAndGetConfigCache();
             Environment.Text = classes.Config.GetEnvironment();
             WebUiServer.Text = classes.Config.GetWebServer();
             WebServerPath.Text = classes.Config.GetPodFile();

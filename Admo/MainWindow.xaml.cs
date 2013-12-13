@@ -68,11 +68,6 @@ namespace Admo
             Loaded += OnLoaded;
             this.Closed += WindowClosing;
 
-            if (Config.IsBaseCmsUrlLocal())
-            {
-                var offlineConfig = new OfflineConfig();
-                offlineConfig.Show();
-            }
         }
         
         public void OnConfigChange()
@@ -115,6 +110,14 @@ namespace Admo
             LifeCycle.ActivateTimers();
             _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
+
+            if (Config.IsBaseCmsUrlLocal())
+            {
+                var offlineConfig = new OfflineConfig();
+                offlineConfig.Show();
+            }
+
+
 
             //start and stop old kinect sensor kinect sensor
             if (KinectSensor.KinectSensors.Count > 0)

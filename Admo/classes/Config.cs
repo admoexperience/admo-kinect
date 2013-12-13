@@ -68,10 +68,11 @@ namespace Admo.classes
         public static void Init()
         {
             
-            Api = new CmsApi(GetApiKey(),GetBaseCmsUrl());
+            
             _config = ReadConfig();
             if (!IsBaseCmsUrlLocal())
             {
+                Api = new CmsApi(GetApiKey(), GetBaseCmsUrl());
                 UpdateAndGetConfigCache();
 
                 //Only connect to pubnub if the key is there
@@ -87,12 +88,17 @@ namespace Admo.classes
                 } 
 
             }
+            else
+            {
+                Api = new CmsApi("", GetBaseCmsUrl());
+
+            }
 
             var mixpanel = new Mixpanel(GetMixpanelApiKey(), GetMixpanelApiToken(), GetUnitName());
             var dataCache = new DataCache(Path.Combine(GetBaseConfigPath(), "analytics"));
             StatsEngine = new StatsEngine(dataCache, mixpanel);
 
-            var pod = new PodWatcher(GetPodFile(), _config.WebServerBasePath);
+            var pod = new PodWatcher(GetPodFile(), Path.GetDirectoryName(_config.WebServerBasePath));
             pod.StartWatcher();
             pod.Changed += NewWebContent;
             OptionChanged += pod.OnConfigChange;
@@ -257,7 +263,11 @@ namespace Admo.classes
         public static JObject GetConfiguration()
         {
             var x = GetJsonConfig()["config"] as JObject;
-            x.Add("apiKey", GetApiKey());
+            if (!IsBaseCmsUrlLocal())
+            {
+                x.Add("apiKey", GetApiKey());
+
+            }
             x.Add("cmsUri", Api.CmsUrl);
             return x;
         }
