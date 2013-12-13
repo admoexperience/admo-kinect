@@ -127,6 +127,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Api\Dto\BaseApiResult.cs" />
+    <Compile Include="Api\Dto\ClientVersion.cs" />
     <Compile Include="Api\Dto\Config.cs" />
     <Compile Include="Api\Dto\Unit.cs" />
     <Compile Include="Api\PodDownloader.cs" />
