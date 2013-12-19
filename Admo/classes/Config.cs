@@ -320,8 +320,7 @@ namespace Admo.classes
 
         public static void CheckInVersion()
         {
-
-            if (!IsDevMode()&&!IsLocalOnly())
+            if (!IsDevMode() && !IsLocalOnly())
             {
                 var result = Api.RegisterDeviceVersion();
             }
