@@ -173,7 +173,8 @@
           <File Id="ADMOSHAREDDLL" Name="AdmoShared.dll"
                 Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoShared.dll" />
         </Component>
-
+<!--
+Removed as part of installer clean up 
         <Component Id="OPENCVNEDDLL" DiskId="1" Guid="9073BDE5-1FA3-4A99-9E29-3DD2379FC685">
           <File Id="OPENCVNEDDLL" Name="OpenCV.Net.dll"
                 Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.dll" />
@@ -211,6 +212,7 @@
           <File Id="OPENCVVIDEO" Name="opencv_video246.dll"
                 Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_video246.dll" />
         </Component>
+        -->
 
         <Directory Id="ResourceLoc" Name="resources">
           <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA">
@@ -240,6 +242,9 @@
     </Directory>
 
     <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+      
+      <ComponentRef Id="REMOVEFILES" />
+      
       <ComponentRef Id="ADMO.EXE" />
       <ComponentRef Id="ADMO.EXE.CONFIG" />
       <ComponentRef Id="FLECK.DLL" />
@@ -264,6 +269,8 @@
       <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
       <ComponentRef Id="BACKGROUNDREMOVALDLL" />
       <ComponentRef Id="ADMOSHAREDDLL" />
+      <!--
+      Removing these until we require use of opencv code
       <ComponentRef Id="OPENCVCALIB" />
       <ComponentRef Id="OPENCVNEDDLL" />
       <ComponentRef Id="OPENCVCORE" />
@@ -271,8 +278,9 @@
       <ComponentRef Id="OPENCVIMPROC" />
       <ComponentRef Id="OPENCVOBJDETECT" />
       <ComponentRef Id="OPENCVPHOTO" />
-      <ComponentRef Id="OPENCVVIDEO" />
-      <ComponentRef Id="REMOVEFILES" />
+      <ComponentRef Id="OPENCVVIDEO" /> -->
+      
+     
     </Feature>
     <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
   <InstallUISequence>
