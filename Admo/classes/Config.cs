@@ -41,6 +41,9 @@ namespace Admo.classes
 
         public static StatsEngine StatsEngine;
 
+        //Used to override the base config location 
+        public static string OverrideBaseConfigPath { get; set; }
+
         public static String GetHostName()
         {
             return Environment.MachineName;
@@ -71,7 +74,7 @@ namespace Admo.classes
             
             
             _config = ReadConfig();
-            if (!IsBaseCmsUrlLocal())
+            if (!IsLocalOnly())
             {
                 Api = new CmsApi(GetApiKey(), GetBaseCmsUrl());
                 UpdateAndGetConfigCache();
@@ -106,12 +109,13 @@ namespace Admo.classes
 
         public static string GetBaseCmsUrl()
         {
-            if (!File.Exists(Path.Combine(GetBaseConfigPath(), "BaseCmsUrl" + ".txt")))
+            var file = GetLocalConfig("BaseCmsUrl");
+            if (!File.Exists(file))
             {
                 return DefaultCmsApiUrl;
             }
-            var apiKey = ReadLocalConfig("BaseCmsUrl");
-            return apiKey.Equals(String.Empty) ? DefaultCmsApiUrl : apiKey;
+            var url = ReadLocalConfig("BaseCmsUrl");
+            return String.IsNullOrEmpty(url) ? DefaultCmsApiUrl : url;
         }
 
         public static void OnPushNotificationConnection(Boolean online)
@@ -148,8 +152,11 @@ namespace Admo.classes
 
         public static String GetBaseConfigPath()
         {
+            
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            return Path.Combine(appData, "Admo");
+            var defaultPath =  Path.Combine(appData, "Admo");
+
+            return String.IsNullOrEmpty(OverrideBaseConfigPath) ? defaultPath : OverrideBaseConfigPath;
         }
 
         public static int GetScreenshotInterval()
@@ -187,27 +194,27 @@ namespace Admo.classes
             return _config.KinectElevation;
         }
 
-        public static String GetMixpanelApiToken()
+        public static string GetMixpanelApiToken()
         {
             return _config.Analytics.MixpanelApiToken;
         }
 
-        public static String GetMixpanelApiKey()
+        public static string GetMixpanelApiKey()
         {
             return _config.Analytics.MixpanelApiKey;
         }
 
-        public static String GetLocalConfig(String config)
+        public static string GetLocalConfig(String config)
         {
             return Path.Combine(GetBaseConfigPath(), config + ".txt");
         }
 
-        public static String GetCmsConfigCacheFile()
+        public static string GetCmsConfigCacheFile()
         {
             return Path.Combine(GetBaseConfigPath(), "configcache.json");
         }
 
-        private static String GetApiKey()
+        private static string GetApiKey()
         {
             var apiKey = ReadLocalConfig("ApiKey");
             if (apiKey.Equals(String.Empty))
@@ -225,18 +232,18 @@ namespace Admo.classes
                 return false;
             }
             var apiKey = ReadLocalConfig("ApiKey");
-            return !apiKey.Equals(String.Empty);
+            return !String.IsNullOrEmpty(apiKey);
         }
 
-        public static bool IsBaseCmsUrlLocal()
+        public static bool IsLocalOnly()
         {
             var fileExsists = File.Exists(GetLocalConfig("BaseCmsUrl"));
             if (!fileExsists)
             {
                 return false;
             }
-            var apiKey = ReadLocalConfig("BaseCmsUrl");
-            return apiKey.Equals("local");
+            var url = ReadLocalConfig("BaseCmsUrl");
+            return url.Equals("local");
         }
 
 
@@ -260,7 +267,7 @@ namespace Admo.classes
         public static JObject GetConfiguration()
         {
             var x = GetJsonConfig()["config"] as JObject;
-            if (!IsBaseCmsUrlLocal())
+            if (!IsLocalOnly())
             {
                 x.Add("apiKey", GetApiKey());
                 x.Add("cmsUri", Api.CmsUrl);
@@ -304,7 +311,7 @@ namespace Admo.classes
 
         public static void CheckIn()
         {
-            if (!IsBaseCmsUrlLocal())
+            if (!IsLocalOnly())
             {
                 Api.CheckIn();
             }
@@ -314,7 +321,7 @@ namespace Admo.classes
         public static void CheckInVersion()
         {
 
-            if (!IsDevMode()&&!IsBaseCmsUrlLocal())
+            if (!IsDevMode()&&!IsLocalOnly())
             {
                 var result = Api.RegisterDeviceVersion();
             }

@@ -112,7 +112,7 @@ namespace Admo
             _applicationHandler = new ApplicationHandler();
             ApplicationHandler.ConfigureCalibrationByConfig();
 
-            if (Config.IsBaseCmsUrlLocal())
+            if (Config.IsLocalOnly())
             {
                 var offlineConfig = new OfflineConfig();
                 offlineConfig.Show();
@@ -533,16 +533,15 @@ namespace Admo
         private void WindowClosing(object sender, EventArgs e)
         {
             Log.Info("Shutting down server");
-            if (_sensorChooser!= null &&_sensorChooser.Kinect != null)
+            if (_sensorChooser!= null && _sensorChooser.Kinect != null)
             {
                 KinectLib.StopKinectSensor(_sensorChooser.Kinect);
             }
-            KinectLib.StopKinectSensor(_sensorChooser.Kinect);
             //need to stop backgroundremovedcolour stream - it not working...
-            if (null != this.backgroundRemovedColorStream)
+            if (backgroundRemovedColorStream != null)
             {
-                this.backgroundRemovedColorStream.Dispose();
-                this.backgroundRemovedColorStream = null;
+                backgroundRemovedColorStream.Dispose();
+                backgroundRemovedColorStream = null;
             }
            
             SocketServer.Stop();
@@ -556,7 +555,5 @@ namespace Admo
             System.Windows.Application.Current.Shutdown();
 
         }
-
-        public long LastHitTime { get; set; }
     }
 }
