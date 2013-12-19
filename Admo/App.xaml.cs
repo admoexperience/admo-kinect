@@ -57,7 +57,7 @@ namespace Admo
             classes.Config.InitDirs();
             
             var hasConfig = classes.Config.HasApiKey();
-            hasConfig = hasConfig || classes.Config.IsBaseCmsUrlLocal();
+            hasConfig = hasConfig || classes.Config.IsLocalOnly();
             if (hasConfig)
             {
                 var mainWindow = new MainWindow();

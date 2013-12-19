@@ -5,13 +5,12 @@
 
     <Grid Margin="0,0,-6,-6">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="258*"/>
+            <ColumnDefinition Width="256*"/>
             <ColumnDefinition Width="140*"/>
-            <ColumnDefinition Width="11*"/>
-            <ColumnDefinition Width="126*"/>
-            <ColumnDefinition Width="65*"/>
+            <ColumnDefinition Width="185*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="8*"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="Environment" HorizontalAlignment="Left" Height="36" Margin="0,42,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="production" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
         <Rectangle Fill="#FF49A8DE" HorizontalAlignment="Left" Height="10" Margin="0,-5,0,0" Stroke="#FF49A8DE" VerticalAlignment="Top" Width="594" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="5">
             <Rectangle.RenderTransform>
                 <TransformGroup>
@@ -22,39 +21,57 @@
                 </TransformGroup>
             </Rectangle.RenderTransform>
         </Rectangle>
-        <TextBox x:Name="LoginBox" HorizontalAlignment="Center" Height="40" Margin="58.037,446,20.327,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="112" VerticalContentAlignment="Center" BorderThickness="0" HorizontalContentAlignment="Center" Text="Publish" Foreground="White" Background="#49A8DE" FontSize="12" Grid.ColumnSpan="2"  IsReadOnly="True"
-                 Cursor="Hand" Grid.Column="3" MouseLeftButtonDown="LoginBox_OnMouseLeftButtonDown"/>
-        <Label Content="Configuration" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="151,10,0,0" VerticalAlignment="Top" Width="107"/>
-        <TextBlock Grid.ColumnSpan="2"  Text="Environment the unit should run in [production,development]" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,44,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Image HorizontalAlignment="Left" Height="180" VerticalAlignment="Top" Width="123" Source="/Admo;component/resources/left-banner.png"/>
-        <Label Content="Environment" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,42,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="WebUiServer" HorizontalAlignment="Left" Height="36" Margin="0,83,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="https://localhost:5001  " Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="Which url to launch at start up, ie where the html5 appliation is hosted" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,85,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="WebUiServer" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,83,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="WebServerPath" HorizontalAlignment="Left" Height="36" Margin="0,124,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="%APP_DATA%/Admo/webserver/" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="The folder on disk where the webserver content is actually hosted from. Used for watching for file changes" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,126,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="WebServerBasePath" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,124,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="KinectElevation" HorizontalAlignment="Left" Height="36" Margin="0,206,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="-9" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="The elevation of the kinnect used to configure correct angle" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,208,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="Kinect Elevation" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,206,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="SmoothingType" HorizontalAlignment="Left" Height="36" Margin="0,247,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="cursor" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,249,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"><Run Language="en-za" Text="Smoothing "/><Run Text="type [avatar,cursor]"/></TextBlock>
-        <Label Content="SmoothingType" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,247,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="FovCropTop" HorizontalAlignment="Left" Height="36" Margin="0,288,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="0" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,290,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="FovCropTop" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,288,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="FovCropLeft" HorizontalAlignment="Left" Height="36" Margin="0,329,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="0" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,331,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="FovCropLeft" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,329,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="FovCropWidth" HorizontalAlignment="Left" Height="36" Margin="0,370,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="0" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,372,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="FovCropWidth" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,370,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="SilhouetteEnabled" HorizontalAlignment="Left" Height="36" Margin="1,411,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="false" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2"  Text="If the service should send through silhouette info to html5 app" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,413,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"/>
-        <Label Content="SilhouetteEnabled" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,413,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
-        <TextBox x:Name="PodFle" HorizontalAlignment="Left" Height="36" Margin="0,165,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Text="%APP_DATA%/Admo/pods/" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.Column="1"  />
-        <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="10,167,0,0" VerticalAlignment="Top" Width="176" Grid.Column="3"><Run Text="File path to zi"/><Run Language="en-za" Text="p"/><Run Text="ped html5 application"/><Run Language="en-za" Text="s. "/></TextBlock>
-        <Label Content="PodFile" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="128,165,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+        <Label Content="Configuration" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="33,20,0,0" VerticalAlignment="Top" Width="107"/>
+        <TextBox x:Name="PublishButton" HorizontalAlignment="Center" Height="40" Margin="63,446,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="112" VerticalContentAlignment="Center" BorderThickness="0" HorizontalContentAlignment="Center" Text="Publish" Foreground="White" Background="#49A8DE" FontSize="12"  IsReadOnly="True"
+                 Cursor="Hand" Grid.Column="2" MouseLeftButtonDown="PublishButton_OnMouseLeftButtonDown"/>
+
+
+        <ComboBox x:Name="Environment" HorizontalAlignment="Left" Height="36" Margin="139,52,0,0"  VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2">
+            <ComboBoxItem Content="production" />
+            <ComboBoxItem Content="development" />
+        </ComboBox>
+        <TextBlock Grid.ColumnSpan="2"  Text="Environment the unit should run in [production,development]" TextWrapping="Wrap" FontSize="10" Height="34" Margin="43,54,1,0" VerticalAlignment="Top" Grid.Column="1"/>
+        <Label Content="Environment" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,52,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="WebUiServer" HorizontalAlignment="Left" Height="36" Margin="139,93,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="Which url to launch at start up, ie where the html5 appliation is hosted" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,95,0,0" VerticalAlignment="Top" Width="281" Grid.Column="1"/>
+        <Label Content="WebUiServer" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,93,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="WebServerPath" HorizontalAlignment="Left" Height="36" Margin="139,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center"  Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="The folder on disk where the webserver content is actually hosted from. Used for watching for file changes" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,136,0,0" VerticalAlignment="Top" Width="281" Grid.Column="1"/>
+        <Label Content="WebServerBasePath" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,134,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="KinectElevation" HorizontalAlignment="Left" Height="36" Margin="139,216,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="The elevation of the kinnect used to configure correct angle" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,218,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"/>
+        <Label Content="Kinect Elevation" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,216,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <ComboBox  x:Name="SmoothingType" HorizontalAlignment="Left" Height="36" Margin="139,257,0,0" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2">
+
+            <ComboBoxItem Content="cursor" />
+            <ComboBoxItem Content="avatar" />
+        </ComboBox>
+        <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,259,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"><Run Language="en-za" Text="Smoothing "/><Run Text="type [avatar,cursor]"/></TextBlock>
+        <Label Content="SmoothingType" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,257,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="FovCropTop" HorizontalAlignment="Left" Height="36" Margin="139,298,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,300,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"/>
+        <Label Content="FovCropTop" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,298,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="FovCropLeft" HorizontalAlignment="Left" Height="36" Margin="139,339,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,341,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"/>
+        <Label Content="FovCropLeft" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,339,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="FovCropWidth" HorizontalAlignment="Left" Height="36" Margin="139,380,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="Used to line up HD-webcam and kinect FOV so they are in sync" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,382,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"/>
+        <Label Content="FovCropWidth" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,380,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <CheckBox x:Name="SilhouetteEnabled" HorizontalAlignment="Left" Height="20" Margin="140,437,0,0"  VerticalAlignment="Top" Width="21" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0"  />
+        <TextBlock Grid.ColumnSpan="2"  Text="If the service should send through silhouette info to html5 app" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="43,423,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"/>
+        <Label Content="SilhouetteEnabled" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,423,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
+
+        <TextBox x:Name="PodFle" HorizontalAlignment="Left" Height="36" Margin="139,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" VerticalContentAlignment="Center" Foreground="#FF6D6E70" Background="#FFF1F1F2" FontSize="12" BorderThickness="0" Grid.ColumnSpan="2"  />
+        <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="10" HorizontalAlignment="Left" Height="34" Margin="42,177,0,0" VerticalAlignment="Top" Width="176" Grid.Column="1"><Run Text="File path to zipped html5 applications."/></TextBlock>
+        <Label Content="PodFile" FontSize="12" HorizontalAlignment="Left" Height="36" Margin="10,175,0,0" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="125"/>
     </Grid>
 
 </Window>

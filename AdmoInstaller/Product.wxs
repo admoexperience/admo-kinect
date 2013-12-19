@@ -2,286 +2,320 @@
 <?define Version = "!(bind.FileVersion.ADMO.EXE)"?>
 <?define UpgradeCode = "A316F201-11FB-42B3-9B30-A3481199EC4B" ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-    <Product Id="*" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc" UpgradeCode="$(var.UpgradeCode)">
-        <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200" Compressed="yes" />
-        <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
-      <DirectoryRef Id="TARGETDIR">
-        <Component Id="RegistryEntries" Guid="8BE6F3D1-366A-4FE8-9736-19832C9AFD42">
-          <RegistryKey Root="HKCU"
-                       Key="Control Panel\Desktop"
-                Action="create">
-            <RegistryValue Type="integer" Name="ForegroundLockTimeout" Value="00000000" KeyPath="yes"/>
-            <RegistryValue Type="integer" Name="ForegroundFlashCount" Value="00000001"/>
-          </RegistryKey>
-        </Component>
-      </DirectoryRef>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <Product Id="*" Name="Admo" Language="1033" Version="!(bind.FileVersion.ADMO.EXE)" Manufacturer="Admo Inc"
+           UpgradeCode="$(var.UpgradeCode)">
+    <Package Description="Packaging of core Admo exe" Comments="Contains primary files" InstallerVersion="200"
+             Compressed="yes" />
+    <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="RegistryEntries" Guid="8BE6F3D1-366A-4FE8-9736-19832C9AFD42">
+        <RegistryKey Root="HKCU"
+                     Key="Control Panel\Desktop"
+                     Action="create">
+          <RegistryValue Type="integer" Name="ForegroundLockTimeout" Value="00000000" KeyPath="yes" />
+          <RegistryValue Type="integer" Name="ForegroundFlashCount" Value="00000001" />
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
 
-    
 
-      <Binary Id="AdmoInstallerCustomAction.CA.dll"
-           src="$(var.SolutionDir)AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
-      
-      <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico"  />
-      <Property Id="ARPPRODUCTICON" Value="Company.ico" />
-      <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
-<WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)\AdmoInstaller\License.rtf" />
+    <Binary Id="AdmoInstallerCustomAction.CA.dll"
+            src="$(var.SolutionDir)AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
 
-<WixVariable Id="WixUIBannerBmp" Value="$(var.SolutionDir)\Admo\resources\left-banner.png" />
-      <WixVariable Id="WixUIDialogBmp" Value="$(var.SolutionDir)\Admo\resources\LeftBannerInstaller.bmp" />
+    <Icon Id="Company.ico" SourceFile="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Company.ico" />
+    <Property Id="ARPHELPLINK" Value="http://www.admoexperience.com/" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)\AdmoInstaller\License.rtf" />
 
-<WixVariable Id="WixUIExclamationIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
-      <WixVariable Id="WixUIInfoIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.SolutionDir)\Admo\resources\left-banner.png" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.SolutionDir)\Admo\resources\LeftBannerInstaller.bmp" />
 
-  <WixVariable Id="WixUINewIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
-        <WixVariable Id="WixUIUpIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
-      <!--<MajorUpgrade
+    <WixVariable Id="WixUIExclamationIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+    <WixVariable Id="WixUIInfoIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+
+    <WixVariable Id="WixUINewIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+    <WixVariable Id="WixUIUpIco" Value="$(var.SolutionDir)\Admo\resources\Icon.ico" />
+    <!--<MajorUpgrade
         DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>-->
 
 
-      <Upgrade Id="$(var.UpgradeCode)">
-        <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
-        <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes" Property="OLDERVERSIONBEINGUPGRADED" />
-      </Upgrade>
+    <Upgrade Id="$(var.UpgradeCode)">
+      <UpgradeVersion Minimum="$(var.Version)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
+      <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="yes"
+                      Property="OLDERVERSIONBEINGUPGRADED" />
+    </Upgrade>
 
-      <InstallExecuteSequence>
-        <RemoveExistingProducts After="InstallInitialize" />
-        <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
-        <Custom Action="PropertyAssign" Before="LoadCertificates"></Custom>
-        <!--<Custom Action="GetPcSpecs" After="LoadCertificates">NOT Installed AND NOT PATCH</Custom>-->
-        <Custom Action="LoadCertificates" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
-        <Custom Action="DownloadRuntime" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
-      </InstallExecuteSequence>
-      <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
-
-
-      <CustomAction Id='PropertyAssign' Property='LoadCertificates'
-        Value="InstallLoc=[INSTALLLOCATION]" />
-      <CustomAction Id="LoadCertificates"
-                    Return="check"
-                     Execute="deferred"
-                     BinaryKey="AdmoInstallerCustomAction.CA.dll"
-                     DllEntry="LoadCertificates"
-             Impersonate="no"
-              
-      />
-
-      <CustomAction Id="GetPcSpecs"
-                   Return="check"
-                    Execute="immediate"
-                    BinaryKey="AdmoInstallerCustomAction.CA.dll"
-                    DllEntry="GetPcSpecs"
-            Impersonate="yes"
-      />
-
-      
-      <CustomAction Id="DownloadRuntime"
-              Return="check"
-               Execute="deferred"
-               BinaryKey="AdmoInstallerCustomAction.CA.dll"
-               DllEntry="DownLoadRuntime"
-       Impersonate="no"
-      />
-      <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallInitialize" />
+      <Custom Action="NewerVersion" After="RemoveExistingProducts">NEWERVERSIONDETECTED</Custom>
+      <Custom Action="PropertyAssign" Before="LoadCertificates"></Custom>
+      <!--<Custom Action="GetPcSpecs" After="LoadCertificates">NOT Installed AND NOT PATCH</Custom>-->
+      <Custom Action="LoadCertificates" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
+      <Custom Action="DownloadRuntime" After="InstallFiles">NOT Installed AND NOT PATCH</Custom>
+    </InstallExecuteSequence>
+    <!--<Custom Action="LoadCertificates" After="InstallFiles"></Custom>-->
 
 
+    <CustomAction Id='PropertyAssign' Property='LoadCertificates'
+                  Value="InstallLoc=[INSTALLLOCATION]" />
+    <CustomAction Id="LoadCertificates"
+                  Return="check"
+                  Execute="deferred"
+                  BinaryKey="AdmoInstallerCustomAction.CA.dll"
+                  DllEntry="LoadCertificates"
+                  Impersonate="no" />
 
-      <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ProgramFilesFolder" Name="PFiles" />
-            <Directory Id="AdmoInstallLoc" Name="Admo">
-                <Component Id="ADMO.EXE" DiskId="1" Guid="EDDBC1EC-D9F9-40BA-ABDF-1AD74E89CDB1">
-                    <File Id="ADMO.EXE" Name="Admo.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe">
-                        <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="Admo" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
-                        <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe" IconIndex="0" />
-                    </File>
-                </Component>
-              <Component Id="REMOVEFILES" Guid="FE53ACAD-9F4A-48DB-95F8-FCFBEE2B4E82">
-                <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
-              </Component>
-              <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
-                <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
-              </Component>
-                <Component Id="ADMO.EXE.CONFIG" DiskId="1" Guid="DEC55158-C7D1-432E-8E7A-D0C3519FA8C8">
-                    <File Id="ADMO.EXE.CONFIG" Name="Admo.exe.config" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe.config" />
-                </Component>
-                <Component Id="FLECK.DLL" DiskId="1" Guid="25659CED-846A-4DF0-B28D-AE53E303D8C3">
-                    <File Id="FLECK.DLL" Name="Fleck.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Fleck.dll" />
-                </Component>
-                <Component Id="INPUTSIMULATOR.DLL" DiskId="1" Guid="168C0403-CC65-49E7-810E-F4E6A63CC9F6">
-                    <File Id="INPUTSIMULATOR.DLL" Name="InputSimulator.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\InputSimulator.dll" />
-                </Component>
-                <Component Id="KINECTINTERACTION170_32.DLL" DiskId="1" Guid="1735AD21-2948-4B8B-86EF-C902122AD773">
-                    <File Id="KINECTINTERACTION170_32.DLL" Name="KinectInteraction170_32.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_32.dll" />
-                </Component>
-                <Component Id="KINECTINTERACTION170_64.DLL" DiskId="1" Guid="27E326A0-D1C2-4947-B46F-AFE9528575A6">
-                    <File Id="KINECTINTERACTION170_64.DLL" Name="KinectInteraction170_64.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_64.dll" />
-                </Component>
-                <Component Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" DiskId="1" Guid="C154930C-2D02-42A7-A508-D33A5C6038FD">
-                    <File Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" Name="Microsoft.Kinect.Toolkit.Controls.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Controls.dll" />
-                </Component>
-                <Component Id="MICROSOFT.KINECT.TOOLKIT.DLL" DiskId="1" Guid="46FE8879-0930-4252-A06A-1625CA0E6832">
-                    <File Id="MICROSOFT.KINECT.TOOLKIT.DLL" Name="Microsoft.Kinect.Toolkit.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.dll" />
-                </Component>
-                <Component Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" DiskId="1" Guid="C101B010-A4C7-491A-96A7-7494A8376666">
-                    <File Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" Name="Microsoft.Kinect.Toolkit.Interaction.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Interaction.dll" />
-                </Component>
-                <Component Id="NEWTONSOFT.JSON.DLL" DiskId="1" Guid="D6A7DD73-3F32-484C-AA3D-4B0B1F85C8AA">
-                    <File Id="NEWTONSOFT.JSON.DLL" Name="Newtonsoft.Json.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
-                </Component>
-                <Component Id="NLOG.CONFIG" DiskId="1" Guid="D4BB2380-81A9-4B3F-9C98-62179DA7D15A">
-                    <File Id="NLOG.CONFIG" Name="NLog.config" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.config" />
-                </Component>
-                <Component Id="NLOG.DLL" DiskId="1" Guid="90D2C3AF-39C9-4712-887C-330D25E920CF">
-                    <File Id="NLOG.DLL" Name="NLog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.dll" />
-                </Component>
-
-              <Component Id="ADMOCERTMANAGER" DiskId="1" Guid="20CD5EB9-A70E-42C8-B5C8-82B602419818">
-                <File Id="ADMOCERTMANAGER" Name="AdmoCertificateManager.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoCertificateManager.exe" />
-              </Component>
-              <Component Id="BUNDLEP12" DiskId="1" Guid="ABF68A0A-58BA-45FD-B192-3882019D4128">
-                <File Id="BUNDLEP12" Name="Bundle.p12" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\bundle.p12" />
-              </Component>
-                      <Component Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" DiskId="1" Guid="19937F7C-F215-45E1-B52A-E7124A41D845" >
-                  <File Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" Name="AdmoInstallerCustomAction.CA.dll" Source="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
-                </Component>
-
-              <Component Id="BACKGROUNDREMOVAL32DLL" DiskId="1" Guid="FABFC0E1-A984-49F0-97FE-4E12D00467A0">
-                <File Id="BACKGROUNDREMOVAL32DLL" Name="KinectBackgroundRemoval180_32.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_32.dll" />
-              </Component>
-              <Component Id="BACKGROUNDREMOVAL64DLL" DiskId="1" Guid="3B3CA4FC-E9D1-4A05-AF2A-BFA1BCC62FB0">
-                <File Id="BACKGROUNDREMOVAL64DLL" Name="KinectBackgroundRemoval180_64.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_64.dll" />
-              </Component>
-              <Component Id="BACKGROUNDREMOVALDLL" DiskId="1" Guid="3C913D97-CA04-4E0C-9D52-96D8C94446FD">
-                <File Id="BACKGROUNDREMOVALDLL" Name="Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" />
-              </Component>
-              <Component Id="ADMOSHAREDDLL" DiskId="1" Guid="C3DDE65C-9643-44E3-AE42-DA8417BD6772">
-                <File Id="ADMOSHAREDDLL" Name="AdmoShared.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoShared.dll" />
-              </Component>
-
-              <Component Id="OPENCVNEDDLL" DiskId="1" Guid="9073BDE5-1FA3-4A99-9E29-3DD2379FC685">
-                <File Id="OPENCVNEDDLL" Name="OpenCV.Net.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.dll" />
-              </Component>
-      
-              <Component Id="OPENCVCALIB" DiskId="1" Guid="40D00F97-27F4-4F8A-9D7B-2C751364924E">
-                <File Id="OPENCVCALIB" Name="opencv_calib3d246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_calib3d246.dll" />
-              </Component>
-              <Component Id="OPENCVCORE" DiskId="1" Guid="8C583B18-BA7A-4409-87FB-579EF5E11A32">
-                <File Id="OPENCVCORE" Name="opencv_core246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_core246.dll" />
-              </Component>
+    <CustomAction Id="GetPcSpecs"
+                  Return="check"
+                  Execute="immediate"
+                  BinaryKey="AdmoInstallerCustomAction.CA.dll"
+                  DllEntry="GetPcSpecs"
+                  Impersonate="yes" />
 
 
-              <Component Id="OPENCVGUI" DiskId="1" Guid="C63CF7F9-CC3D-48F4-9288-C08076B89705">
-                <File Id="OPENCVGUI" Name="opencv_highgui246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_highgui246.dll" />
-              </Component>
-              <Component Id="OPENCVIMPROC" DiskId="1" Guid="C175C76F-E406-422A-B24B-2F2B7CB0FDF1">
-                <File Id="OPENCVIMPROC" Name="opencv_imgproc246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_imgproc246.dll" />
-              </Component>
+    <CustomAction Id="DownloadRuntime"
+                  Return="check"
+                  Execute="deferred"
+                  BinaryKey="AdmoInstallerCustomAction.CA.dll"
+                  DllEntry="DownLoadRuntime"
+                  Impersonate="no" />
+    <CustomAction Id="NewerVersion" Error="A later version of Admo is already installed." />
 
-              <Component Id="OPENCVOBJDETECT" DiskId="1" Guid="A534DDB8-7FF0-466E-9425-756C46F13188">
-                <File Id="OPENCVOBJDETECT" Name="opencv_objdetect246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_objdetect246.dll" />
-              </Component>
-              <Component Id="OPENCVPHOTO" DiskId="1" Guid="C0FEC80D-74D1-4668-87C2-89796032CCB1">
-                <File Id="OPENCVPHOTO" Name="opencv_photo246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_photo246.dll" />
-              </Component>
 
-              <Component Id="OPENCVVIDEO" DiskId="1" Guid="CB1441A9-8A7B-44C6-B41B-F55B68E99988">
-                <File Id="OPENCVVIDEO" Name="opencv_video246.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_video246.dll" />
-              </Component>
-              
-              <Directory Id="ResourceLoc" Name="resources">
-                <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA" >
-                  <File Id="LOADING.HTML" Name="Loading.html" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\Loading.html" />
-                </Component>
-                <Component Id="DEFAULT.POD.ZIP" DiskId="1" Guid="272348B4-C6A4-4B3C-B193-4D9A17A0EBC9" >
-                  <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
-                </Component>
-        
-                
-                
-              
-              </Directory>
-            </Directory>
-            <Directory Id="DesktopFolder" />
-            <Directory Id="ProgramMenuFolder">
-                <Directory Id="ProgramMenuDir" Name="Admo">
-                    <Component Id="StartMenuShortcuts" Guid="3885D3BF-3C83-4BC1-B10E-2A2B9AA3FBDB">
-                        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
-                        <Shortcut Id="UninstallProduct" Name="Uninstall" Description="Uninstalls the application" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
-                        <util:InternetShortcut Id="WebsiteShortcut" Name="Find out more" Target="http://www.admoexperience.com/" /> 
-                    </Component>
-                </Directory>
-            </Directory>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles" />
+      <Directory Id="AdmoInstallLoc" Name="Admo">
+        <Component Id="ADMO.EXE" DiskId="1" Guid="EDDBC1EC-D9F9-40BA-ABDF-1AD74E89CDB1">
+          <File Id="ADMO.EXE" Name="Admo.exe" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe">
+            <Shortcut Id="desktopShortcut" Directory="DesktopFolder" Name="Admo" WorkingDirectory="INSTALLDIR"
+                      Advertise="yes" Icon="DesktopIcon.exe" IconIndex="0" />
+            <Shortcut Id="ExeShortcut" Directory="ProgramMenuDir" Name="Admo" Advertise="yes" Icon="StartMenuIcon.exe"
+                      IconIndex="0" />
+          </File>
+        </Component>
+        <Component Id="REMOVEFILES" Guid="FE53ACAD-9F4A-48DB-95F8-FCFBEE2B4E82">
+          <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
+        </Component>
+        <Component Id="NLOG.TARGETS.SYSLOG.DLL" DiskId="1" Guid="18BC8694-06E6-4516-9C4F-B46DD4053375">
+          <File Id="NLOG.TARGETS.SYSLOG.DLL" Name="NLOG.Targets.Syslog.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLOG.Targets.Syslog.dll" />
+        </Component>
+        <Component Id="ADMO.EXE.CONFIG" DiskId="1" Guid="DEC55158-C7D1-432E-8E7A-D0C3519FA8C8">
+          <File Id="ADMO.EXE.CONFIG" Name="Admo.exe.config"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe.config" />
+        </Component>
+        <Component Id="FLECK.DLL" DiskId="1" Guid="25659CED-846A-4DF0-B28D-AE53E303D8C3">
+          <File Id="FLECK.DLL" Name="Fleck.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Fleck.dll" />
+        </Component>
+        <Component Id="INPUTSIMULATOR.DLL" DiskId="1" Guid="168C0403-CC65-49E7-810E-F4E6A63CC9F6">
+          <File Id="INPUTSIMULATOR.DLL" Name="InputSimulator.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\InputSimulator.dll" />
+        </Component>
+        <Component Id="KINECTINTERACTION170_32.DLL" DiskId="1" Guid="1735AD21-2948-4B8B-86EF-C902122AD773">
+          <File Id="KINECTINTERACTION170_32.DLL" Name="KinectInteraction170_32.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_32.dll" />
+        </Component>
+        <Component Id="KINECTINTERACTION170_64.DLL" DiskId="1" Guid="27E326A0-D1C2-4947-B46F-AFE9528575A6">
+          <File Id="KINECTINTERACTION170_64.DLL" Name="KinectInteraction170_64.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectInteraction170_64.dll" />
+        </Component>
+        <Component Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" DiskId="1" Guid="C154930C-2D02-42A7-A508-D33A5C6038FD">
+          <File Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" Name="Microsoft.Kinect.Toolkit.Controls.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Controls.dll" />
+        </Component>
+        <Component Id="MICROSOFT.KINECT.TOOLKIT.DLL" DiskId="1" Guid="46FE8879-0930-4252-A06A-1625CA0E6832">
+          <File Id="MICROSOFT.KINECT.TOOLKIT.DLL" Name="Microsoft.Kinect.Toolkit.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.dll" />
+        </Component>
+        <Component Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" DiskId="1" Guid="C101B010-A4C7-491A-96A7-7494A8376666">
+          <File Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" Name="Microsoft.Kinect.Toolkit.Interaction.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.Interaction.dll" />
+        </Component>
+        <Component Id="NEWTONSOFT.JSON.DLL" DiskId="1" Guid="D6A7DD73-3F32-484C-AA3D-4B0B1F85C8AA">
+          <File Id="NEWTONSOFT.JSON.DLL" Name="Newtonsoft.Json.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
+        </Component>
+        <Component Id="NLOG.CONFIG" DiskId="1" Guid="D4BB2380-81A9-4B3F-9C98-62179DA7D15A">
+          <File Id="NLOG.CONFIG" Name="NLog.config"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.config" />
+        </Component>
+        <Component Id="NLOG.DLL" DiskId="1" Guid="90D2C3AF-39C9-4712-887C-330D25E920CF">
+          <File Id="NLOG.DLL" Name="NLog.dll" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\NLog.dll" />
+        </Component>
+
+        <Component Id="ADMOCERTMANAGER" DiskId="1" Guid="20CD5EB9-A70E-42C8-B5C8-82B602419818">
+          <File Id="ADMOCERTMANAGER" Name="AdmoCertificateManager.exe"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoCertificateManager.exe" />
+        </Component>
+        <Component Id="BUNDLEP12" DiskId="1" Guid="ABF68A0A-58BA-45FD-B192-3882019D4128">
+          <File Id="BUNDLEP12" Name="Bundle.p12" Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\bundle.p12" />
+        </Component>
+        <Component Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" DiskId="1" Guid="19937F7C-F215-45E1-B52A-E7124A41D845">
+          <File Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" Name="AdmoInstallerCustomAction.CA.dll"
+                Source="$(var.SolutionDir)\AdmoInstallerCustomAction\bin\$(var.Configuration)\AdmoInstallerCustomAction.CA.dll" />
+        </Component>
+
+        <Component Id="BACKGROUNDREMOVAL32DLL" DiskId="1" Guid="FABFC0E1-A984-49F0-97FE-4E12D00467A0">
+          <File Id="BACKGROUNDREMOVAL32DLL" Name="KinectBackgroundRemoval180_32.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_32.dll" />
+        </Component>
+        <Component Id="BACKGROUNDREMOVAL64DLL" DiskId="1" Guid="3B3CA4FC-E9D1-4A05-AF2A-BFA1BCC62FB0">
+          <File Id="BACKGROUNDREMOVAL64DLL" Name="KinectBackgroundRemoval180_64.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\KinectBackgroundRemoval180_64.dll" />
+        </Component>
+        <Component Id="BACKGROUNDREMOVALDLL" DiskId="1" Guid="3C913D97-CA04-4E0C-9D52-96D8C94446FD">
+          <File Id="BACKGROUNDREMOVALDLL" Name="Microsoft.Kinect.Toolkit.BackgroundRemoval.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Microsoft.Kinect.Toolkit.BackgroundRemoval.dll" />
+        </Component>
+        <Component Id="ADMOSHAREDDLL" DiskId="1" Guid="C3DDE65C-9643-44E3-AE42-DA8417BD6772">
+          <File Id="ADMOSHAREDDLL" Name="AdmoShared.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\AdmoShared.dll" />
+        </Component>
+<!--
+Removed as part of installer clean up 
+        <Component Id="OPENCVNEDDLL" DiskId="1" Guid="9073BDE5-1FA3-4A99-9E29-3DD2379FC685">
+          <File Id="OPENCVNEDDLL" Name="OpenCV.Net.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\OpenCV.Net.dll" />
+        </Component>
+
+        <Component Id="OPENCVCALIB" DiskId="1" Guid="40D00F97-27F4-4F8A-9D7B-2C751364924E">
+          <File Id="OPENCVCALIB" Name="opencv_calib3d246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_calib3d246.dll" />
+        </Component>
+        <Component Id="OPENCVCORE" DiskId="1" Guid="8C583B18-BA7A-4409-87FB-579EF5E11A32">
+          <File Id="OPENCVCORE" Name="opencv_core246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_core246.dll" />
+        </Component>
+
+
+        <Component Id="OPENCVGUI" DiskId="1" Guid="C63CF7F9-CC3D-48F4-9288-C08076B89705">
+          <File Id="OPENCVGUI" Name="opencv_highgui246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_highgui246.dll" />
+        </Component>
+        <Component Id="OPENCVIMPROC" DiskId="1" Guid="C175C76F-E406-422A-B24B-2F2B7CB0FDF1">
+          <File Id="OPENCVIMPROC" Name="opencv_imgproc246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_imgproc246.dll" />
+        </Component>
+
+        <Component Id="OPENCVOBJDETECT" DiskId="1" Guid="A534DDB8-7FF0-466E-9425-756C46F13188">
+          <File Id="OPENCVOBJDETECT" Name="opencv_objdetect246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_objdetect246.dll" />
+        </Component>
+        <Component Id="OPENCVPHOTO" DiskId="1" Guid="C0FEC80D-74D1-4668-87C2-89796032CCB1">
+          <File Id="OPENCVPHOTO" Name="opencv_photo246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_photo246.dll" />
+        </Component>
+
+        <Component Id="OPENCVVIDEO" DiskId="1" Guid="CB1441A9-8A7B-44C6-B41B-F55B68E99988">
+          <File Id="OPENCVVIDEO" Name="opencv_video246.dll"
+                Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\opencv_video246.dll" />
+        </Component>
+        -->
+
+        <Directory Id="ResourceLoc" Name="resources">
+          <Component Id="LOADING.HTML" DiskId="1" Guid="ADB09B11-DE66-4102-974F-989EE624A9FA">
+            <File Id="LOADING.HTML" Name="Loading.html"
+                  Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\Loading.html" />
+          </Component>
+          <Component Id="DEFAULT.POD.ZIP" DiskId="1" Guid="272348B4-C6A4-4B3C-B193-4D9A17A0EBC9">
+            <File Id="DEFAULT.POD.ZIP" Name="default.pod.zip"
+                  Source="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\resources\default.pod.zip" />
+          </Component>
+
+
         </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" />
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ProgramMenuDir" Name="Admo">
+          <Component Id="StartMenuShortcuts" Guid="3885D3BF-3C83-4BC1-B10E-2A2B9AA3FBDB">
+            <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" />
+            <Shortcut Id="UninstallProduct" Name="Uninstall" Description="Uninstalls the application"
+                      Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+            <util:InternetShortcut Id="WebsiteShortcut" Name="Find out more" Target="http://www.admoexperience.com/" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
 
-      <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
-        <ComponentRef Id="ADMO.EXE" />
-        <ComponentRef Id="ADMO.EXE.CONFIG" />
-        <ComponentRef Id="FLECK.DLL" />
-        <ComponentRef Id="INPUTSIMULATOR.DLL" />
-        <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
-        <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
-        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
-        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
-        <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
-        <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
-        <ComponentRef Id="NLOG.CONFIG" />
-        <ComponentRef Id="NLOG.DLL" />
-        <ComponentRef Id="StartMenuShortcuts" />
-        <ComponentRef Id="RegistryEntries" />
-        <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
-        <ComponentRef Id="BUNDLEP12" />
-        <ComponentRef Id="ADMOCERTMANAGER" />
-        <ComponentRef Id="LOADING.HTML" />
-        <ComponentRef Id="DEFAULT.POD.ZIP" />
-        <ComponentRef Id="BACKGROUNDREMOVAL32DLL" />
-        <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />  
-        <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
-        <ComponentRef Id="BACKGROUNDREMOVALDLL" />
-        <ComponentRef Id="ADMOSHAREDDLL"/>
-        <ComponentRef Id="OPENCVCALIB" />
-        <ComponentRef Id="OPENCVNEDDLL" />
-        <ComponentRef Id="OPENCVCORE" />
-        <ComponentRef Id="OPENCVGUI" />
-        <ComponentRef Id="OPENCVIMPROC" />
-        <ComponentRef Id="OPENCVOBJDETECT" />
-        <ComponentRef Id="OPENCVPHOTO" />
-        <ComponentRef Id="OPENCVVIDEO" />
-        <ComponentRef Id="REMOVEFILES"/>
-      </Feature>      
-      <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
+    <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+      
+      <ComponentRef Id="REMOVEFILES" />
+      
+      <ComponentRef Id="ADMO.EXE" />
+      <ComponentRef Id="ADMO.EXE.CONFIG" />
+      <ComponentRef Id="FLECK.DLL" />
+      <ComponentRef Id="INPUTSIMULATOR.DLL" />
+      <ComponentRef Id="KINECTINTERACTION170_32.DLL" />
+      <ComponentRef Id="KINECTINTERACTION170_64.DLL" />
+      <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.CONTROLS.DLL" />
+      <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.DLL" />
+      <ComponentRef Id="MICROSOFT.KINECT.TOOLKIT.INTERACTION.DLL" />
+      <ComponentRef Id="NEWTONSOFT.JSON.DLL" />
+      <ComponentRef Id="NLOG.CONFIG" />
+      <ComponentRef Id="NLOG.DLL" />
+      <ComponentRef Id="StartMenuShortcuts" />
+      <ComponentRef Id="RegistryEntries" />
+      <ComponentRef Id="NLOG.TARGETS.SYSLOG.DLL" />
+      <ComponentRef Id="BUNDLEP12" />
+      <ComponentRef Id="ADMOCERTMANAGER" />
+      <ComponentRef Id="LOADING.HTML" />
+      <ComponentRef Id="DEFAULT.POD.ZIP" />
+      <ComponentRef Id="BACKGROUNDREMOVAL32DLL" />
+      <ComponentRef Id="ADMOINSTALLERCUSTOMACTION.CA.DLL" />
+      <ComponentRef Id="BACKGROUNDREMOVAL64DLL" />
+      <ComponentRef Id="BACKGROUNDREMOVALDLL" />
+      <ComponentRef Id="ADMOSHAREDDLL" />
+      <!--
+      Removing these until we require use of opencv code
+      <ComponentRef Id="OPENCVCALIB" />
+      <ComponentRef Id="OPENCVNEDDLL" />
+      <ComponentRef Id="OPENCVCORE" />
+      <ComponentRef Id="OPENCVGUI" />
+      <ComponentRef Id="OPENCVIMPROC" />
+      <ComponentRef Id="OPENCVOBJDETECT" />
+      <ComponentRef Id="OPENCVPHOTO" />
+      <ComponentRef Id="OPENCVVIDEO" /> -->
+      
+     
+    </Feature>
+    <!--<CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Admo."/>
   <InstallUISequence>
     <Custom Action="ExtraCustomActions" After="I"\\>NOT Installed</Custom>
   </InstallUISequence>-->
 
-        <PropertyRef Id="NETFRAMEWORK35" />
-        <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
-        <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
-        <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
+    <PropertyRef Id="NETFRAMEWORK35" />
+    <Condition Message="This application requires .NET Framework X.Y.">Installed OR NETFRAMEWORK35</Condition>
+    <Icon Id="DesktopIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
+    <Icon Id="StartMenuIcon.exe" SourceFile="$(var.SolutionDir)\Admo\bin\$(var.Configuration)\Admo.exe" />
 
-      
 
-        <UI>
+    <UI>
 
       <UIRef Id="WixUI_Minimal" />
 
-      <Publish Dialog="ExitDialog" 
-            Control="Finish" 
-            Event="DoAction" 
-            Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchApplication">
+        WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+      </Publish>
     </UI>
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Admo"   />
-      <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Admo" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
-                  
+
     <!-- Step 3: Include the custom action -->
     <Property Id="WixShellExecTarget" Value="[#ADMO.exe]" />
-    <CustomAction Id="LaunchApplication" 
-        FileKey="ADMO.EXE" 
-        ExeCommand  =""
-        Execute     ="immediate"
-        Impersonate ="yes"
-        Return      ="asyncNoWait" />
-     
-    </Product>
+    <CustomAction Id="LaunchApplication"
+                  FileKey="ADMO.EXE"
+                  ExeCommand=""
+                  Execute="immediate"
+                  Impersonate="yes"
+                  Return="asyncNoWait" />
+
+  </Product>
 </Wix>

@@ -36,19 +36,34 @@ namespace Admo.forms
             FovCropTop.Text = classes.Config.GetFovCropTop().ToString();
             FovCropLeft.Text = classes.Config.GetFovCropLeft().ToString();
             FovCropWidth.Text = classes.Config.GetFovCropWidth().ToString();
-            SilhouetteEnabled.Text = classes.Config.SilhouetteEnabled().ToString();
-
-
-            LoginBox.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(LoginBox_OnMouseLeftButtonDown), true);
+            SilhouetteEnabled.IsChecked = classes.Config.SilhouetteEnabled();
+            PublishButton.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PublishButton_OnMouseLeftButtonDown), true);
+            PodFle.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(PodFle_OnMouseLeftButtonDown), true);
 
         }
 
-        private void LoginBox_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void PodFle_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = ".pod.zip",
+                Filter = "Admo Pods (.pod.zip)|*.pod.zip"
+            };
 
+            // Show open file dialog box
+            var result = dlg.ShowDialog();
 
+            // Process open file dialog box results 
+            if (result == true)
+            {
+                // Open document 
+                WebServerPath.Text = dlg.FileName;
+            }
+        }
+
+        private void PublishButton_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
             var x = JsonHelper.ConvertToUnderScore(GetConfigObj());
-            //File.WriteAllText(Path.Combine(classes.Config.GetBaseConfigPath(), "configcache.json"),x);
             classes.Config.UpdateConfigCache(x);
         }
 
@@ -62,15 +77,9 @@ namespace Admo.forms
             Int32.TryParse(FovCropWidth.Text, out fovCropWidth);
             int kinectElevation;
             Int32.TryParse(KinectElevation.Text, out kinectElevation);
-            bool silhouetteEnabled;
-            Boolean.TryParse(SilhouetteEnabled.Text, out silhouetteEnabled);
-            string podFile = PodFle.Text.Replace("%APP_DATA%", System.Environment.SpecialFolder.LocalApplicationData.ToString());
-            if (!File.Exists(podFile))
-            {
-                var exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                var path = Path.GetDirectoryName(exeLocation);
-                podFile = Path.Combine(path, "resources", "default.pod.zip");
-            }
+
+            var silhouetteEnabled = SilhouetteEnabled.IsChecked == true;
+            var podFile = PodFle.Text;
 
             var config = new Api.Dto.Config()
             {
@@ -82,11 +91,11 @@ namespace Admo.forms
                 TransformSmoothingType = SmoothingType.Text,
                 SilhouetteEnabled = silhouetteEnabled,
                 PodFile = podFile,
-                WebServerBasePath = WebServerPath.Text.Replace("%APP_DATA%", System.Environment.SpecialFolder.LocalApplicationData.ToString()),
+                WebServerBasePath = WebServerPath.Text,
                 WebUiServer = WebUiServer.Text
             };
 
-            return new ConfigWrapper()
+            return new ConfigWrapper
             {
                 Config = config
             };
